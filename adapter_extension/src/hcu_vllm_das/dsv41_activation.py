@@ -67,7 +67,7 @@ def check_health() -> None:
             raise ExtensionCommitError(_failure)
         if _publication is None:
             raise Dsv41ActivationError("DSV4.1 routing registration is not active")
-        quant, config_class, register, resolve = _publication
+        quant, config_class, register, resolve, draft_state = _publication
         try:
             owned = (
                 quant.register_quantization_config is register
@@ -75,9 +75,13 @@ def check_health() -> None:
                 and QUANTIZATION_METHOD in quant.QUANTIZATION_METHODS
                 and resolve(QUANTIZATION_METHOD) is config_class
             )
+            if draft_state is not None:
+                from .dsv41_dspark_registration import check_registration
+
+                check_registration(draft_state)
         except BaseException as error:
             try:
-                _fatal("DSV4.1 public quantization selector is unavailable")
+                _fatal("DSV4.1 public registration is unavailable")
             except ExtensionCommitError as refusal:
                 raise refusal from error
         if not owned:
@@ -133,6 +137,14 @@ def activate_extension(context: ExtensionContext) -> None:
                 raise Dsv41ActivationError("public quantization registry contract changed")
             register = quant.register_quantization_config
             resolve = quant.get_quantization_config
+            draft_plan = None
+            if candidate._is_hcu():
+                from .dsv41_dspark_registration import prepare_registration
+
+                try:
+                    draft_plan = prepare_registration()
+                except RuntimeError as error:
+                    raise Dsv41ActivationError(str(error)) from error
             if QUANTIZATION_METHOD in quant.QUANTIZATION_METHODS:
                 if resolve(QUANTIZATION_METHOD) is not config_class:
                     raise Dsv41ActivationError(
@@ -148,7 +160,18 @@ def activate_extension(context: ExtensionContext) -> None:
                         _fatal("DSV4.1 public registration failed; use a fresh process")
                     except ExtensionCommitError as refusal:
                         raise refusal from error
-            _publication = (quant, config_class, register, resolve)
+            draft_state = None
+            if draft_plan is not None:
+                from .dsv41_dspark_registration import publish_registration
+
+                try:
+                    draft_state = publish_registration(draft_plan)
+                except BaseException as error:
+                    try:
+                        _fatal("DSV4.1 draft registration failed; use a fresh process")
+                    except ExtensionCommitError as refusal:
+                        raise refusal from error
+            _publication = (quant, config_class, register, resolve, draft_state)
         finally:
             _publishing = False
 
