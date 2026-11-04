@@ -137,7 +137,22 @@ class HcuDSV41ChannelFP8Config(DeepseekV4FP8Config):
         if isinstance(layer, LinearBase):
             if prefix.endswith(".wo_a"):
                 return UnquantizedLinearMethod()
-            return self._channel_config().get_quant_method(layer, prefix)
+            channel_config = self._channel_config()
+            method = channel_config.get_quant_method(layer, prefix)
+            from vllm.model_executor.layers.quantization.compressed_tensors.compressed_tensors import (
+                CompressedTensorsLinearMethod,
+            )
+            from vllm.model_executor.layers.quantization.compressed_tensors.schemes.compressed_tensors_w8a8_fp8 import (
+                CompressedTensorsW8A8Fp8,
+            )
+
+            if isinstance(method, CompressedTensorsLinearMethod) and isinstance(
+                layer.scheme, CompressedTensorsW8A8Fp8
+            ):
+                from .dsv41_channel_fp8_linear import HcuDSV41ChannelFP8LinearMethod
+
+                return HcuDSV41ChannelFP8LinearMethod(channel_config)
+            return method
         if isinstance(layer, RoutedExperts):
             return self._channel_config().get_quant_method(layer, prefix)
         return super().get_quant_method(layer, prefix)

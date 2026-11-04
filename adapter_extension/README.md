@@ -58,6 +58,18 @@ W4A8, PCP, DSpark, Graph, accuracy or performance. Those are separate migration
 gates. Requiring `dsv41-channel-fp8-routing` at startup proves activation only,
 not those execution properties. See the [routing contract and evidence](../docs/validation/dsv41-channel-fp8-routing.md).
 
+For the selected Channel-FP8 W8A8 Linear scheme, a Plugin-owned CT LinearMethod
+returns correctly shaped empty outputs before local quantization/GEMM. It
+retains CT weight creation/finalization and native nonempty execution, registers
+through the public weight-loader-v2 API, and leaves the surrounding Linear
+forward and collectives intact. Native `QuantizedActivation` is reused.
+The pinned v0.33 V41 target already resolves direct/inverse scale spellings;
+small CPU source replay verifies ordinary and fused projection loading without
+adding parameter aliases or changing that loader. Hardware admission,
+quantization and GEMM are doubled in that replay. DSpark draft scale aliases,
+actual checkpoint loading, distributed execution and GPU correctness remain
+unverified. See [target loading and empty-row validation](../docs/validation/dsv41-channel-fp8-loading.md).
+
 ## Compatibility
 
 - vLLM release line: `>=0.33.0,<0.34.0`; prerelease, postrelease,
