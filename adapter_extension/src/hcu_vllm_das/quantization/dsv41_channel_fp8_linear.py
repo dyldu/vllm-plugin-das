@@ -38,8 +38,28 @@ class HcuDSV41ChannelFP8LinearMethod(CompressedTensorsLinearMethod):
             raise RuntimeError("empty Channel-FP8 requires processed (K, N) weights")
         kernel = layer.scheme.fp8_linear
         weight = layer.weight
-        if weight.ndim != 2 or shape[-1] != weight.shape[0]:
-            raise ValueError("empty Channel-FP8 input K must match processed weights")
+        if (
+            weight.ndim != 2
+            or weight.shape[0] <= 0
+            or weight.shape[1] <= 0
+            or shape[-1] != weight.shape[0]
+        ):
+            raise ValueError("empty Channel-FP8 input K must match positive (K, N) weights")
+        from vllm.model_executor.layers.quantization.compressed_tensors.triton_scaled_mm import (
+            is_weak_contiguous,
+        )
+
+        if not is_weak_contiguous(weight):
+            raise ValueError("empty Channel-FP8 weight layout must be weak-contiguous")
+        weight_scale = layer.weight_scale
+        if (
+            not isinstance(weight_scale, torch.Tensor)
+            or weight_scale.device != weight.device
+            or not weight_scale.is_floating_point()
+            or tuple(weight_scale.shape)
+            not in ((), (1,), (1, 1), (weight.shape[1],), (weight.shape[1], 1))
+        ):
+            raise ValueError("empty Channel-FP8 weight scale must be scalar or per-channel")
         qa = as_quantized_activation(x, kernel.input_quant_key())
         data = x if qa is None else qa.data
         if data.device != weight.device:
@@ -66,7 +86,7 @@ class HcuDSV41ChannelFP8LinearMethod(CompressedTensorsLinearMethod):
             bias.ndim != 1
             or bias.shape[0] != weight.shape[1]
             or bias.device != data.device
-            or bias.dtype != out_dtype
+            or not bias.is_floating_point()
         ):
-            raise ValueError("empty Channel-FP8 bias must match output width/device/dtype")
+            raise ValueError("empty Channel-FP8 bias must match output width/device and float")
         return torch.empty((*shape[:-1], weight.shape[1]), dtype=out_dtype, device=data.device)

@@ -109,3 +109,29 @@ for gfx936 only; this change makes no gfx938 execution claim.
   `QuantizedActivation` replaces the old extra keyword argument.
 - No Core or Adapter source changes. DSpark draft naming/accounting remains for
   the next increment and is not fixed by target's existing resolver.
+
+## Follow-up contract review
+
+A late static review of local commit `09d188e` identified three local-contract
+risks before the follow-up implementation:
+
+- Empty input could bypass malformed weight scale shape/device/floating dtype.
+- Processed-layout metadata alone did not validate the weight's physical stride.
+- Requiring bias dtype to equal output dtype rejected a floating bias that the
+  native target Triton contract permits (`triton_scaled_mm.py:200-206`).
+
+The correction must validate positive weight dimensions, native weak-contiguous
+layout and scalar/channel floating scales, while keeping floating bias admission
+consistent with the native path. Use the existing native layout predicate;
+do not introduce a column-major-only restriction where native Triton also accepts
+row-major/leading-dimension-padded layouts. No Core class or registry changes are
+needed. The original fixed 25-case replay remains unchanged; no unit tests or
+assertions are appended after implementation. These additional malformed-weight
+and mixed-bias-dtype boundaries are reviewed against source, not presented as
+new runtime test coverage. Native GPU execution remains unverified.
+
+After the correction the unchanged replay passed **25/25**, with CUDA still
+uninitialized. Output is retained in `review-correction/report.json` and
+`review-correction/replay.log` under the evidence root above. AST parsing and
+diff checks passed. The 312/66 full-suite result above belongs to the preceding
+candidate; this small local-contract correction reran only the existing replay.
