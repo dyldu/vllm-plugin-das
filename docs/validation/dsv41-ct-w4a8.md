@@ -72,7 +72,78 @@ Evidence root is `tests/vllm033/.cache/ct-w4a8/`. JSON records revisions, source
 hashes, each case and `cuda_initialized=false`; stdout is retained alongside it.
 The HIPC packer/view are CPU doubles. This proves raw CT conversion, ownership
 and loader contracts, not the vendor's native permutation or GPU numerics.
-The module is not yet selected by a model: public routing and execution follow
-in the next functional slice. No Core or Adapter source changed. No GPU,
-service, container creation, installation, kernel compilation or remote Git
-operation is part of this task.
+At the first slice the module was not selected by a model; public routing and
+execution are connected by the second slice below. No Core or Adapter source
+changed. No GPU, service, container creation, installation, kernel compilation
+or remote Git operation is part of this task.
+
+## Execution stage
+
+The distinct public quantization name is `hcu_dsv41_ct_w4a8`, registered by the
+`das_hcu_ct_w4a8` Adapter extension (capability `dsv41-ct-w4a8`). Selection is
+limited to HCU, V41 and pack-quantized symmetric channel-W4/dynamic-token-INT8
+schemas. The native CT parser/mapper/ordinary layers remain inherited; only
+matched RoutedExperts get the owned method. No official CT registration,
+oracle, factory or class method is rebound, and no legacy `vllm_hcu` import is
+introduced. The existing package-boundary test's expected entry dictionary was
+synchronized before implementation; no pytest cases/assertions were added.
+
+HT inherits native construction, dispatch and finalize. Its public async
+prepare delegates transport with deferred quantization, then applies native
+per-token INT8 quantization, avoiding the original hardcoded per-tensor path.
+LL inherits native construction and finalize, with owned public prepare calling
+the verified vendor ABI using actual routing weights, `quant_type=1`,
+`quant_group_size=0`, and the native recv hook/handle. INT8 receive layout,
+capacity, counts and scales are checked. Router weights are applied once.
+
+Owned contiguous/masked experts use the native modular ABC, workspaces and
+permutation/reduction interfaces, then HIPC GEMM plus LightOp SiLU/clamp
+quantization. The CT scale-domain compensation occurs once in the weight
+owner; checkpoint scale Parameters are unchanged. Repacking is guarded and
+reload is rejected. The provider/communication construction is checked before
+destructive conversion; native execution errors propagate without fallback.
+
+The fixed pre-implementation execution replay failed **0/7 passed** for the
+missing implementation (`execution-red/`). The first implementation run passed
+5/7; its MoE fixture lacked native non-SiTU activation fields. Those two fields
+were added without changing cases or expected outcomes. The final replay passed
+**7/7** (`execution-reviewed/`), including actual public ModelConfig selection and
+actual FusedMoEKernel HT/LL execution, with exact BF16 results against an
+independent CPU reference. Empty inputs retain communication calls. Tests also
+cover DP1/4/8/16 admission through invariants and reject inconsistent structure,
+capacity and graph buckets. The old CT selector/oracle identities remain intact.
+
+The unchanged portable suite (apart from the pre-implementation packaging entry
+expectation) passed **312 tests, 66 skipped, 14 warnings in 187.09 seconds**.
+Logs/JUnit are `regression.log` and `regression.xml` under the same evidence
+root. Final AST, shell syntax and diff checks passed. Reproduce execution with:
+
+```bash
+VLLM_TEST_PYTHON=/path/to/python3.12 \
+  bash tests/vllm033/run_ct_w4a8_cpu.sh /path/to/output execution
+```
+
+## Acceptance boundaries
+
+- All evidence above is CPU source integration. EP buffers/transport, native
+  quantizer, HIPC pack/view/GEMMs, LightOp operations and permutation are doubles
+  in the execution replay; native constructors/finalizers and actual modular
+  kernel orchestration are exercised. The tiny H=512 fixture explicitly doubles
+  LL hidden-size admission; production keeps the native supported sizes and
+  rejects implicit padding. No actual vendor device permutation, GPU numerics,
+  routing progress, Graph replay, model accuracy, performance or gfx938 runtime
+  result is claimed. The exact-reference fixture uses unclamped SiLU; clamp
+  limits are forwarded to the legacy-compatible provider API but clamp numerics
+  are not established by this replay.
+- Native buffer constructor/sizing and LL dispatch/combine signatures were read
+  from the installed vendor Python sources without importing GPU libraries.
+  Actual EP manager/buffer construction remains a device/distributed gate.
+- This initial route supports fixed DeepEP HT/LL target experts. Draft AG-RS,
+  DSpark DP ownership/capacity, Elastic EP, LoRA and EPLB are not enabled here.
+  PCP>1 requires eager; DP width is not whitelisted and must match the actual
+  EP/PCP group, expert allocation and scheduler/graph capacity.
+- Capability activation proves public registration, not provider or model
+  acceptance. Providers are resolved and checked when a matching method is
+  constructed. ABI/packing failures do not silently select another backend.
+- Core and Adapter are unchanged and no README was edited. All commits remain
+  local; the retained old package is not activated or packaged by this route.
