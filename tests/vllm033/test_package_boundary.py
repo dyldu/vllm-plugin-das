@@ -30,6 +30,7 @@ def test_project_metadata_has_only_the_adapter_extension_entry_point() -> None:
             "das_hcu_flash": "hcu_vllm_das.flash_activation:extension_spec",
             "das_hcu_dsv41": "hcu_vllm_das.dsv41_activation:extension_spec",
             "das_hcu_ct_w4a8": "hcu_vllm_das.ct_w4a8_activation:extension_spec",
+            "das_hcu_mhc": "hcu_vllm_das.mhc_activation:extension_spec",
         }
     }
     assert "vllm.platform_plugins" not in metadata["entry-points"]
