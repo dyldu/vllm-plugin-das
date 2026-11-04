@@ -1,0 +1,96 @@
+# SPDX-License-Identifier: Apache-2.0
+"""Bounded native constructor namespaces for the HCU V41 PCP model.
+
+Core has no decoder factory: its constructors resolve three hard-coded global
+names. Reuse the exact reviewed code with private globals containing only those
+name substitutions, preserving defaults/signatures/closures. This avoids copying
+parameter lists or temporarily changing process-global Core symbols. Forward,
+checkpoint loading and runner model-state methods stay native.
+"""
+from __future__ import annotations
+
+import hashlib
+import inspect
+from types import FunctionType
+
+from vllm.models.deepseek_v41.amd import model as native
+from vllm.models.deepseek_v41.amd import vl_model as native_vl
+from ..v41_pcp import HcuV41PcpAttention, validate_config
+
+_DECODER_NATIVE = native.DeepseekV4DecoderLayer.__init__
+_BACKBONE_NATIVE = native.DeepseekV4Model.__init__
+_OUTER_NATIVE = native_vl.DeepseekV41ForCausalLM.__init__
+_REVIEWED = (
+    '919c98099d1ba3e443ea5a5c5569e6bd407caf52c40945fb792e9b4e85a13a86',
+    'b804d0bd4d325397b0df3a094f47456a715b2d431cb06d2c7a06c6bc8332681b',
+    '41b21ccf6dc5d66c98082650c8e046b977f0e61dce927aab890e23e508bab434',
+)
+
+
+def _constructor(function, expected_hash, substitutions):
+    actual = hashlib.sha256(inspect.getsource(function).encode()).hexdigest()
+    if actual != expected_hash:
+        raise RuntimeError(f'HCU V41 PCP constructor source changed: {function.__qualname__}: {actual}')
+    if not substitutions or any(name not in function.__globals__ for name in substitutions):
+        raise RuntimeError('HCU V41 PCP constructor class-name anchor missing')
+    namespace = dict(function.__globals__)
+    namespace.update(substitutions)
+    clone = FunctionType(function.__code__, namespace, function.__name__,
+                         function.__defaults__, function.__closure__)
+    clone.__kwdefaults__ = function.__kwdefaults__
+    clone.__annotations__ = function.__annotations__
+    clone.__qualname__ = function.__qualname__
+    return clone
+
+
+def check_native_contract():
+    if (native.DeepseekV4DecoderLayer.__init__ is not _DECODER_NATIVE
+            or native.DeepseekV4Model.__init__ is not _BACKBONE_NATIVE
+            or native_vl.DeepseekV41ForCausalLM.__init__ is not _OUTER_NATIVE):
+        raise RuntimeError('HCU V41 PCP native constructors changed after preparation')
+
+
+def select_attention(cfg):
+    if not validate_config(cfg):
+        return native._select_dsv4_attn_cls(cfg)
+    return HcuV41PcpAttention
+
+
+_DECODER_INIT = _constructor(_DECODER_NATIVE, _REVIEWED[0],
+                             {'_select_dsv4_attn_cls': select_attention})
+
+
+class HcuV41PcpDecoderLayer(native.DeepseekV4DecoderLayer):
+    __init__ = _DECODER_INIT
+
+
+_BACKBONE_INIT = _constructor(_BACKBONE_NATIVE, _REVIEWED[1],
+                              {'DeepseekV4DecoderLayer': HcuV41PcpDecoderLayer})
+
+
+class HcuV41PcpBackbone(native.DeepseekV4Model):
+    def __init__(self, *, vllm_config, prefix=''):
+        if validate_config(vllm_config):
+            _BACKBONE_INIT(self, vllm_config=vllm_config, prefix=prefix)
+        else:
+            super().__init__(vllm_config=vllm_config, prefix=prefix)
+
+
+class HcuV41PcpLLM(native.DeepseekV41LLMForCausalLM):
+    model_cls = HcuV41PcpBackbone
+
+
+_OUTER_INIT = _constructor(_OUTER_NATIVE, _REVIEWED[2],
+                           {'DeepseekV41LLMForCausalLM': HcuV41PcpLLM})
+
+
+class HcuV41PcpForCausalLM(native_vl.DeepseekV41ForCausalLM):
+    def __init__(self, *, vllm_config, prefix=''):
+        from ..v41_pcp_activation import check_health
+        check_health()
+        check_native_contract()
+        if validate_config(vllm_config):
+            _OUTER_INIT(self, vllm_config=vllm_config, prefix=prefix)
+        else:
+            # Enabling the extension does not change the PCP1 construction.
+            super().__init__(vllm_config=vllm_config, prefix=prefix)
