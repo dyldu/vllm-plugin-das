@@ -1,0 +1,141 @@
+# SPDX-License-Identifier: Apache-2.0
+"""Framework-free discovery and public OOT publication of an opt-in indexer."""
+from __future__ import annotations
+
+import os
+from threading import RLock
+
+from hcu_adapter.extensions import ExtensionCommitError, ExtensionSpec
+
+from .dsv41_activation import _require_release
+from .environment import _flag
+
+_state = None
+_failure = None
+_publishing = False
+_lock = RLock()
+_FLAG = 'VLLM_HCU_DSV41_FP8_INDEXER_REFERENCE'
+_FACTOR = 'VLLM_HCU_DAS_V41_INDEXER_REFERENCE'
+
+
+def _fork():
+    global _lock, _failure
+    _lock = RLock()
+    if _publishing and _failure is None:
+        _failure = 'fork inherited incomplete V41 indexer publication'
+
+
+if hasattr(os, 'register_at_fork'):
+    os.register_at_fork(after_in_child=_fork)
+
+
+def _is_hcu():
+    from vllm.platforms import current_platform
+    return current_platform.is_rocm() and current_platform.device_name == 'hcu'
+
+
+def policy_factor():
+    return _state['enabled'] if _state is not None else _flag(_FLAG, default=False)
+
+
+def _fatal(message):
+    global _failure
+    if _failure is None:
+        _failure = message
+    raise ExtensionCommitError(_failure)
+
+
+def check_health():
+    with _lock:
+        if _failure is not None:
+            raise ExtensionCommitError(_failure)
+        if _state is None:
+            if not _is_hcu():
+                return
+            raise RuntimeError('V41 reference indexer is not active')
+        from vllm import envs
+        from vllm.model_executor import custom_op
+        try:
+            valid = (
+                _flag(_FLAG, default=False) == _state['enabled']
+                and custom_op.op_registry_oot is _state['registry']
+                and custom_op.op_registry_oot.get('SparseAttnIndexer') is _state['class']
+                and envs.environment_variables.get(_FACTOR) is policy_factor
+                and _state['native'].forward_hip is _state['forward']
+                and _state['class'].name == _state['native'].name
+            )
+            if not valid:
+                _fatal('V41 indexer ownership/policy changed; restart process')
+        except ExtensionCommitError:
+            raise
+        except BaseException as error:
+            try:
+                _fatal('V41 indexer public health is unavailable')
+            except ExtensionCommitError as refusal:
+                raise refusal from error
+
+
+def activate_extension(context):
+    global _state, _publishing
+    with _lock:
+        if _failure is not None:
+            raise ExtensionCommitError(_failure)
+        if _publishing:
+            _fatal('recursive V41 indexer activation')
+        if _state is not None:
+            try:
+                _require_release(context.vllm_version)
+                check_health()
+            except BaseException as error:
+                try:
+                    _fatal('V41 indexer contract changed after publication')
+                except ExtensionCommitError as refusal:
+                    raise refusal from error
+            return
+        _require_release(context.vllm_version)
+        if not _is_hcu():
+            return
+        selected = _flag(_FLAG, default=False)
+        _publishing = True
+        try:
+            from vllm import envs
+            from vllm.model_executor import custom_op
+            from .v41_indexer import HcuV41SparseAttnIndexer, SparseAttnIndexer, register_op
+        except BaseException as error:
+            try:
+                _fatal('V41 indexer native preparation failed; restart process')
+            except ExtensionCommitError as refusal:
+                raise refusal from error
+        finally:
+            _publishing = False
+        registry = custom_op.op_registry_oot
+        if registry.get('SparseAttnIndexer') not in (None, HcuV41SparseAttnIndexer):
+            raise RuntimeError('V41 reference indexer has a foreign OOT owner')
+        if envs.environment_variables.get(_FACTOR) not in (None, policy_factor):
+            raise RuntimeError('V41 reference indexer compile factor has a foreign owner')
+        _publishing = True
+        try:
+            register_op()
+            envs.environment_variables[_FACTOR] = policy_factor
+            if 'SparseAttnIndexer' not in registry:
+                SparseAttnIndexer.register_oot()(HcuV41SparseAttnIndexer)
+            # The public OOT key is the class name; the compilation switch is
+            # the original lower-case op name. Preserve the latter for users.
+            HcuV41SparseAttnIndexer.name = SparseAttnIndexer.name
+            _state = dict(enabled=selected, registry=registry, **{
+                'class': HcuV41SparseAttnIndexer, 'native': SparseAttnIndexer,
+                'forward': SparseAttnIndexer.forward_hip})
+            check_health()
+        except BaseException as error:
+            try:
+                _fatal('V41 indexer publication failed; restart process')
+            except ExtensionCommitError as refusal:
+                raise refusal from error
+        finally:
+            _publishing = False
+
+
+def extension_spec():
+    return ExtensionSpec(name='das-hcu-v41-indexer', api_version=1, priority=115,
+        capabilities=frozenset({'hcu-v41-fp8-indexer-eager-reference'}),
+        activate=activate_extension, check_health=check_health)
