@@ -27,7 +27,7 @@ def validate_config(cfg) -> bool:
 
     Width is unconstrained. PP/DP/DCP=1 follows the native V41 PCP contract;
     speculative decoding needs a larger CR2 ring contract than Core provides.
-    Engram must be adapted at construction time in its own follow-up stage.
+    Engram uses the owned private registered-host TPxPCP table adapter.
     """
     p = cfg.parallel_config
     if p.prefill_context_parallel_size == 1:
@@ -57,7 +57,14 @@ def validate_config(cfg) -> bool:
     if cfg.cache_config.swa_bounded_replay:
         errors.append('SWA bounded replay is not implemented by AMD PCP attention')
     if getattr(cfg.model_config.hf_config, 'engram_layer_ids', None):
-        errors.append('Engram PCP table/hash construction requires its separate adapter')
+        from .v41_engram import validate_engram_config
+        if not hasattr(cfg, 'engram_config'):
+            errors.append('HCU PCP Engram requires resolved Engram config')
+        else:
+            try:
+                validate_engram_config(cfg)
+            except ValueError as error:
+                errors.append(str(error))
     if (cfg.attention_config.resolve_indexer_kv_dtype('fp8') != 'fp8'
             or cfg.attention_config.indexer_sparse_logits):
         errors.append('source-owned FP8 indexer with dense logits required')

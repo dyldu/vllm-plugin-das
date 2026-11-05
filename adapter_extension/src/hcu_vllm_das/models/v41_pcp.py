@@ -16,6 +16,7 @@ from types import FunctionType
 from vllm.models.deepseek_v41.amd import model as native
 from vllm.models.deepseek_v41.amd import vl_model as native_vl
 from ..v41_pcp import HcuV41PcpAttention, validate_config
+from ..v41_engram import HcuV41PcpEngram
 
 _DECODER_NATIVE = native.DeepseekV4DecoderLayer.__init__
 _BACKBONE_NATIVE = native.DeepseekV4Model.__init__
@@ -57,7 +58,8 @@ def select_attention(cfg):
 
 
 _DECODER_INIT = _constructor(_DECODER_NATIVE, _REVIEWED[0],
-                             {'_select_dsv4_attn_cls': select_attention})
+                             {'_select_dsv4_attn_cls': select_attention,
+                              'Engram': HcuV41PcpEngram})
 
 
 class HcuV41PcpDecoderLayer(native.DeepseekV4DecoderLayer):

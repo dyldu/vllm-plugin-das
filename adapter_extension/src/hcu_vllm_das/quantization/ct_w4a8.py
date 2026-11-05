@@ -85,6 +85,11 @@ class HcuDSV41CTW4A8Config(CompressedTensorsConfig):
             if isinstance(layer,LinearBase) and isinstance(method,CompressedTensorsLinearMethod) and isinstance(layer.scheme,CompressedTensorsW8A8Fp8):
                 from .dsv41_channel_fp8_linear import HcuDSV41ChannelFP8LinearMethod
                 return HcuDSV41ChannelFP8LinearMethod(self)
+            if isinstance(layer,LinearBase) and type(method) is CompressedTensorsLinearMethod:
+                from vllm.model_executor.layers.quantization.compressed_tensors.schemes.compressed_tensors_w8a8_int8 import CompressedTensorsW8A8Int8
+                if type(layer.scheme) is CompressedTensorsW8A8Int8:
+                    from .dsv41_int8_linear import HcuDSV41Int8LinearMethod
+                    return HcuDSV41Int8LinearMethod(self)
             return method
         # Update only this owned config's public parsed map, mirroring native
         # Linear target expansion without replacing a selector or calling its CPU constructor.
