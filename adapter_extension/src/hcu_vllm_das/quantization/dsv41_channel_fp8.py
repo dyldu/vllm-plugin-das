@@ -154,5 +154,44 @@ class HcuDSV41ChannelFP8Config(DeepseekV4FP8Config):
                 return HcuDSV41ChannelFP8LinearMethod(channel_config)
             return method
         if isinstance(layer, RoutedExperts):
-            return self._channel_config().get_quant_method(layer, prefix)
+            channel_config = self._channel_config()
+            channel_config._add_fused_moe_to_target_scheme_map()
+            names = [
+                f"{prefix}.0.{projection}"
+                for projection in (
+                    layer.ckpt_gate_proj_name,
+                    layer.ckpt_up_proj_name,
+                    layer.ckpt_down_proj_name,
+                )
+            ]
+            schemes = [channel_config.get_scheme_dict(layer, name) for name in names]
+            if not all(scheme == schemes[0] for scheme in schemes):
+                raise ValueError("All Channel-FP8 MoE projections require one quantization scheme")
+            scheme = schemes[0]
+            if scheme is not None:
+                weight_quant = scheme.get("weights")
+                input_quant = scheme.get("input_activations")
+                if (
+                    weight_quant is not None
+                    and input_quant is not None
+                    and weight_quant.num_bits == 8
+                    and input_quant.num_bits == 8
+                    and weight_quant.strategy == "channel"
+                    and input_quant.strategy == "token"
+                    and weight_quant.type == "float"
+                    and input_quant.type == "float"
+                    and not weight_quant.dynamic
+                    and input_quant.dynamic
+                    and weight_quant.block_structure is None
+                ):
+                    from .channel_fp8_moe import HcuDSV41ChannelFP8MoEMethod
+
+                    return HcuDSV41ChannelFP8MoEMethod(
+                        weight_quant,
+                        input_quant,
+                        layer.moe_config,
+                        prefix,
+                    )
+            from vllm.model_executor.layers.quantization.compressed_tensors.compressed_tensors_moe import CompressedTensorsMoEMethod
+            return CompressedTensorsMoEMethod.get_moe_method(channel_config, layer, prefix)
         return super().get_quant_method(layer, prefix)
