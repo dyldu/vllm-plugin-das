@@ -45,10 +45,13 @@ def _require_abi(function,names):
     if not set(names)<=parameters.keys(): raise RuntimeError('HCU DeepEP provider ABI lacks '+','.join(names))
 
 
-def make_prepare(moe,descriptor,routing_tables):
+def make_prepare(moe,descriptor,routing_tables,config=None):
+    backend=moe.moe_parallel_config.all2all_backend
+    if backend=='allgather_reducescatter':
+        from hcu_vllm_das.dspark_agrs import make_draft_prepare
+        return make_draft_prepare(moe,config)
     native=native_make_prepare_finalize(moe=moe,quant_config=descriptor,routing_tables=routing_tables,
         allow_new_interface=True,use_monolithic=False,input_dtype=None)
-    backend=moe.moe_parallel_config.all2all_backend
     if backend=='deepep_low_latency' and not isinstance(native,DeepEPLLPrepareAndFinalize):
         raise RuntimeError('HCU W4A8 requested LL but native preparation chose another format')
     if backend=='deepep_high_throughput' and not isinstance(native,DeepEPHTPrepareAndFinalize):

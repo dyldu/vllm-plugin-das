@@ -59,7 +59,22 @@ def _alias(name):
 
 
 class HcuDSparkDeepseekV41ForCausalLM(NativeDSpark):
-    """Adapt only the distinct Channel-FP8 configuration's draft scale lookup."""
+    """Keep native draft construction/loading; own CT DP communication policy."""
+
+    def __init__(self, *, vllm_config, prefix=""):
+        from vllm.config import set_current_vllm_config
+        from hcu_vllm_das.quantization.ct_w4a8 import HcuDSV41CTW4A8Config
+        if (isinstance(vllm_config.quant_config, HcuDSV41CTW4A8Config)
+                and vllm_config.parallel_config.data_parallel_size > 1):
+            from hcu_vllm_das.dspark_agrs import draft_config
+            local = draft_config(vllm_config)
+            # Native draft decoder construction reads current_config as well as
+            # its explicit argument. Keep both references on the same private
+            # copy and retain native compiler live tables for layer discovery.
+            with set_current_vllm_config(local):
+                super().__init__(vllm_config=local, prefix=prefix)
+        else:
+            super().__init__(vllm_config=vllm_config, prefix=prefix)
 
     def _is_ct_scale(self, name, prefix):
         relative = name[len(prefix) + 1:] if prefix else name

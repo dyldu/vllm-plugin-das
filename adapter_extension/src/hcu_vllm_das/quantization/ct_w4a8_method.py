@@ -64,7 +64,7 @@ class HcuCTW4A8MoEMethod(FusedMoEMethodBase):
         # Build/validate communication before destructive conversion. A plain
         # INT8 descriptor is sufficient to configure its wire format/capacity.
         descriptor=FusedMoEQuantConfig.make(torch.int8,per_act_token_quant=True,weight_dtype='int4')
-        prepare=make_prepare(self.moe,descriptor,layer._expert_routing_tables())
+        prepare=make_prepare(self.moe,descriptor,layer._expert_routing_tables(),config=self._config)
         try:
             self._packed.pack(self._ops.pack,self._ops.view_n32 if self._backend=='deepep_low_latency' else None)
             self.moe_quant_config=self.get_fused_moe_quant_config(layer)

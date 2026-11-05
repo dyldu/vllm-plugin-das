@@ -138,8 +138,9 @@ VLLM_TEST_PYTHON=/path/to/python3.12 \
 - Native buffer constructor/sizing and LL dispatch/combine signatures were read
   from the installed vendor Python sources without importing GPU libraries.
   Actual EP manager/buffer construction remains a device/distributed gate.
-- This initial route supports fixed DeepEP HT/LL target experts. Draft AG-RS,
-  DSpark DP ownership/capacity, Elastic EP, LoRA and EPLB are not enabled here.
+- This initial route supports fixed DeepEP HT/LL target experts. Subsequent
+  eager-only draft AG-RS ownership/capacity is documented in `v41-dspark-agrs.md`;
+  the target route remains HT/LL. Elastic EP, LoRA and EPLB remain unsupported.
   PCP>1 requires eager; DP width is not whitelisted and must match the actual
   EP/PCP group, expert allocation and scheduler/graph capacity.
 - Capability activation proves public registration, not provider or model

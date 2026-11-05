@@ -201,7 +201,7 @@ def main():
         def selected_model():
             assert resolved_arch == ARCH and selected.__module__ == MODULE
             assert issubclass(selected, Native)
-            assert selected.__init__ is Native.__init__ and selected.forward is Native.forward
+            assert tuple(inspect.signature(selected.__init__).parameters) == tuple(inspect.signature(Native.__init__).parameters) and selected.forward is Native.forward
             for arch, entry in previous_entries.items():
                 if arch != ARCH:
                     assert ModelRegistry.models[arch] is entry, arch

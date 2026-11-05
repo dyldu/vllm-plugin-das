@@ -36,8 +36,18 @@ def validate_topology(config, moe):
         errors.append('PCP>1 requires eager execution')
     if any(type(v) is not int or v <= 0 for v in (p.data_parallel_size,p.prefill_context_parallel_size,moe.max_num_tokens)):
         errors.append('parallel widths/capacity must be positive integers')
-    if not actual.use_ep or actual.all2all_backend not in ('deepep_high_throughput','deepep_low_latency'):
-        errors.append('fixed DeepEP HT/LL EP is required; draft AG-RS is a later increment')
+    if actual.all2all_backend == 'allgather_reducescatter':
+        from hcu_vllm_das.dspark_agrs import is_owned_draft, token_capacity
+        if not is_owned_draft(config):
+            errors.append('AG-RS is restricted to the owned DSpark draft configuration')
+        elif token_capacity(config) != config._hcu_dspark_capacity:
+            errors.append('DSpark query/verify capacity changed after construction')
+        if not config.model_config.enforce_eager or p.prefill_context_parallel_size != 1:
+            errors.append('DSpark AG-RS requires eager PCP1')
+    elif actual.all2all_backend not in ('deepep_high_throughput','deepep_low_latency'):
+        errors.append('fixed DeepEP HT/LL or owned DSpark AG-RS is required')
+    if not actual.use_ep:
+        errors.append('actual expert parallel ownership is required')
     if actual.tp_size != 1 or actual.dp_size != p.data_parallel_size or actual.pcp_size != p.prefill_context_parallel_size or actual.ep_size != actual.dp_size*actual.pcp_size:
         errors.append('MoE TP/DP/PCP/EP membership mismatch')
     if moe.max_num_tokens != config.scheduler_config.max_num_batched_tokens:
