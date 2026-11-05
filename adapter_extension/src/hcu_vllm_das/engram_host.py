@@ -88,3 +88,23 @@ def allocate_registered(nbytes):
     finalizer = weakref.finalize(owner, _release, mapping, pointer, hip)
     finalizer.atexit = False
     return tensor
+
+
+def allocate_table(table):
+    """Return native FP8/E8M0 views of one registered private allocation."""
+    scale_dim = table.dim // table.block_size
+    weight_bytes = table.part_num_embeddings * table.dim
+    table._packed = allocate_registered(weight_bytes + table.part_num_embeddings * scale_dim)
+    weight = table._packed[:weight_bytes].view(torch.float8_e4m3fn).view(-1, table.dim)
+    scales = table._packed[weight_bytes:].view(-1, scale_dim)
+    table._hcu_storage = (weight.data_ptr(), scales.data_ptr(), tuple(weight.shape), tuple(scales.shape))
+    return weight, scales
+
+
+def check_table_storage(table):
+    if table.weight.is_meta:
+        raise RuntimeError('HCU Engram cannot look up meta storage')
+    actual = (table.weight.data_ptr(), table.weight_scale_inv.data_ptr(),
+              tuple(table.weight.shape), tuple(table.weight_scale_inv.shape))
+    if actual != table._hcu_storage:
+        raise RuntimeError('HCU Engram registered weight/scale storage was replaced')

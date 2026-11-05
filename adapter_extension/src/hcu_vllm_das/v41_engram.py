@@ -15,7 +15,7 @@ from vllm.distributed import (get_pcp_group, get_tensor_model_parallel_rank,
                               tensor_model_parallel_all_gather)
 from vllm.models.deepseek_v41.common import engram as native
 from vllm.logger import init_logger
-from .engram_host import allocate_registered
+from .engram_host import allocate_table, check_table_storage
 
 logger = init_logger(__name__)
 
@@ -60,22 +60,10 @@ class HcuV41PcpEmbedding(native.ParallelEngramEmbedding):
     def _allocate_weights(self):
         if torch.get_default_device().type == 'meta':
             return super()._allocate_weights()
-        scale_dim = self.dim // self.block_size
-        weight_bytes = self.part_num_embeddings * self.dim
-        self._packed = allocate_registered(weight_bytes + self.part_num_embeddings * scale_dim)
-        weight = self._packed[:weight_bytes].view(torch.float8_e4m3fn).view(-1, self.dim)
-        scales = self._packed[weight_bytes:].view(-1, scale_dim)
-        self._hcu_storage = (weight.data_ptr(), scales.data_ptr(), tuple(weight.shape), tuple(scales.shape))
-        return weight, scales
+        return allocate_table(self)
 
     def _storage(self):
-        if self.weight.is_meta:
-            raise RuntimeError('HCU Engram cannot look up meta storage')
-        expected = self._hcu_storage
-        actual = (self.weight.data_ptr(), self.weight_scale_inv.data_ptr(),
-                  tuple(self.weight.shape), tuple(self.weight_scale_inv.shape))
-        if actual != expected:
-            raise RuntimeError('HCU Engram registered weight/scale storage was replaced')
+        check_table_storage(self)
         # Native op queries hipified HostGetDevicePointer and retains each CPU
         # tensor, rather than assuming host VA == device VA or making a copy.
         return super()._storage()

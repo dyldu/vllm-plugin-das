@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: Apache-2.0
-"""Framework-free discovery of the opt-in HCU V41 PCP attention model."""
+"""Framework-free discovery of the owned HCU V41 PCP/host target model."""
 from __future__ import annotations
 
 import os
@@ -10,6 +10,7 @@ from .dsv41_activation import _require_release
 from .environment import _flag
 
 _FLAG = 'VLLM_HCU_DSV41_PCP_ATTENTION'
+_HOST_FLAG = 'VLLM_HCU_DSV41_ENGRAM_HOST'
 _FACTOR = 'VLLM_HCU_DAS_V41_PCP_ATTENTION'
 _ARCH = 'DeepseekV41ForCausalLM'
 _NATIVE = ('vllm.models.deepseek_v41', 'DeepseekV41ForCausalLM')
@@ -44,8 +45,16 @@ def _function(fn):
     return getattr(fn, '__func__', fn)
 
 
-def policy_factor():
+def pcp_enabled():
     return _state['enabled'] if _state is not None else _flag(_FLAG, default=False)
+
+
+def host_enabled():
+    return _state['host'] if _state is not None else _flag(_HOST_FLAG, default=False)
+
+
+def policy_factor():
+    return (pcp_enabled(), host_enabled())
 
 
 def _fatal(message):
@@ -70,6 +79,7 @@ def check_health():
                     or ModelRegistry.models.get(_ARCH) is not _state['entry']
                     or _function(ModelRegistry.register_model) is not _state['register']
                     or _flag(_FLAG, default=False) != _state['enabled']
+                    or _flag(_HOST_FLAG, default=False) != _state['host']
                     or envs.environment_variables.get(_FACTOR) is not policy_factor):
                 _fatal('V41 PCP ownership/policy changed; restart process')
             loaded = sys.modules.get('hcu_vllm_das.models.v41_pcp')
@@ -97,7 +107,9 @@ def activate_extension(context):
             return
         if not _is_hcu():
             return
-        selected = _flag(_FLAG, default=False)
+        pcp_selected = _flag(_FLAG, default=False)
+        host_selected = _flag(_HOST_FLAG, default=False)
+        selected = pcp_selected or host_selected
         _publishing = True
         try:
             import inspect
@@ -118,7 +130,7 @@ def activate_extension(context):
             if _key(entry) != (_PLUGIN if selected else _NATIVE):
                 raise RuntimeError('V41 PCP model publication lost its owner')
             envs.environment_variables[_FACTOR] = policy_factor
-            _state = dict(enabled=selected, registry=ModelRegistry, entry=entry, register=register)
+            _state = dict(enabled=pcp_selected, host=host_selected, registry=ModelRegistry, entry=entry, register=register)
             check_health()
         except BaseException as error:
             try:
@@ -131,5 +143,5 @@ def activate_extension(context):
 
 def extension_spec():
     return ExtensionSpec(name='das-hcu-v41-pcp', api_version=1, priority=116,
-        capabilities=frozenset({'hcu-v41-pcp-eager-attention'}),
+        capabilities=frozenset({'hcu-v41-pcp-eager-attention', 'hcu-v41-private-engram-host'}),
         activate=activate_extension, check_health=check_health)

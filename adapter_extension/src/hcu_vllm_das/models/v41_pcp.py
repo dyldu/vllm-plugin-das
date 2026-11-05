@@ -17,6 +17,7 @@ from vllm.models.deepseek_v41.amd import model as native
 from vllm.models.deepseek_v41.amd import vl_model as native_vl
 from ..v41_pcp import HcuV41PcpAttention, validate_config
 from ..v41_engram import HcuV41PcpEngram
+from ..v41_target_engram import HcuV41HostEngram, use_host_target, validate_host_config
 
 _DECODER_NATIVE = native.DeepseekV4DecoderLayer.__init__
 _BACKBONE_NATIVE = native.DeepseekV4Model.__init__
@@ -86,13 +87,45 @@ _OUTER_INIT = _constructor(_OUTER_NATIVE, _REVIEWED[2],
                            {'DeepseekV41LLMForCausalLM': HcuV41PcpLLM})
 
 
+_HOST_DECODER_INIT = _constructor(_DECODER_NATIVE, _REVIEWED[0],
+                                   {'Engram': HcuV41HostEngram})
+
+
+class HcuV41HostDecoderLayer(native.DeepseekV4DecoderLayer):
+    __init__ = _HOST_DECODER_INIT
+
+
+_HOST_BACKBONE_INIT = _constructor(_BACKBONE_NATIVE, _REVIEWED[1],
+                                    {'DeepseekV4DecoderLayer': HcuV41HostDecoderLayer})
+
+
+class HcuV41HostBackbone(native.DeepseekV4Model):
+    def __init__(self, *, vllm_config, prefix=''):
+        validate_host_config(vllm_config)
+        _HOST_BACKBONE_INIT(self, vllm_config=vllm_config, prefix=prefix)
+
+
+class HcuV41HostLLM(native.DeepseekV41LLMForCausalLM):
+    model_cls = HcuV41HostBackbone
+
+
+_HOST_OUTER_INIT = _constructor(_OUTER_NATIVE, _REVIEWED[2],
+                                 {'DeepseekV41LLMForCausalLM': HcuV41HostLLM})
+
+
 class HcuV41PcpForCausalLM(native_vl.DeepseekV41ForCausalLM):
     def __init__(self, *, vllm_config, prefix=''):
         from ..v41_pcp_activation import check_health
         check_health()
         check_native_contract()
+        if vllm_config.parallel_config.prefill_context_parallel_size > 1:
+            from ..v41_pcp_activation import pcp_enabled
+            if not pcp_enabled():
+                raise ValueError('PCP attention requires VLLM_HCU_DSV41_PCP_ATTENTION=1')
         if validate_config(vllm_config):
             _OUTER_INIT(self, vllm_config=vllm_config, prefix=prefix)
+        elif use_host_target(vllm_config):
+            _HOST_OUTER_INIT(self, vllm_config=vllm_config, prefix=prefix)
         else:
-            # Enabling the extension does not change the PCP1 construction.
+            # PCP1 without the explicit host route remains fully native.
             super().__init__(vllm_config=vllm_config, prefix=prefix)
