@@ -35,7 +35,7 @@ def _is_hcu():
 
 
 def policy_factor():
-    return _state['enabled'] if _state is not None else _flag(_FLAG, default=False)
+    return _state['enabled'] if _state is not None else _flag(_FLAG, default=True)
 
 
 def _fatal(message):
@@ -57,7 +57,7 @@ def check_health():
         from vllm.model_executor import custom_op
         try:
             valid = (
-                _flag(_FLAG, default=False) == _state['enabled']
+                _flag(_FLAG, default=True) == _state['enabled']
                 and custom_op.op_registry_oot is _state['registry']
                 and custom_op.op_registry_oot.get('SparseAttnIndexer') is _state['class']
                 and envs.environment_variables.get(_FACTOR) is policy_factor
@@ -95,7 +95,7 @@ def activate_extension(context):
         _require_release(context.vllm_version)
         if not _is_hcu():
             return
-        selected = _flag(_FLAG, default=False)
+        selected = _flag(_FLAG, default=True)
         _publishing = True
         try:
             from vllm import envs
@@ -137,5 +137,6 @@ def activate_extension(context):
 
 def extension_spec():
     return ExtensionSpec(name='das-hcu-v41-indexer', api_version=1, priority=115,
-        capabilities=frozenset({'hcu-v41-fp8-indexer-eager-reference'}),
+        capabilities=frozenset({'hcu-v41-fp8-indexer-eager-reference',
+                                'hcu-v41-fp8-indexer-graph-break'}),
         activate=activate_extension, check_health=check_health)
