@@ -90,7 +90,8 @@ def _check_input(a1, topk_weights, topk_ids, num_experts):
         raise ChannelFP8PrepareError("DeepEP Channel-FP8 requires BF16 [M,K] input")
     if (topk_ids.ndim != 2 or topk_ids.shape[0] != a1.shape[0]
             or topk_weights.shape != topk_ids.shape
-            or topk_ids.dtype != torch.int64
+            # v0.33 core routers emit int32 topk_ids; accept both int32/int64.
+            or topk_ids.dtype not in (torch.int32, torch.int64)
             or topk_weights.dtype != torch.float32
             or topk_weights.device != a1.device or topk_ids.device != a1.device
             or num_experts <= 0):
