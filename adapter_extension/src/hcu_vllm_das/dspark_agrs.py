@@ -19,7 +19,32 @@ from vllm.model_executor.layers.fused_moe.prepare_finalize.naive_dp_ep import Mo
 from vllm.model_executor.layers.fused_moe.utils import moe_kernel_quantize_input
 
 _BACKEND = 'allgather_reducescatter'
-_OWNER = object()
+_OWNER = 'hcu_dsv41_dspark_agrs_v1'
+_META_KEY = '_hcu_dsv41_dspark_agrs'
+
+
+def _metadata(cfg):
+    extra = getattr(cfg, 'additional_config', None)
+    return extra.get(_META_KEY) if isinstance(extra, dict) else None
+
+
+def _capacity_tuple(capacity):
+    return [
+        capacity.query_per_request,
+        capacity.query_rows,
+        capacity.verify_rows,
+        capacity.budget,
+    ]
+
+
+def _capacity_from_metadata(cfg):
+    metadata = _metadata(cfg)
+    values = metadata.get('capacity') if isinstance(metadata, dict) else None
+    if not isinstance(values, (list, tuple)) or len(values) != 4:
+        return None
+    if any(type(value) is not int for value in values):
+        return None
+    return TokenCapacity(*values)
 
 
 @dataclass(frozen=True)
@@ -46,7 +71,8 @@ def token_capacity(cfg):
 
 
 def is_owned_draft(cfg):
-    return getattr(cfg, '_hcu_dspark_agrs_owner', None) is _OWNER
+    metadata = _metadata(cfg)
+    return isinstance(metadata, dict) and metadata.get('owner') == _OWNER
 
 
 def draft_config(cfg):
@@ -64,16 +90,32 @@ def draft_config(cfg):
     if (cfg.lora_config is not None or p.enable_eplb or p.enable_elastic_ep or p.enable_dbo
             or cfg.kernel_config.monokernel):
         raise ValueError('DSpark AG-RS does not support LoRA/EPLB/ElasticEP/DBO/monokernel')
-    if not cfg.use_v2_model_runner or not cfg.model_config.enforce_eager or not spec.draft_model_config.enforce_eager:
-        raise ValueError('DSpark AG-RS requires eager MRV2 target and draft; Graph not validated')
+    if not cfg.use_v2_model_runner:
+        raise ValueError('DSpark AG-RS requires the V2 model runner')
+    if not cfg.model_config.enforce_eager or not spec.draft_model_config.enforce_eager:
+        from .dspark_graph import native_decode_dspark, validate_graph_capacity
+
+        if not native_decode_dspark(cfg):
+            raise ValueError(
+                'DSpark AG-RS Graph requires the native V41 DP8/EP8 target; '
+                'unsupported Graph topology'
+            )
+        validate_graph_capacity(cfg)
+        token_capacity(cfg)
     if cfg.kernel_config.moe_backend != 'deep_gemm':
         raise ValueError('DSpark CT W4A8 requires the owned DeepGEMM expert path')
     capacity = token_capacity(cfg)
     result = copy.copy(cfg)
     result.parallel_config = copy.copy(p)
     result.parallel_config.all2all_backend = _BACKEND
-    result._hcu_dspark_agrs_owner = _OWNER
-    result._hcu_dspark_capacity = capacity
+    extra = getattr(cfg, 'additional_config', None)
+    if not isinstance(extra, dict):
+        raise ValueError('DSpark AG-RS requires a dict additional_config owner store')
+    result.additional_config = dict(extra)
+    result.additional_config[_META_KEY] = {
+        'owner': _OWNER,
+        'capacity': _capacity_tuple(capacity),
+    }
     return result
 
 
@@ -147,8 +189,19 @@ class HcuCTAgRsPrepareAndFinalize(MoEPrepareAndFinalizeNaiveDPEPModular):
             raise ValueError('DSpark CT AG-RS requires owned dynamic token INT8')
         if (a1.ndim != 2 or a1.dtype != torch.bfloat16 or a1.shape[0] > self.manager._capacity
                 or topk_ids.shape != topk_weights.shape or topk_ids.ndim != 2
-                or topk_ids.shape[0] != a1.shape[0] or topk_ids.dtype != torch.int64
+                or topk_ids.shape[0] != a1.shape[0]
+                # v0.33 core routers emit int32 topk_ids; the legacy v0.29
+                # plugin path used int64. Accept both, reject anything else.
+                or topk_ids.dtype not in (torch.int32, torch.int64)
                 or topk_weights.dtype != torch.float32):
+            import logging
+            logging.getLogger(__name__).error(
+                'DSpark AG-RS contract violation: a1.ndim=%s a1.dtype=%s a1.shape=%s capacity=%s '
+                'topk_ids.shape=%s topk_ids.ndim=%s topk_ids.dtype=%s '
+                'topk_weights.shape=%s topk_weights.dtype=%s',
+                a1.ndim, a1.dtype, tuple(a1.shape), self.manager._capacity,
+                tuple(topk_ids.shape), topk_ids.ndim, topk_ids.dtype,
+                tuple(topk_weights.shape), topk_weights.dtype)
             raise ValueError('DSpark AG-RS local input/routes violate the checked wire contract')
         # Gather BF16 first so even a zero-query rank reaches native collectives;
         # INT8 token quantization is then independent of unequal DP row counts.
@@ -169,7 +222,7 @@ class HcuCTAgRsPrepareAndFinalize(MoEPrepareAndFinalizeNaiveDPEPModular):
 def make_draft_prepare(moe, cfg):
     if not is_owned_draft(cfg):
         raise ValueError('AG-RS CT preparation requires owned DSpark construction')
-    if token_capacity(cfg) != cfg._hcu_dspark_capacity:
+    if token_capacity(cfg) != _capacity_from_metadata(cfg):
         raise RuntimeError('DSpark token capacity changed after construction')
     manager = HcuDSparkAgRsManager(moe.max_num_tokens)
     actual = moe.moe_parallel_config
