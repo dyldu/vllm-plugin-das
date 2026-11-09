@@ -73,6 +73,11 @@ def _projection_supported(linear):
         return False
     if getattr(linear, 'input_scale_ub', None) is not None:
         return False
+    # AITER block-scaled MM wants 1x128 group scales, not per-token FP8.
+    scheme = getattr(linear, 'scheme', None)
+    kernel = getattr(scheme, 'fp8_linear', None)
+    if kernel is not None and type(kernel).__name__ == 'Fp8BlockScaledMMLinearKernel':
+        return False
     weight = getattr(linear, 'weight', None)
     if not isinstance(weight, torch.Tensor) or weight.dtype != torch.float8_e4m3fn:
         return False
@@ -81,6 +86,11 @@ def _projection_supported(linear):
 
 def eligible(attention, packed):
     if not query_quant_enabled():
+        return False
+    # Never replace the ROCm aiter fused_qk_rmsnorm_group_quant path: that emits
+    # group scales (1x128) consumed by block-scaled GEMM. Our fusion is per-token
+    # Channel-FP8 only; mixing the two is the HumanEval 0.9451 regression mode.
+    if getattr(attention, '_wq_b_uses_aiter_block_scaled', False):
         return False
     if not (packed.is_cuda and packed.dtype == torch.bfloat16
             and packed.ndim == 2 and packed.is_contiguous()
@@ -131,10 +141,20 @@ def _install_hooks():
 
     register_op()
     attention_mod = import_module('vllm.models.deepseek_v41.attention')
+    # Hook the base attention class. The ROCm subclass inherits the wrapper and
+    # still falls through to its own group-quant implementation when
+    # ``_wq_b_uses_aiter_block_scaled`` makes ``eligible`` false.
     targets = [attention_mod.DeepseekV4Attention]
     try:
         rocm = import_module('vllm.models.deepseek_v41.amd.rocm')
-        targets.append(rocm.DeepseekV41ROCMAiterMLAAttention)
+        # Only wrap the ROCm override when it is a distinct method object;
+        # otherwise inheritance already sees the base wrapper.
+        rocm_cls = rocm.DeepseekV41ROCMAiterMLAAttention
+        if (
+            getattr(rocm_cls, '_split_qkv_and_norm', None)
+            is not getattr(attention_mod.DeepseekV4Attention, '_split_qkv_and_norm', None)
+        ):
+            targets.append(rocm_cls)
     except Exception:
         pass
     installed = []

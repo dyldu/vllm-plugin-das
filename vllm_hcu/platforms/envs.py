@@ -14,6 +14,10 @@ if TYPE_CHECKING:
     VLLM_HCU_USE_FLASH_ATTN_UNIFIED: bool = False
     VLLM_HCU_USE_FLASH_ATTN_VARLEN: bool = True
     VLLM_HCU_USE_FLASHMLA: bool = False
+    VLLM_HCU_DSV41_FLASHMLA_PREFILL: bool = True
+    VLLM_HCU_DSV41_FLASHMLA_DECODE: bool = True
+    VLLM_HCU_DSV41_FLASHMLA_DECODE_GRAPH: bool = True
+    VLLM_HCU_DSV41_FLASHMLA_DSPARK: bool = True
     VLLM_USE_OPT_CAT: bool = False
     VLLM_HCU_USE_CAT_MLA: bool = True
     VLLM_HCU_DISABLE_DSA: bool = False
@@ -129,6 +133,34 @@ def optional_custom_op_enabled(feature_enabled: bool = True) -> bool:
     """
 
     return custom_ops_enabled() and bool(feature_enabled)
+
+
+def dsv41_flashmla_prefill_enabled() -> bool:
+    """Default-on V4.1 native FlashMLA prefill under the custom-op master."""
+    return optional_custom_op_enabled(
+        _environment_flag(os.environ.get("VLLM_HCU_DSV41_FLASHMLA_PREFILL", "True"))
+    )
+
+
+def dsv41_flashmla_decode_enabled() -> bool:
+    """Default-on V4.1 native FlashMLA decode under the custom-op master."""
+    return optional_custom_op_enabled(
+        _environment_flag(os.environ.get("VLLM_HCU_DSV41_FLASHMLA_DECODE", "True"))
+    )
+
+
+def dsv41_flashmla_decode_graph_enabled() -> bool:
+    """Graph-capture decode; requires decode enabled."""
+    return dsv41_flashmla_decode_enabled() and _environment_flag(
+        os.environ.get("VLLM_HCU_DSV41_FLASHMLA_DECODE_GRAPH", "True")
+    )
+
+
+def dsv41_flashmla_dspark_enabled() -> bool:
+    """DSpark decode rollout under the FlashMLA decode master."""
+    return dsv41_flashmla_decode_enabled() and _environment_flag(
+        os.environ.get("VLLM_HCU_DSV41_FLASHMLA_DSPARK", "True")
+    )
 
 
 def linear_gate_pcp_shard_enabled(
@@ -353,7 +385,11 @@ hcu_vllm_environment_variables: dict[str, Callable[[], Any]] = {
     # vLLM will use FlashMLA Backend on hcu
     "VLLM_HCU_USE_FLASHMLA":
     lambda: (os.environ.get("VLLM_HCU_USE_FLASHMLA", "False").lower() in
-             ("true", "1")),
+                    ("true", "1")),
+    "VLLM_HCU_DSV41_FLASHMLA_PREFILL": dsv41_flashmla_prefill_enabled,
+    "VLLM_HCU_DSV41_FLASHMLA_DECODE": dsv41_flashmla_decode_enabled,
+    "VLLM_HCU_DSV41_FLASHMLA_DECODE_GRAPH": dsv41_flashmla_decode_graph_enabled,
+    "VLLM_HCU_DSV41_FLASHMLA_DSPARK": dsv41_flashmla_dspark_enabled,
     # vLLM will use use opt cat 
     "VLLM_USE_OPT_CAT":
     lambda: (os.environ.get("VLLM_USE_OPT_CAT", "True").lower() in

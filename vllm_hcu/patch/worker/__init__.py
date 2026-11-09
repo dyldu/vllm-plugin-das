@@ -261,6 +261,11 @@ _OP_CALLBACKS: tuple[_CallbackSpec, ...] = (
     _CallbackSpec(_adapter("op_opt", "patch_mla_layer"), feature="lightly_cp"),
     _CallbackSpec(_adapter("op_opt", "patch_mla_indexer")),
     _CallbackSpec(_adapter("op_opt", "patch_flashmla_sparse")),
+    # DSV4.1 FlashMLA decode: fused prepare_decode_indices + shared DecodeScheduler
+    # plans (closes gap ⑥ vs SGLang persistent / lean metadata pipeline).
+    _CallbackSpec(_adapter("op_opt", "patch_deepseek_v41_rocm_flashmla_metadata")),
+    _CallbackSpec(_adapter("op_opt", "patch_deepseek_v41_swa_meta_batch")),
+    _CallbackSpec(_adapter("op_opt", "patch_deepseek_v41_rocm_flashmla_decode")),
     _CallbackSpec(_adapter("op_opt", "patch_qwen4_exp_qsa_flash_attn")),
     _CallbackSpec(_adapter("op_opt", "patch_qwen3_attention")),
     _CallbackSpec(_adapter("op_opt", "patch_fla_chunk_delta_h")),
