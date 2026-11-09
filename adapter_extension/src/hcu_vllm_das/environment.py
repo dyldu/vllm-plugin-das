@@ -59,4 +59,9 @@ def register_compile_factors(vllm_envs: object) -> None:
     registry[_RMS_NORM_COMPILE_FACTOR] = rms_norm_enabled
 
 
-__all__ = ["custom_ops_enabled", "rms_norm_enabled", "register_compile_factors"]
+__all__ = [
+    "_flag",
+    "custom_ops_enabled",
+    "rms_norm_enabled",
+    "register_compile_factors",
+]

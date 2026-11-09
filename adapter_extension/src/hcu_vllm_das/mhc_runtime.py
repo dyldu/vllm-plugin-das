@@ -9,8 +9,11 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from importlib import import_module
+import ast
+import functools
 import inspect
 import logging
+import os
 from types import SimpleNamespace
 
 import torch
@@ -18,6 +21,8 @@ import torch
 from .environment import _flag, custom_ops_enabled
 
 logger = logging.getLogger(__name__)
+_BOUNDARY_FLAG = 'VLLM_HCU_DSV41_MHC_BOUNDARY'
+_SPLIT_K_FLAG = 'VLLM_HCU_MHC_PRE_SPLIT_K'
 
 
 @dataclass(frozen=True)
@@ -62,6 +67,41 @@ provider = SimpleNamespace(mhc_pre=None, mhc_post=None,
 _registered = False
 
 
+def _is_varargs_signature(parameters: tuple[str, ...]) -> bool:
+    return parameters in (('args', 'kwargs'), ('args',), ('kwargs',))
+
+
+def _source_def_params(module, name: str) -> tuple[str, ...] | None:
+    """Recover parameter names when torch_compile_guard hides the real signature."""
+    try:
+        source = inspect.getsource(module)
+    except (OSError, TypeError):
+        return None
+    try:
+        tree = ast.parse(source)
+    except SyntaxError:
+        return None
+    for node in tree.body:
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)) and node.name == name:
+            return tuple(arg.arg for arg in node.args.args)
+    return None
+
+
+def _provider_params(module, name: str, function) -> tuple[str, ...]:
+    actual = tuple(inspect.signature(function).parameters)
+    if not _is_varargs_signature(actual):
+        return actual
+    fake = getattr(module, f'{name}_fake', None)
+    if callable(fake):
+        recovered = tuple(inspect.signature(fake).parameters)
+        if recovered and not _is_varargs_signature(recovered):
+            return recovered
+    recovered = _source_def_params(module, name)
+    if recovered:
+        return recovered
+    return actual
+
+
 def load_provider():
     try:
         module = import_module('aiter.ops.mhc')
@@ -84,10 +124,9 @@ def load_provider():
         if not callable(function):
             result[name] = None
             continue
-        actual = tuple(inspect.signature(function).parameters)
+        actual = _provider_params(module, name, function)
         if actual[:len(parameters)] != parameters:
             raise RuntimeError(f'HCU mHC provider signature changed: {name}: {actual}')
-        inspect.signature(function).bind(*([object()] * len(parameters)))
         result[name] = function
     return SimpleNamespace(**result)
 
@@ -152,6 +191,54 @@ def post_supported(x, residual, post, comb):
             and residual.dtype in (torch.bfloat16, torch.float16)
             and x.dtype == residual.dtype and post.dtype == comb.dtype == torch.float32
             and _gpu_tensors([residual, x, post, comb]))
+
+
+@functools.lru_cache(maxsize=None)
+def _boundary_device_supported(device_index):
+    properties = torch.cuda.get_device_properties(device_index)
+    arch = getattr(properties, 'gcnArchName', '').split(':')[0]
+    # 029 validated gfx938; 033 HCU line also ships gfx936.
+    return arch in ('gfx936', 'gfx938')
+
+
+def boundary_enabled():
+    return _flag(_BOUNDARY_FLAG, default=True)
+
+
+def boundary_supported(residual, fn, hc_scale, hc_base, pre_mix, x,
+                       sublayer_out, post_layer_mix, comb_res_mix):
+    """Admit the fused Post+collapse+project+Sinkhorn boundary path."""
+    if not (boundary_enabled() and policy.post_enabled
+            and provider.mhc_post is not None):
+        return False
+    if x is not None or pre_mix is None or sublayer_out is None:
+        return False
+    if policy.tilelang or not policy.post:
+        return False
+    if os.environ.get('AITER_MHC_POST_KERNEL', 'v3') != 'v3':
+        return False
+    if os.environ.get(_SPLIT_K_FLAG, 'auto') != 'auto':
+        return False
+    if residual.ndim != 3 or residual.shape[1:] != (4, 5120):
+        return False
+    tokens = residual.shape[0]
+    if not 0 < tokens <= 64:
+        return False
+    if not pre_supported(residual, fn, hc_scale, hc_base, pre_mix):
+        return False
+    if residual.device.index is None or not _boundary_device_supported(
+            residual.device.index):
+        return False
+    tensors = (sublayer_out, post_layer_mix, comb_res_mix)
+    return (
+        post_layer_mix is not None and comb_res_mix is not None
+        and sublayer_out.shape == (tokens, 5120)
+        and sublayer_out.dtype == residual.dtype
+        and post_layer_mix.shape in ((tokens, 4), (tokens, 4, 1))
+        and comb_res_mix.shape == (tokens, 4, 4)
+        and post_layer_mix.dtype == comb_res_mix.dtype == torch.float32
+        and _gpu_tensors(tensors)
+    )
 
 
 def empty_pre(residual):
@@ -227,10 +314,12 @@ def register_ops():
     if _registered:
         return
     from vllm.utils.torch_utils import direct_register_custom_op
+    from .dsv41_mhc_boundary import boundary, boundary_fake
     for name, function, fake in (
         ('hcu_mhc_hip_pre', _pre, _pre_fake),
         ('hcu_mhc_hip_delayed', _delayed, _delayed_fake),
         ('hcu_mhc_hip_post', _post, _post_fake),
+        ('hcu_mhc_boundary', boundary, boundary_fake),
     ):
         direct_register_custom_op(op_name=name, op_func=function, mutates_args=[],
                                   fake_impl=fake, dispatch_key='CompositeExplicitAutograd')

@@ -34,9 +34,10 @@ def _is_hcu():
 
 
 def policy_factor():
-    from .mhc_runtime import read_policy
+    from .mhc_runtime import boundary_enabled, read_policy
     p = _state['policy'] if _state is not None else read_policy()
-    return p.master, p.mhc, p.pre, p.post, p.tilelang, p.fused
+    return (p.master, p.mhc, p.pre, p.post, p.tilelang, p.fused,
+            boundary_enabled())
 
 
 def _fatal(reason):

@@ -72,6 +72,18 @@ class HcuMHCPreDelayedOp(_CheckedConstruction, native.MHCPreDelayedOp):
                 residual, fn, hc_scale, hc_base, rms_eps, hc_pre_eps,
                 hc_sinkhorn_eps, hc_post_mult_value, sinkhorn_repeat, pre_mix,
                 x, norm_weight, norm_eps, sublayer_out, post_layer_mix, comb_res_mix)
+        # Fused Post+collapse+project+Sinkhorn replaces separate Post then Pre.
+        if (runtime.policy.pre_enabled
+                and runtime.boundary_supported(
+                    residual, fn, hc_scale, hc_base, pre_mix, x, sublayer_out,
+                    post_layer_mix, comb_res_mix)):
+            updated, post, comb, layer_input, next_pre = (
+                torch.ops.vllm.hcu_mhc_boundary(
+                    residual, sublayer_out, post_layer_mix, comb_res_mix, pre_mix,
+                    fn, hc_scale, hc_base, rms_eps, hc_pre_eps, hc_sinkhorn_eps,
+                    hc_post_mult_value, sinkhorn_repeat))
+            return (updated, post, comb,
+                    native._apply_mhc_norm(layer_input, norm_weight, norm_eps), next_pre)
         # Apply previous Post exactly once, even when Pre must use Torch.
         residual = self._maybe_post(residual, sublayer_out, post_layer_mix, comb_res_mix)
         if _empty(residual):
