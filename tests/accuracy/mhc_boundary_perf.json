@@ -1,0 +1,210 @@
+{
+  "device": "BW1101",
+  "hip": "7.2.26365",
+  "torch": "2.13.0",
+  "accuracy": [
+    {
+      "tokens": 1,
+      "residual_ulp_bad": 0,
+      "residual_max_ulp": 0,
+      "residual_pass": true,
+      "layer_input_rel_rms": 0.0,
+      "layer_input_pass": true,
+      "coeffs_pass": true,
+      "pass_": true,
+      "scalars": [
+        1e-06,
+        1e-06,
+        1e-06,
+        2.0,
+        20
+      ]
+    },
+    {
+      "tokens": 8,
+      "residual_ulp_bad": 0,
+      "residual_max_ulp": 0,
+      "residual_pass": true,
+      "layer_input_rel_rms": 0.0,
+      "layer_input_pass": true,
+      "coeffs_pass": true,
+      "pass_": true,
+      "scalars": [
+        1e-06,
+        1e-06,
+        1e-06,
+        2.0,
+        20
+      ]
+    },
+    {
+      "tokens": 33,
+      "residual_ulp_bad": 0,
+      "residual_max_ulp": 0,
+      "residual_pass": true,
+      "layer_input_rel_rms": 0.0,
+      "layer_input_pass": true,
+      "coeffs_pass": true,
+      "pass_": true,
+      "scalars": [
+        1e-06,
+        1e-06,
+        1e-06,
+        2.0,
+        20
+      ]
+    },
+    {
+      "tokens": 48,
+      "residual_ulp_bad": 0,
+      "residual_max_ulp": 0,
+      "residual_pass": true,
+      "layer_input_rel_rms": 0.0,
+      "layer_input_pass": true,
+      "coeffs_pass": true,
+      "pass_": true,
+      "scalars": [
+        1e-06,
+        1e-06,
+        1e-06,
+        2.0,
+        20
+      ]
+    },
+    {
+      "tokens": 64,
+      "residual_ulp_bad": 0,
+      "residual_max_ulp": 0,
+      "residual_pass": true,
+      "layer_input_rel_rms": 0.0,
+      "layer_input_pass": true,
+      "coeffs_pass": true,
+      "pass_": true,
+      "scalars": [
+        1e-06,
+        1e-06,
+        1e-06,
+        2.0,
+        20
+      ]
+    },
+    {
+      "tokens": 1,
+      "residual_ulp_bad": 0,
+      "residual_max_ulp": 0,
+      "residual_pass": true,
+      "layer_input_rel_rms": 0.0,
+      "layer_input_pass": true,
+      "coeffs_pass": true,
+      "pass_": true,
+      "scalars": [
+        1e-06,
+        0.0001,
+        1e-05,
+        1.5,
+        3
+      ]
+    },
+    {
+      "tokens": 8,
+      "residual_ulp_bad": 0,
+      "residual_max_ulp": 0,
+      "residual_pass": true,
+      "layer_input_rel_rms": 0.0,
+      "layer_input_pass": true,
+      "coeffs_pass": true,
+      "pass_": true,
+      "scalars": [
+        1e-06,
+        0.0001,
+        1e-05,
+        1.5,
+        3
+      ]
+    },
+    {
+      "tokens": 33,
+      "residual_ulp_bad": 0,
+      "residual_max_ulp": 0,
+      "residual_pass": true,
+      "layer_input_rel_rms": 0.0,
+      "layer_input_pass": true,
+      "coeffs_pass": true,
+      "pass_": true,
+      "scalars": [
+        1e-06,
+        0.0001,
+        1e-05,
+        1.5,
+        3
+      ]
+    },
+    {
+      "tokens": 48,
+      "residual_ulp_bad": 0,
+      "residual_max_ulp": 0,
+      "residual_pass": true,
+      "layer_input_rel_rms": 0.0,
+      "layer_input_pass": true,
+      "coeffs_pass": true,
+      "pass_": true,
+      "scalars": [
+        1e-06,
+        0.0001,
+        1e-05,
+        1.5,
+        3
+      ]
+    },
+    {
+      "tokens": 64,
+      "residual_ulp_bad": 0,
+      "residual_max_ulp": 0,
+      "residual_pass": true,
+      "layer_input_rel_rms": 0.0,
+      "layer_input_pass": true,
+      "coeffs_pass": true,
+      "pass_": true,
+      "scalars": [
+        1e-06,
+        0.0001,
+        1e-05,
+        1.5,
+        3
+      ]
+    }
+  ],
+  "perf": [
+    {
+      "tokens": 1,
+      "fused_p50_ms": 0.29095999896526337,
+      "unfused_p50_ms": 2.20871901512146,
+      "speedup_p50": 7.591143191422511
+    },
+    {
+      "tokens": 8,
+      "fused_p50_ms": 0.2914395034313202,
+      "unfused_p50_ms": 2.213439464569092,
+      "speedup_p50": 7.594850521321673
+    },
+    {
+      "tokens": 33,
+      "fused_p50_ms": 0.2929600030183792,
+      "unfused_p50_ms": 2.234959602355957,
+      "speedup_p50": 7.628889880287665
+    },
+    {
+      "tokens": 48,
+      "fused_p50_ms": 0.2943199872970581,
+      "unfused_p50_ms": 2.2517595291137695,
+      "speedup_p50": 7.650719034725499
+    },
+    {
+      "tokens": 64,
+      "fused_p50_ms": 0.29336000978946686,
+      "unfused_p50_ms": 2.234719395637512,
+      "speedup_p50": 7.61766880646508
+    }
+  ],
+  "result": "PASS"
+}
