@@ -83,7 +83,17 @@ from vllm.model_executor.models.utils import (
     make_layers,
     maybe_prefix,
 )
+from vllm_hcu.ops.fuse_silu_mul_quant import FusedSiluAndMulAndQuant
+
 _DEEPSEEK_V4_EXPERT_DTYPES = ("fp4", "fp8")
+
+
+def _fused_silu_mul_quant_supported(weight: object) -> bool:
+    return getattr(weight, "dtype", None) in (
+        torch.int8,
+        torch.float8_e4m3fn,
+        torch.float8_e5m2,
+    )
 
 
 class DeepseekV4MLP(nn.Module):
@@ -99,6 +109,7 @@ class DeepseekV4MLP(nn.Module):
         prefix: str = "",
     ) -> None:
         super().__init__()
+        self.swiglu_limit = swiglu_limit
 
         # If is_sequence_parallel, the input and output tensors are sharded
         # across the ranks within the tp_group. In this case the weights are
@@ -125,16 +136,77 @@ class DeepseekV4MLP(nn.Module):
             raise ValueError(
                 f"Unsupported activation: {hidden_act}. Only silu is supported for now."
             )
+        # Weight dtype is often unresolved at construct time (meta / delayed load).
+        # Resolve the Channel-FP8 fused act+quant path lazily on first forward so
+        # shared experts actually skip the split SiLU + per-token quant pair.
+        self._fuse_requested = bool(
+            henvs.VLLM_HCU_USE_FUSED_SILU_MUL_QUANT
+            and henvs.VLLM_HCU_USE_CUSTOM_OPS
+            and quant_config is not None
+        )
+        self._fuse_resolved = False
+        self.enable_fuse_silu_mul_quant = False
+        self.quant_dtype = None
         if swiglu_limit is not None:
             self.act_fn = SiluAndMulWithClamp(swiglu_limit)
         else:
             self.act_fn = SiluAndMul()
 
-    def forward(self, x):
+    def _resolve_fuse_silu_mul_quant(self) -> None:
+        if self._fuse_resolved:
+            return
+        self._fuse_resolved = True
+        if not self._fuse_requested:
+            return
+        weight = getattr(self.gate_up_proj, "weight", None)
+        if not _fused_silu_mul_quant_supported(weight):
+            return
+        self.enable_fuse_silu_mul_quant = True
+        self.quant_dtype = weight.dtype
+        if self.swiglu_limit is None:
+            self.act_fn = FusedSiluAndMulAndQuant()
+
+    def _fused_act_quant(self, gate_up: torch.Tensor):
+        """SiLU+mul(+optional SwiGLU clamp) then per-token quant for down_proj."""
+        if self.swiglu_limit is None:
+            return self.act_fn(gate_up, quant_dtype=self.quant_dtype)
+        # Keep DeepSeek-V4 clamp semantics while still emitting FP8 for down GEMM.
+        from lightop.activation import fuse_silu_mul_fp8_quant
+
+        if self.quant_dtype == torch.float8_e4m3fn:
+            return fuse_silu_mul_fp8_quant(
+                gate_up, fp8type=0, limit=float(self.swiglu_limit)
+            )
+        from lightop.activation import fuse_silu_mul_per_token_quant
+
+        return fuse_silu_mul_per_token_quant(
+            gate_up, dtype=self.quant_dtype, limit=float(self.swiglu_limit)
+        )
+
+    def forward(
+        self,
+        x,
+        x_and_scale_quanted: tuple[torch.Tensor, torch.Tensor] | None = None,
+    ):
+        self._resolve_fuse_silu_mul_quant()
+        if self.enable_fuse_silu_mul_quant and self.quant_dtype is not None:
+            gate_up, _ = self.gate_up_proj._forward_with_hcu_quanted(
+                x, x_and_scale_quanted
+            )
+            xq, xs = self._fused_act_quant(gate_up)
+            x, _ = self.down_proj._forward_with_hcu_quanted(xq, (xq, xs))
+            return x
         gate_up, _ = self.gate_up_proj(x)
         x = self.act_fn(gate_up)
         x, _ = self.down_proj(x)
         return x
+
+    def _forward_with_hcu_quanted(
+        self,
+        x,
+        x_and_scale_quanted: tuple[torch.Tensor, torch.Tensor] | None = None,
+    ):
+        return self.forward(x, x_and_scale_quanted=x_and_scale_quanted)
 
 
 class DeepseekV4FP8Config(Fp8Config):
