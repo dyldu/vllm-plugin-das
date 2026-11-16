@@ -152,6 +152,43 @@ def compute_aligned_M(M, num_topk, local_num_experts, alignment, expert_tokens_m
     return (bound + alignment - 1) // alignment * alignment
 
 
+def estimate_ll_expected_m(
+    *,
+    local_num_tokens: int,
+    num_dispatchers: int,
+    topk: int,
+    global_num_experts: int,
+    capacity: int,
+    round_align: int = 16,
+) -> int:
+    """DeepEP-LL masked-GEMM / fused-act tile hint.
+
+    Matches SGLang's decode estimate
+    ``(local * dp * topk + E) // E``, then reuses the BatchedDeepGemmExperts
+    round-up-to-16 clamp so DeepGEMM MODE tables and LightOp ``expect_m``
+    see the same decode-sized hint instead of the LL buffer capacity.
+    Correctness remains owned by ``masked_m`` / ``tokens_per_expert``.
+    """
+    if capacity <= 0:
+        return 0
+    if (
+        local_num_tokens < 0
+        or num_dispatchers <= 0
+        or topk <= 0
+        or global_num_experts <= 0
+    ):
+        raise ChannelFP8RuntimeError("Channel-FP8 LL expected_m inputs are invalid")
+    # SGLang one-row margin at exact multiples / empty-rank floor.
+    estimate = (
+        local_num_tokens * num_dispatchers * topk + global_num_experts
+    ) // global_num_experts
+    if round_align > 1:
+        estimate = ((estimate + round_align - 1) // round_align) * round_align
+        estimate = max(estimate, round_align)
+    estimate = max(int(estimate), 1)
+    return min(capacity, estimate)
+
+
 class ChannelFP8ContiguousExperts(mk.FusedMoEExpertsModular):
     ALIGNMENT = 256
     WEIGHT_LAYOUT = "contiguous"
@@ -280,9 +317,23 @@ class ChannelFP8MaskedExperts(ChannelFP8ContiguousExperts):
         scale = _token_scale(a1q_scale, (e, capacity))
         if capacity == 0:
             return
-        expected_m = min(capacity, (topk_ids.shape[0] * self.num_dispatchers * topk + global_num_experts) // global_num_experts)
+        # Stage-align with SGLang MoE: same expected_m formula + LightOp expect_m
+        # plumbing used by BatchedDeepGemmExperts / sglang ep_moe FP8 path.
+        expected_m = estimate_ll_expected_m(
+            local_num_tokens=int(topk_ids.shape[0]),
+            num_dispatchers=int(self.num_dispatchers),
+            topk=int(topk),
+            global_num_experts=int(global_num_experts),
+            capacity=int(capacity),
+        )
         gateup = _resize_cache(workspace2, (e, capacity, two_n))
         deepgemm_masked((hidden_states, scale), (w1, self.w1_scale), gateup, counts, expected_m)
-        q2, s2 = fuse_silu_mul_fp8_quant_ep(gateup, fp8type=0, tokens_per_expert=counts, limit=self.quant_config.gemm1_clamp_limit)
+        q2, s2 = fuse_silu_mul_fp8_quant_ep(
+            gateup,
+            fp8type=0,
+            tokens_per_expert=counts,
+            expect_m=expected_m,
+            limit=self.quant_config.gemm1_clamp_limit,
+        )
         s2 = _token_scale(s2, (e, capacity))
         deepgemm_masked((q2.view(e, capacity, two_n // 2), s2), (w2, self.w2_scale), output, counts, expected_m)
