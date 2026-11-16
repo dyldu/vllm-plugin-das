@@ -84,7 +84,7 @@ def test_stale_marker_and_signature(patch):
 
 
 @pytest.mark.parametrize(
-    "flag", ["enabled", "master", "child", "grad", "cpu", "short", "fp32"]
+    "flag", ["enabled", "master", "child", "grad", "cpu", "empty", "fp32"]
 )
 def test_guards_keep_reference(monkeypatch, flag, patch):
     monkeypatch.setenv("VLLM_HCU_USE_CUSTOM_OPS", "0" if flag == "master" else "1")
@@ -92,7 +92,8 @@ def test_guards_keep_reference(monkeypatch, flag, patch):
         "VLLM_HCU_INVERSE_ROPE_SUFFIX", "0" if flag == "child" else "1"
     )
     monkeypatch.setattr(torch.version, "hip", "test")
-    rows = 17 if flag == "short" else 512
+    # Decode batches are small; eligibility is shape[0] > 0 (not a 512 floor).
+    rows = 0 if flag == "empty" else 8
     rotary = SimpleNamespace(cos_sin_cache=torch.empty(1024, 64))
     o = SimpleNamespace(
         is_cuda=flag != "cpu",
@@ -104,7 +105,7 @@ def test_guards_keep_reference(monkeypatch, flag, patch):
     )
     scope = torch.enable_grad() if flag == "grad" else torch.no_grad()
     with scope:
-        assert patch._eligible(rotary, o, torch.arange(rows), 64, 2) == (
+        assert patch._eligible(rotary, o, torch.arange(max(rows, 1))[:rows], 64, 2) == (
             flag == "enabled"
         )
 
