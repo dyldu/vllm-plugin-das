@@ -58,7 +58,7 @@ def _eligible(rotary_emb, o, positions, rope_head_dim, n_local_groups):
         and o.is_cuda
         and o.dtype == torch.bfloat16
         and o.ndim == 3
-        and o.shape[0] >= 512
+        and o.shape[0] > 0
         and o.shape[-1] == 512
         and rope_head_dim == 64
         and n_local_groups > 0

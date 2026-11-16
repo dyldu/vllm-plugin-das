@@ -1,0 +1,101 @@
+{
+  "device": "BW1101",
+  "hip": "7.2.26365",
+  "torch": "2.13.0",
+  "accuracy": [
+    {
+      "tokens": 1,
+      "heads": 1,
+      "max_abs_vs_torch": 0.0,
+      "max_abs_vs_stock": 0.0,
+      "pass": true
+    },
+    {
+      "tokens": 1,
+      "heads": 2,
+      "max_abs_vs_torch": 0.0,
+      "max_abs_vs_stock": 0.0,
+      "pass": true
+    },
+    {
+      "tokens": 8,
+      "heads": 1,
+      "max_abs_vs_torch": 0.0,
+      "max_abs_vs_stock": 0.0,
+      "pass": true
+    },
+    {
+      "tokens": 8,
+      "heads": 2,
+      "max_abs_vs_torch": 0.0,
+      "max_abs_vs_stock": 0.0,
+      "pass": true
+    },
+    {
+      "tokens": 32,
+      "heads": 1,
+      "max_abs_vs_torch": 0.0,
+      "max_abs_vs_stock": 0.0,
+      "pass": true
+    },
+    {
+      "tokens": 32,
+      "heads": 2,
+      "max_abs_vs_torch": 0.0,
+      "max_abs_vs_stock": 0.0,
+      "pass": true
+    },
+    {
+      "tokens": 64,
+      "heads": 1,
+      "max_abs_vs_torch": 0.0,
+      "max_abs_vs_stock": 0.0,
+      "pass": true
+    },
+    {
+      "tokens": 64,
+      "heads": 2,
+      "max_abs_vs_torch": 0.0,
+      "max_abs_vs_stock": 0.0,
+      "pass": true
+    }
+  ],
+  "perf": [
+    {
+      "tokens": 1,
+      "heads": 2,
+      "cuda_p50_ms": 0.05640000104904175,
+      "stock_triton_p50_ms": 0.10927999764680862,
+      "speedup_p50": 1.9375885747198107
+    },
+    {
+      "tokens": 8,
+      "heads": 2,
+      "cuda_p50_ms": 0.05608000047504902,
+      "stock_triton_p50_ms": 0.10807999968528748,
+      "speedup_p50": 1.9272467683621752
+    },
+    {
+      "tokens": 32,
+      "heads": 2,
+      "cuda_p50_ms": 0.05568000115454197,
+      "stock_triton_p50_ms": 0.10847999900579453,
+      "speedup_p50": 1.9482758038151642
+    },
+    {
+      "tokens": 64,
+      "heads": 2,
+      "cuda_p50_ms": 0.05463999882340431,
+      "stock_triton_p50_ms": 0.11007999628782272,
+      "speedup_p50": 2.0146412638770306
+    },
+    {
+      "tokens": 128,
+      "heads": 2,
+      "cuda_p50_ms": 0.05567999929189682,
+      "stock_triton_p50_ms": 0.11007999628782272,
+      "speedup_p50": 1.97701145272541
+    }
+  ],
+  "result": "PASS"
+}
