@@ -12,6 +12,8 @@ _RMS_NORM_SWITCH = "VLLM_HCU_USE_CUSTOM_RMS_NORM"
 _RMS_NORM_COMPILE_FACTOR = "VLLM_HCU_DAS_RMS_NORM_ENABLED"
 _PREFILL_GATHER_SWITCH = "VLLM_HCU_FLASH_PREFILL_GATHER"
 _DSV41_PROFILE_WORKER_SWITCH = "VLLM_HCU_DSV41_PCP_PROFILE_WORKER"
+_PREFILL_ROPE_FQ_STORE_SWITCH = "VLLM_HCU_USE_LIGHTOP_ROPE_FQ_STORE"
+_PREFILL_POOL_PAIRS_NORM_SWITCH = "VLLM_HCU_USE_LIGHTOP_POOL_PAIRS_NORM"
 _PREFILL_GATHER_FACTOR = "VLLM_HCU_FLASH_PREFILL_GATHER_ENABLED"
 
 
@@ -55,6 +57,17 @@ def dsv41_profile_worker_enabled() -> bool:
 def prefill_gather_enabled() -> bool:
     """Explicit opt-in; restart the server to change attention policy."""
     return _flag(_PREFILL_GATHER_SWITCH, default=False)
+
+
+
+def prefill_rope_fq_store_enabled() -> bool:
+    """LightOp dsv41_rope_fake_quant_store (SGLang #596). Default OFF."""
+    return custom_ops_enabled() and _flag(_PREFILL_ROPE_FQ_STORE_SWITCH, default=False)
+
+
+def prefill_pool_pairs_norm_enabled() -> bool:
+    """LightOp dsv41_pool_pairs_norm (SGLang #596). Default OFF."""
+    return custom_ops_enabled() and _flag(_PREFILL_POOL_PAIRS_NORM_SWITCH, default=False)
 
 
 def validate_prefill_compile_factor(vllm_envs: object) -> None:
@@ -101,4 +114,5 @@ def register_compile_factors(vllm_envs: object) -> None:
 
 
 __all__ = ["custom_ops_enabled", "dsv41_profile_worker_enabled",
-           "rms_norm_enabled", "register_compile_factors"]
+           "rms_norm_enabled", "prefill_rope_fq_store_enabled",
+           "prefill_pool_pairs_norm_enabled", "register_compile_factors"]

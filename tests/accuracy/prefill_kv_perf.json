@@ -1,0 +1,66 @@
+[
+  {
+    "name": "pool_pairs_norm",
+    "tokens": 1,
+    "fused_p50_ms": 0.04047999903559685,
+    "unfused_p50_ms": 0.25360000133514404,
+    "speedup_p50": 6.264822316624468,
+    "verdict": "faster"
+  },
+  {
+    "name": "pool_pairs_norm",
+    "tokens": 8,
+    "fused_p50_ms": 0.03743999823927879,
+    "unfused_p50_ms": 0.25416000187397003,
+    "speedup_p50": 6.788461907760654,
+    "verdict": "faster"
+  },
+  {
+    "name": "pool_pairs_norm",
+    "tokens": 64,
+    "fused_p50_ms": 0.03855999931693077,
+    "unfused_p50_ms": 0.2558389902114868,
+    "speedup_p50": 6.634828701855138,
+    "verdict": "faster"
+  },
+  {
+    "name": "pool_pairs_norm",
+    "tokens": 256,
+    "fused_p50_ms": 0.03920000046491623,
+    "unfused_p50_ms": 0.2581600099802017,
+    "speedup_p50": 6.585714462203985,
+    "verdict": "faster"
+  },
+  {
+    "name": "rope_fq_store",
+    "tokens": 1,
+    "fused_p50_ms": 0.05584000051021576,
+    "unfused_p50_ms": 0.6044799983501434,
+    "speedup_p50": 10.825214771256237,
+    "verdict": "faster"
+  },
+  {
+    "name": "rope_fq_store",
+    "tokens": 8,
+    "fused_p50_ms": 0.05648000165820122,
+    "unfused_p50_ms": 0.6088795065879822,
+    "speedup_p50": 10.780444205237897,
+    "verdict": "faster"
+  },
+  {
+    "name": "rope_fq_store",
+    "tokens": 64,
+    "fused_p50_ms": 0.05584000051021576,
+    "unfused_p50_ms": 0.6113595068454742,
+    "speedup_p50": 10.948415137167268,
+    "verdict": "faster"
+  },
+  {
+    "name": "rope_fq_store",
+    "tokens": 256,
+    "fused_p50_ms": 0.05384000018239021,
+    "unfused_p50_ms": 0.6106395125389099,
+    "speedup_p50": 11.341744250934005,
+    "verdict": "faster"
+  }
+]
