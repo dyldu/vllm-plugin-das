@@ -26,7 +26,7 @@ from vllm.model_executor.layers.fused_moe.config import (
     FusedMoEQuantConfig,
     RoutingMethodType,
 )
-from vllm.model_executor.layers.fused_moe.runner.shared_experts import (
+from vllm_hcu.model_executor.layers.fused_moe.shared_experts import (
     SharedExperts,
     SharedExpertsOrder,
 )
@@ -1168,13 +1168,14 @@ class FusedMoEKernelModularImpl:
         shared_experts: SharedExperts | None,
         shared_experts_input: torch.Tensor | None,
         x_and_scale_quanted: tuple[torch.Tensor, torch.Tensor] | None = None,
+        order: SharedExpertsOrder = SharedExpertsOrder.MK_INTERNAL_OVERLAPPED,
     ):
         if shared_experts is not None:
             assert self.prepare_finalize.supports_async()
             assert shared_experts_input is not None
             shared_experts(
                 shared_experts_input,
-                SharedExpertsOrder.MK_INTERNAL_OVERLAPPED,
+                order,
                 x_and_scale_quanted=x_and_scale_quanted,
             )
 
@@ -1188,6 +1189,9 @@ class FusedMoEKernelModularImpl:
         apply_router_weight_on_input: bool,
         prequanted_a1_scale: torch.Tensor | None = None,
         prequanted_a1: bool = False,
+        shared_experts: SharedExperts | None = None,
+        shared_experts_input: torch.Tensor | None = None,
+        x_and_scale_quanted: tuple[torch.Tensor, torch.Tensor] | None = None,
     ) -> tuple[
         torch.Tensor,
         torch.Tensor | None,
@@ -1198,6 +1202,11 @@ class FusedMoEKernelModularImpl:
         """
         The _prepare method is a wrapper around self.prepare_finalize.prepare
         that handles DBO and async.
+
+        When ``VLLM_HCU_SHARED_EXPERTS_MID_DISPATCH`` is set, shared experts run
+        between DeepEP-LL prepare_async (dispatch_a) and the recv hook
+        (dispatch_b), matching SGLang decode ``op_dispatch_a → op_shared_experts
+        → op_dispatch_b``.
         """
         begin_moe_call = getattr(
             self.prepare_finalize,
@@ -1281,6 +1290,18 @@ class FusedMoEKernelModularImpl:
                     dbo_register_recv_hook(hook)
                     dbo_yield()
                 else:
+                    # Join any EARLY_LAUNCH aux work before recv wait so the
+                    # second dispatch kernel does not contend with shared F8BS.
+                    if shared_experts is not None:
+                        shared_experts.maybe_join_aux_before_dispatch_recv()
+                    # SGLang decode-align: shared between dispatch_a and
+                    # dispatch_b (fills RDMA gap on the main stream).
+                    self._maybe_apply_shared_experts(
+                        shared_experts,
+                        shared_experts_input,
+                        x_and_scale_quanted=x_and_scale_quanted,
+                        order=SharedExpertsOrder.MID_DISPATCH_OVERLAPPED,
+                    )
                     hook()
 
             (
@@ -1510,6 +1531,16 @@ class FusedMoEKernelModularImpl:
         if global_num_experts == -1:
             global_num_experts = local_num_experts
 
+        shared_in = (
+            shared_experts_input
+            if shared_experts_input is not None
+            else hidden_states
+        )
+        x_and_scale_quanted = (
+            (quanted_hidden_states, scale)
+            if quanted_hidden_states is not None and scale is not None
+            else None
+        )
         a1q, a1q_scale, expert_tokens_meta, topk_ids, topk_weights = self._prepare(
             quanted_hidden_states
             if quanted_hidden_states is not None
@@ -1521,6 +1552,9 @@ class FusedMoEKernelModularImpl:
             apply_router_weight_on_input,
             prequanted_a1_scale=scale,
             prequanted_a1=quanted_hidden_states is not None,
+            shared_experts=shared_experts,
+            shared_experts_input=shared_in if shared_experts is not None else None,
+            x_and_scale_quanted=x_and_scale_quanted,
         )
 
         # Stash the original unquantized hidden states on the LoRA context
@@ -1558,12 +1592,8 @@ class FusedMoEKernelModularImpl:
             topk_ids,
             apply_router_weight_on_input,
             shared_experts=shared_experts,
-            shared_experts_input=shared_experts_input,
-            x_and_scale_quanted=(
-                (quanted_hidden_states, scale)
-                if quanted_hidden_states is not None and scale is not None
-                else None
-            ),
+            shared_experts_input=shared_in if shared_experts is not None else None,
+            x_and_scale_quanted=x_and_scale_quanted,
         )
 
 

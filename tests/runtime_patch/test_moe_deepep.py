@@ -6835,6 +6835,9 @@ def test_moe_runner_and_shared_experts_cold_replacement_contract():
         shared_source = inspect.getsource(shared_module.SharedExperts)
         assert "_output_pending_on_stream" in shared_source
         assert "VLLM_HCU_SHARED_EXPERTS_EARLY_LAUNCH" in shared_source
+        assert "VLLM_HCU_SHARED_EXPERTS_MID_DISPATCH" in shared_source
+        assert "MID_DISPATCH_OVERLAPPED" in shared_source
+        assert "maybe_join_aux_before_dispatch_recv" in shared_source
         assert "current_platform.is_cuda_alike()" in shared_source
         coordinator.reset_for_tests()
         """

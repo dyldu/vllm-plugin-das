@@ -85,6 +85,7 @@ if TYPE_CHECKING:
     VLLM_HCU_C128_HEAD_SPLITS: int = 4
     VLLM_HCU_INVERSE_ROPE_SUFFIX: bool = True
     VLLM_HCU_SHARED_EXPERTS_EARLY_LAUNCH: bool = False
+    VLLM_HCU_SHARED_EXPERTS_MID_DISPATCH: bool = False
     VLLM_HCU_DEEPEP_AUTO_SHARED_WEIGHTS: bool = True
     VLLM_HCU_MOE_WORKSPACE_GROWTH_MB: int = 512
     VLLM_HCU_DEEPEP_HT_EXACT_LAYOUT: bool = True
@@ -682,6 +683,13 @@ hcu_vllm_environment_variables: dict[str, Callable[[], Any]] = {
     # and wait only when the shared output is consumed.
     "VLLM_HCU_SHARED_EXPERTS_EARLY_LAUNCH":
         lambda: (os.environ.get("VLLM_HCU_SHARED_EXPERTS_EARLY_LAUNCH", "False").lower() in
+                    ("true", "1")),
+
+    # SGLang decode-align: run shared_experts on the main stream between
+    # DeepEP-LL dispatch_a (prepare_async) and dispatch_b (recv hook), instead
+    # of early-launching on the aux stream across D2 / grouped GEMM.
+    "VLLM_HCU_SHARED_EXPERTS_MID_DISPATCH":
+        lambda: (os.environ.get("VLLM_HCU_SHARED_EXPERTS_MID_DISPATCH", "False").lower() in
                     ("true", "1")),
 
     # DeepEP auto DeepGEMM: keep one routed-expert weight copy for both the

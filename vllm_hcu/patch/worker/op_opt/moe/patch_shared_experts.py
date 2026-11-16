@@ -24,6 +24,7 @@ TARGETS = (
     f"{TARGET_MODULE}.SharedExperts.allows_inplace_routed_output",
     f"{TARGET_MODULE}.SharedExperts._should_run_shared_in_aux_stream",
     f"{TARGET_MODULE}.SharedExperts.maybe_sync_shared_experts_stream",
+    f"{TARGET_MODULE}.SharedExperts.maybe_join_aux_before_dispatch_recv",
     f"{TARGET_MODULE}.SharedExperts._launch_in_aux_stream",
     f"{TARGET_MODULE}.SharedExperts._run_in_aux_stream",
     f"{TARGET_MODULE}.SharedExperts.output",
