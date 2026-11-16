@@ -153,6 +153,11 @@ def _dspark_graph_check():
     return check_dspark_graph_support()
 
 
+def _install_prefill_kv_fusion() -> None:
+    from .prefill_kv_lightop import install_prefill_kv_lightop
+    install_prefill_kv_lightop()
+
+
 def bind_dsv41() -> None:
     """Bind the plugin providers the DSV4.1 channel-FP8 admission consumes."""
     if "dsv41" in _bound:
