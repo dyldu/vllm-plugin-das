@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING, Tuple
 
 import torch
 
-from deepgemm import tf32_hc_pernorm_gemm as tf32_hc_prenorm_gemm
+from deepgemm import tf32_hc_prenorm_gemm as tf32_hc_prenorm_gemm
 from vllm.platforms import current_platform
 from vllm.utils.import_utils import has_tilelang
 from vllm.utils.math_utils import cdiv
@@ -1079,6 +1079,24 @@ def mhc_fused_post_pre(
                 gemm_out_mul,
                 gemm_out_sqrsum,
                 pre_n_splits,
+            )
+        elif henvs.optional_custom_op_enabled(henvs.VLLM_HCU_USE_AITER_MHC):
+            # SGLang-align: aiter bf16 prenorm (mhc_pre_gemm_sqrsum). Avoids the
+            # deepgemm/torch FP32 matmul that shows up as Tensile Cijk_*SB_* and
+            # is absent from the SGLang reference trace (~13% GPU in baseline).
+            from aiter.ops.mhc import mhc_pre_gemm_sqrsum
+
+            if pre_n_splits != 1:
+                gemm_out_mul = gemm_out_mul[:1].contiguous()
+                gemm_out_sqrsum = gemm_out_sqrsum[:1].contiguous()
+                pre_n_splits = 1
+            mhc_pre_gemm_sqrsum(
+                gemm_out_mul,
+                gemm_out_sqrsum,
+                residual_cur,
+                fn,
+                64,
+                False,
             )
         else:
             tf32_hc_prenorm_gemm(

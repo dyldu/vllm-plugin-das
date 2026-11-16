@@ -9582,11 +9582,13 @@ def test_tf32_hc_prenorm_cpu_fallback_and_backend_delegation():
         calls.append("backend")
         return "backend"
 
+    # No native op and no legacy impl hook → torch.matmul fallback.
     module = _module(
         patch_deep_gemm.TARGET_MODULE,
         torch=torch,
         _lazy_init=lazy_init,
         _tf32_hc_prenorm_gemm_impl=None,
+        op=None,
         tf32_hc_prenorm_gemm=original,
     )
     patch_deep_gemm.apply_to_module(module)
@@ -9601,9 +9603,25 @@ def test_tf32_hc_prenorm_cpu_fallback_and_backend_delegation():
     torch.testing.assert_close(sqrsum[0], x.square().sum(-1))
     torch.testing.assert_close(sqrsum[1], torch.zeros_like(sqrsum[1]))
 
+    # Legacy impl hook present → delegate to original backend.
     module._tf32_hc_prenorm_gemm_impl = object()
     assert module.tf32_hc_prenorm_gemm(x, fn, out, sqrsum, 2) == "backend"
     assert calls[-1] == "backend"
+
+    # Current deepgemm wheels expose op.tf32_hc_prenorm_gemm (not the legacy
+    # _impl hook). Prefer native over torch.matmul to avoid Cijk_*SB_* waste.
+    calls.clear()
+    module2 = _module(
+        patch_deep_gemm.TARGET_MODULE,
+        torch=torch,
+        _lazy_init=lazy_init,
+        _tf32_hc_prenorm_gemm_impl=None,
+        op=SimpleNamespace(tf32_hc_prenorm_gemm=lambda *a, **k: None),
+        tf32_hc_prenorm_gemm=original,
+    )
+    patch_deep_gemm.apply_to_module(module2)
+    assert module2.tf32_hc_prenorm_gemm(x, fn, out, sqrsum, 2) == "backend"
+    assert calls == ["lazy", "backend"]
 
 
 def test_transform_sf_identity_fallback_and_backend_delegation():
