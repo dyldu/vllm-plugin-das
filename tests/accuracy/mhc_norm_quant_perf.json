@@ -1,0 +1,18 @@
+{
+  "device": "BW1101",
+  "hip": "7.2.26365",
+  "torch": "2.11.0",
+  "timing": "torch.cuda.Event elapsed_time p50",
+  "hidden": 5120,
+  "compare": "fused rmsnorm+quant vs ir.ops.rms_norm + torch per-token quant",
+  "rows": [
+    {"mode": "fp8", "tokens": 1, "fused_p50_ms": 0.104, "unfused_p50_ms": 0.316, "speedup_p50": 3.03},
+    {"mode": "fp8", "tokens": 8, "fused_p50_ms": 0.121, "unfused_p50_ms": 0.321, "speedup_p50": 2.66},
+    {"mode": "fp8", "tokens": 64, "fused_p50_ms": 0.127, "unfused_p50_ms": 0.323, "speedup_p50": 2.54},
+    {"mode": "fp8", "tokens": 256, "fused_p50_ms": 0.119, "unfused_p50_ms": 0.323, "speedup_p50": 2.70},
+    {"mode": "int8", "tokens": 1, "fused_p50_ms": 0.109, "unfused_p50_ms": 0.398, "speedup_p50": 3.65},
+    {"mode": "int8", "tokens": 8, "fused_p50_ms": 0.128, "unfused_p50_ms": 0.401, "speedup_p50": 3.14},
+    {"mode": "int8", "tokens": 64, "fused_p50_ms": 0.131, "unfused_p50_ms": 0.409, "speedup_p50": 3.12},
+    {"mode": "int8", "tokens": 256, "fused_p50_ms": 0.147, "unfused_p50_ms": 0.587, "speedup_p50": 3.99}
+  ]
+}
