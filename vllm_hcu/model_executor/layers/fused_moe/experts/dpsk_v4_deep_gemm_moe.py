@@ -668,23 +668,20 @@ class DeepEPDeepGemmMaskedExperts(DeepEPDeepGemmContiguousExperts):
         _, _, N, K, _ = self.moe_problem_size(hidden_states, w1, w2, topk_ids)
         expected_m = max_tokens
         if not use_int8 and henvs.VLLM_HCU_USE_CUSTOM_OPS:
-            # DeepGEMM uses expected_m as a tile-selection hint; masked_m
-            # still controls the rows computed for each expert. Match the
-            # per-step estimate used by SGLang instead of the LL buffer's
-            # maximum capacity, which selects unnecessarily large tiles for
-            # small decode batches. Adding global_num_experts intentionally
-            # preserves SGLang's one-row margin at exact multiples and yields
-            # one row for an empty rank.
-            expected_m = min(
-                max_tokens,
-                (
-                    topk_ids.size(0)
-                    * self.num_dispatchers
-                    * topk_ids.size(1)
-                    + global_num_experts
-                )
-                // global_num_experts,
-            )
+            # DeepGEMM / LightOp use expected_m as a tile-selection hint;
+            # masked_m still owns the rows computed per expert. Match SGLang
+            # ``(local * dp * topk + E) // E`` plus BatchedDeepGemm / Channel-FP8
+            # round-up-to-16 so decode stays on the small-tile MODE table
+            # instead of the LL buffer capacity.
+            estimate = (
+                topk_ids.size(0)
+                * self.num_dispatchers
+                * topk_ids.size(1)
+                + global_num_experts
+            ) // global_num_experts
+            estimate = ((int(estimate) + 15) // 16) * 16
+            estimate = max(estimate, 16)
+            expected_m = min(max_tokens, estimate)
         expert_num_tokens = expert_tokens_meta.expert_num_tokens.to(
             dtype=torch.int32
         ).contiguous()
@@ -711,18 +708,22 @@ class DeepEPDeepGemmMaskedExperts(DeepEPDeepGemmContiguousExperts):
                     gateup_output,
                     limit=clamp_limit,
                     mask_m=expert_num_tokens,
-                    expect_m=max_tokens,
+                    expect_m=expected_m,
                 )
             else:
                 q_activation, q_activation_scale = fuse_silu_mul_quant_ep(
                     gateup_output,
                     tokens_per_expert=expert_num_tokens,
+                    expect_m=expected_m,
                 )
         else:
+            # Stage-align with ChannelFP8MaskedExperts / SGLang: same expect_m
+            # hint into LightOp fused act+quant (was missing → capacity tiles).
             q_activation, q_activation_scale = fuse_silu_mul_fp8_quant_ep(
                 gateup_output,
                 fp8type=0,
                 tokens_per_expert=expert_num_tokens,
+                expect_m=expected_m,
                 limit=self.quant_config.gemm1_clamp_limit,
             )
         activation_out_dim = self.adjust_N_for_activation(N, activation)

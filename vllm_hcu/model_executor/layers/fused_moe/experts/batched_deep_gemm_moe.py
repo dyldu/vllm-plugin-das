@@ -438,9 +438,18 @@ class BatchedDeepGemmExperts(mk.FusedMoEExpertsModular):
             return max_tokens_per_expert
         total_num_tokens_replicated = total_num_tokens * topk
 
-        # Assume even load balancing
+        # Assume even load balancing. Add ``global_num_experts`` before the
+        # divide so the hint matches SGLang / Channel-FP8
+        # ``(local * dp * topk + E) // E`` (one-row margin at exact multiples
+        # and a non-zero floor for an empty rank).
         assert global_num_experts != 0
-        estimate = round_up(int(total_num_tokens_replicated // global_num_experts), 16)
+        estimate = round_up(
+            int(
+                (total_num_tokens_replicated + global_num_experts)
+                // global_num_experts
+            ),
+            16,
+        )
         # clamp estimate
         estimate = max(estimate, 16)
         estimate = min(max_tokens_per_expert, estimate)

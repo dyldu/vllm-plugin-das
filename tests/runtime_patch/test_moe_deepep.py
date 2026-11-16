@@ -3523,9 +3523,10 @@ def test_channel_int8_experts_use_int8_deepgemm_weight_layout(
 @pytest.mark.parametrize(
     ("num_tokens", "top_k", "enabled_expected_m"),
     [
-        pytest.param(3, 1, 1, id="below-one-expert-average"),
-        pytest.param(8, 8, 1, id="non-divisible-average"),
-        pytest.param(9, 8, 2, id="divisible-average-keeps-one-row-margin"),
+        # Round-up-to-16 then clamp to LL capacity (=3 in this stub).
+        pytest.param(3, 1, 3, id="below-one-expert-average-round16-clamp"),
+        pytest.param(8, 8, 3, id="non-divisible-average-round16-clamp"),
+        pytest.param(9, 8, 3, id="divisible-average-round16-clamp"),
         pytest.param(100, 8, 3, id="clamped-to-buffer-capacity"),
     ],
 )
@@ -3633,6 +3634,8 @@ def test_channel_quant_masked_experts_execute_matching_deepgemm_kernel(
         if use_int8 or not master_enabled
         else [enabled_expected_m, enabled_expected_m]
     )
+    # LightOp fused act+quant must see the same tile hint as DeepGEMM.
+    assert activation_kwargs.get("expect_m") == expected_m_values[0]
 
 
 @pytest.mark.parametrize("use_int8", [False, True])
