@@ -153,6 +153,13 @@ def _dspark_graph_check():
     return check_dspark_graph_support()
 
 
+def _install_compact_topk_fusion() -> None:
+    from .compact_topk_dequant_lightop import install_compact_topk_dequant
+    from .kv_full_dequant_lightop import install_kv_full_dequant
+    install_compact_topk_dequant()
+    install_kv_full_dequant()
+
+
 def bind_dsv41() -> None:
     """Bind the plugin providers the DSV4.1 channel-FP8 admission consumes."""
     if "dsv41" in _bound:
@@ -167,6 +174,7 @@ def bind_dsv41() -> None:
     modules["dsv41_dspark_registration"].set_plugin_reference((
         "hcu_vllm_das.models.dsv41_dspark", "HcuDSparkDeepseekV41ForCausalLM",
     ))
+    _install_compact_topk_fusion()
     _bound.add("dsv41")
 
 
