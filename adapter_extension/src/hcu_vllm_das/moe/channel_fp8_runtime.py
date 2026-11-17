@@ -125,6 +125,10 @@ def deepgemm_contiguous(*args, **kwargs):
 
 def deepgemm_masked(*args, **kwargs):
     import deepgemm
+    # Decode LL path must not advertise DeepGEMM overlap (bool/int* arity in
+    # the pair32 demangle). SGLang decode launches without over_lap/signal;
+    # keep the same contract unless the caller opts in explicitly.
+    kwargs.setdefault("enable_overlap", False)
     return deepgemm.m_grouped_fp8_gemm_nt_masked(*args, **kwargs)
 
 
