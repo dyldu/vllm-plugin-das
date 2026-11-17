@@ -532,12 +532,14 @@ class HcuGPUModelRunnerV2(GPUModelRunner):
         use the rank-local budget. Runtime MTP restores the global PCP batch
         before ``propose()``, so draft prefill must still be profiled at the
         full ``max_num_batched_tokens`` — not divided by PCP.
+
+        Any PCP>1 model (DeepSeek V4 / DSpark / GLM5Next) uses the partitioned
+        target budget ``ceil(tokens/pcp)*9/8`` (+ decode headroom); MTP Pass 2
+        stays full-batch. PCP=1 keeps the upstream full budget.
         """
 
         pcp_size = int(self.vllm_config.parallel_config.prefill_context_parallel_size)
-        # GLM5Next KDA/K-pool and DeepSeek V4 attention see the full,
-        # replicated token batch, including during profiling.
-        if pcp_size <= 1 or _uses_global_pcp_batch(self.vllm_config):
+        if pcp_size <= 1:
             return super().profile_run()
 
         original_max = self.max_num_tokens
