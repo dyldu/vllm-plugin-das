@@ -87,7 +87,10 @@ def test_v4_runner_accepts_multiple_cache_groups_and_installs_global_metadata(
 
 
 @pytest.mark.parametrize("with_mtp", [False, True])
-def test_v4_profile_keeps_global_budget(pcp_runner_module, monkeypatch, with_mtp):
+def test_v4_profile_partitions_target_keeps_mtp_full_batch(
+    pcp_runner_module, monkeypatch, with_mtp,
+):
+    """DeepSeek V4 PCP matches v0.28: shrink target, keep MTP at full batch."""
     module, _ = pcp_runner_module
     seen = []
     monkeypatch.setattr(
@@ -99,11 +102,41 @@ def test_v4_profile_keeps_global_budget(pcp_runner_module, monkeypatch, with_mtp
     config.model_config = SimpleNamespace(architectures=["DeepseekV4ForCausalLM"])
     runner = module.HcuGPUModelRunnerV2(config, "cpu")
     runner.max_num_tokens = 16384
-    runner.speculator = object() if with_mtp else None
+    runner.max_num_reqs = 16
+    runner.decode_query_len = 3
+    speculator = object() if with_mtp else None
+    runner.speculator = speculator
+
+    # ceil(16384/8)*9/8 + 16*max(3,2) = 2304 + 48 = 2352
+    target_budget = 2352
+    runner.profile_run()
+
+    if with_mtp:
+        assert seen == [(target_budget, None), (16384, speculator)]
+    else:
+        assert seen == [(target_budget, None)]
+    assert runner.max_num_tokens == 16384
+    assert runner.speculator is speculator
+
+
+def test_glm53_profile_keeps_global_budget(pcp_runner_module, monkeypatch):
+    """GLM5Next PCP remains full-batch during profiling (unchanged vs v0.28)."""
+    module, _ = pcp_runner_module
+    seen = []
+    monkeypatch.setattr(
+        module.GPUModelRunner, "profile_run",
+        lambda self: seen.append(int(self.max_num_tokens)),
+        raising=False,
+    )
+    config = _config(8)
+    config.model_config = SimpleNamespace(architectures=["Glm5NextForCausalLM"])
+    runner = module.HcuGPUModelRunnerV2(config, "cpu")
+    runner.max_num_tokens = 16384
+    runner.speculator = object()
 
     runner.profile_run()
 
-    assert seen == [(16384, runner.speculator)]
+    assert seen == [16384]
     assert runner.max_num_tokens == 16384
 
 
