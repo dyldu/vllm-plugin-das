@@ -1391,11 +1391,50 @@ class MoERunner(MoERunnerInterface):
         # so it can run overlapped with the
         # NOTE: in future PR, MoE runner will always hold the gate.
         if self.gate is not None:
-            if self._fse_fuse_gate:
-                self._maybe_fuse_gate_weights()
-                router_logits = F.linear(hidden_states, self._combined_gate_weight)
-            else:
-                router_logits, _ = self.gate(hidden_states)
+            mega_used = False
+            # SGL-align: fuse BF16 gate GEMM + sqrtsoftplus top-k when possible.
+            # Skip FSE fused-gate path (shared+routed logits in one linear).
+            if (
+                not self._fse_fuse_gate
+                and topk_weights is None
+                and topk_ids is None
+                and henvs.optional_custom_op_enabled(
+                    henvs.VLLM_HCU_USE_BF16_MEGA_GATE
+                )
+            ):
+                from vllm_hcu.model_executor.layers.fused_moe.bf16_mega_gate import (
+                    can_use_bf16_mega_gate,
+                    is_bf16_mega_gate_available,
+                    try_run_bf16_mega_gate,
+                )
+
+                if (
+                    is_bf16_mega_gate_available()
+                    and can_use_bf16_mega_gate(
+                        hidden_states,
+                        self.gate,
+                        self.router,
+                        hash_indices_table=getattr(self.gate, "tid2eid", None),
+                        input_ids=input_ids,
+                    )
+                ):
+                    mega = try_run_bf16_mega_gate(
+                        hidden_states,
+                        self.gate,
+                        self.router,
+                        indices_dtype=self._quant_method.topk_indices_dtype,
+                    )
+                    if mega is not None:
+                        topk_weights, topk_ids, router_logits = mega
+                        mega_used = True
+            if not mega_used:
+                if self._fse_fuse_gate:
+                    self._maybe_fuse_gate_weights()
+                    router_logits = F.linear(
+                        hidden_states, self._combined_gate_weight
+                    )
+                else:
+                    router_logits, _ = self.gate(hidden_states)
 
         with self._sequence_parallel_context():
             # TODO(bnell): parts of the dispatch/combine steps will go away once

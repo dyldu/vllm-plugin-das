@@ -32,6 +32,9 @@ if TYPE_CHECKING:
     VLLM_HCU_PP_LAYER_PARTITION_D : Optional[str] = None
     VLLM_HCU_USE_FUSE_MOE_GATE : bool = True
     VLLM_HCU_USE_LIGHTOP_SQRTSOFTPLUS_GATE: bool = True
+    # Fuse gate GEMM + sqrtsoftplus top-k (SGL bf16_mega_gate_hcu). Falls back
+    # to gate linear + topk when inputs/ABI unsupported.
+    VLLM_HCU_USE_BF16_MEGA_GATE: bool = True
     VLLM_HCU_USE_LIGHTOP_QWEN_RMSNORM_GATED: bool = True
     VLLM_HCU_USE_LIGHTOP_W16A16_MOE: bool = False
     VLLM_HCU_USE_LIGHTOP_AWQ: bool = False
@@ -429,6 +432,10 @@ hcu_vllm_environment_variables: dict[str, Callable[[], Any]] = {
     "VLLM_HCU_USE_LIGHTOP_SQRTSOFTPLUS_GATE":
     lambda: (os.environ.get(
             "VLLM_HCU_USE_LIGHTOP_SQRTSOFTPLUS_GATE", "True"
+        ).lower() in ("true", "1")),
+    "VLLM_HCU_USE_BF16_MEGA_GATE":
+    lambda: (os.environ.get(
+            "VLLM_HCU_USE_BF16_MEGA_GATE", "True"
         ).lower() in ("true", "1")),
     # Strict BF16 width-128/256 Qwen gated RMSNorm route. Unsupported layouts,
     # activations and row geometries retain vLLM's Triton implementation.

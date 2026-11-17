@@ -1036,18 +1036,55 @@ class DeepseekV4MoE(nn.Module):
     ) -> torch.Tensor:
         org_shape = hidden_states.shape
         if self.experts.is_internal_router:
-            # In this case, the gate/router runs inside RoutedExperts.
+            # Gate/router runs inside MoERunner (may use bf16_mega_gate there).
             final_hidden_states = self.experts(
                 hidden_states=hidden_states,
                 router_logits=hidden_states,
                 input_ids=input_ids,
             )
         else:
-            router_logits, _ = self.gate(hidden_states)
+            # External gate: try SGL-align mega-gate, else linear + router top-k.
+            topk_weights = topk_ids = None
+            router_logits = None
+            if (
+                henvs.optional_custom_op_enabled(henvs.VLLM_HCU_USE_BF16_MEGA_GATE)
+                and self.scoring_func == "sqrtsoftplus"
+                and self.gate.tid2eid is None
+            ):
+                from vllm_hcu.model_executor.layers.fused_moe.bf16_mega_gate import (
+                    can_use_bf16_mega_gate,
+                    is_bf16_mega_gate_available,
+                    try_run_bf16_mega_gate,
+                )
+
+                router = getattr(self.experts, "router", None)
+                if (
+                    router is not None
+                    and is_bf16_mega_gate_available()
+                    and can_use_bf16_mega_gate(
+                        hidden_states,
+                        self.gate,
+                        router,
+                        hash_indices_table=None,
+                        input_ids=input_ids,
+                    )
+                ):
+                    mega = try_run_bf16_mega_gate(
+                        hidden_states,
+                        self.gate,
+                        router,
+                        indices_dtype=self.hash_indices_dtype,
+                    )
+                    if mega is not None:
+                        topk_weights, topk_ids, router_logits = mega
+            if router_logits is None:
+                router_logits, _ = self.gate(hidden_states)
             final_hidden_states = self.experts(
                 hidden_states=hidden_states,
                 router_logits=router_logits,
                 input_ids=input_ids,
+                topk_weights=topk_weights,
+                topk_ids=topk_ids,
             )
 
         return final_hidden_states.view(org_shape)
