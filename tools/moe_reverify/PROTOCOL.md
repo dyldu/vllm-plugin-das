@@ -120,3 +120,17 @@ QKV_RESULTS.md for the actual 584-byte page contract and the aborted initial
 ## Sparse MLA selectors (2026-11-19)
 
 The additional preflight SLA is in `mla_selectors_preflight_sla.json`: matched ceilings27.728960/26.693019ms and aggregate27.210990ms, fixed before measurement against accepted target Q/KV. Integer ids/counts and native consumer BF16 bytes must be exact under changing-metadata graphs; original precision/HE32 and all earlier serving gates remain required. See MLA_RESULTS.md for accepted results.
+
+## Native MLA I/O admission, frozen 06:31 CST Nov19
+
+Measured plugin ec93021 and adapter03ef92e. Prior accepted selector TPOT
+22.870670023/22.569727734ms, aggregate22.720198878ms; new 2% ceilings
+23.328083424/23.021122288ms and aggregate23.174602856ms. All original,
+DSpark, Post and Q/KV gates retain force. Pure I/O changes require complete
+native BF16 bytes and dynamic Graph replay exact, inputs immutable, HE32
+32/32 identical tasks/prompts with zero errors/truncations. Final source
+passes45CPU,160mask/1,152consumer GPU cases. HE32 passes; both formal repeats,
+separate profile and workflow exit0,8traces prove400target/30draft new kernels.
+Accepted formal medians22.223018363/21.874368957ms, mean22.048693660ms.
+Held standalone DSpark schedule207817d is excluded. CRLF/EOF-only cleanup
+after measurement preserves full AST. See MLA_IO_RESULTS.md and three JSONs.
