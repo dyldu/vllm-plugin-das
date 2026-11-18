@@ -9,12 +9,13 @@ import statistics
 
 def stage(name):
     families = (
+        ("mla_selectors", ("_compact_selectors",)),
         ("q_rope_split", ("_q_rope_native_512",)),
         ("native_kv_insert", (
             "fusedDeepseekV4QNormRopeKVRopeQuantInsertKernel<c10::BFloat16, 0,",
             "fusedDeepseekV4KVRopeInsertKernel")),
         ("native_qkv_with_norm", (
-            "fusedDeepseekV4QNormRopeKVRopeQuantInsertKernel<c10::BFloat16, 64, true,")),
+            "fusedDeepseekV4QNormRopeKVRopeQuantInsertKernel<c10::BFloat16, 64, true,",)),
         ("native_qkv_fused", ("fusedDeepseekV4QNormRopeKVRopeQuantInsertKernel",)),
         ("mhc_post_5120", ("_mhc_post_5120",)),
         ("ipc_clean", ("clean_low_latency",)),

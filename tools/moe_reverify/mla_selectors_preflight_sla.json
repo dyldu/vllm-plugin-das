@@ -1,0 +1,20 @@
+{
+  "frozen_at": "2026-11-19T05:31:00.302222+08:00",
+  "baseline": "qkv_split_v2_perf_summary.json",
+  "baseline_repeat_medians_ms": [
+    27.185255384776653,
+    26.169626669239573
+  ],
+  "baseline_aggregate_ms": 26.677441027008115,
+  "matched_ceilings_ms": [
+    27.728960492472186,
+    26.693019202624367
+  ],
+  "aggregate_ceiling_ms": 27.210989847548277,
+  "max_matched_regression": 0.02,
+  "precision_gate": "Integer ids/counts exact, inputs immutable, native BF16 decode outputs byte-exact under changing-metadata graph replay",
+  "he32_gate": "32/32 same tasks/prompts, zero errors/truncations, real prefill/acceptance",
+  "retains_all_previous_sla_gates": true,
+  "formal_measurement_started": false,
+  "plugin": "06e7912"
+}

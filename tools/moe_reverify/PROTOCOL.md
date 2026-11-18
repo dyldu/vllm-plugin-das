@@ -116,3 +116,7 @@ Q BF16 bytes, full KV cache bytes and untouched input/page padding, including
 changed-device-metadata graph replays. HE32 retains its existing gate. See
 QKV_RESULTS.md for the actual 584-byte page contract and the aborted initial
 528-byte-layout workflow.
+
+## Sparse MLA selectors (2026-11-19)
+
+The additional preflight SLA is in `mla_selectors_preflight_sla.json`: matched ceilings27.728960/26.693019ms and aggregate27.210990ms, fixed before measurement against accepted target Q/KV. Integer ids/counts and native consumer BF16 bytes must be exact under changing-metadata graphs; original precision/HE32 and all earlier serving gates remain required. See MLA_RESULTS.md for accepted results.
