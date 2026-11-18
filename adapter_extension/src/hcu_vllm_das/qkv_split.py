@@ -85,3 +85,20 @@ def split_qkv(q, kv, cache, slots, positions, cos_sin):
     torch.ops._C.fused_deepseek_v4_kv_rope_insert(
         kv, cache, slots, positions, cos_sin, cache.shape[1], None, False)
     return out
+
+
+def try_attention_split(attention, q, kv, positions, attn_metadata):
+    """Shared scheduling seam for owned target and draft attention classes."""
+    if (isinstance(attn_metadata, dict) and not attention.use_pcp
+            and not attention.kv_mxfp8 and not attention.accepts_unnormed_unroped_query
+            and attention.n_local_heads == attention.padded_heads == 64):
+        swa = attn_metadata.get(attention.swa_cache_layer.prefix)
+        cache = attention.swa_cache_layer.kv_cache
+        if (swa is not None and swa.block_size in (32, 64)
+                and cache.dtype == torch.uint8 and cache.ndim > 0 and cache.shape[0] > 0
+                and cache.numel() == cache.shape[0] * swa.block_size * 584):
+            cache = cache.view(cache.shape[0], swa.block_size, 584)
+            cs = attention.rotary_emb.cos_sin_cache
+            if supported(q, kv, cache, swa.slot_mapping, positions, cs):
+                return split_qkv(q, kv, cache, swa.slot_mapping, positions, cs)
+    return None

@@ -18,8 +18,13 @@ def native(q, kv, cache, slots, pos, cs):
         64, 1e-6, cache.shape[1], False, False, True, False)
 
 
-def owner(cache, cs, slots):
-    layer = object.__new__(fp4_indexer.Fp4Attention)
+def owner(cache, cs, slots, attention_class='target'):
+    if attention_class == 'draft':
+        from hcu_vllm_das.dspark_schedule import DraftAttention
+        cls = DraftAttention
+    else:
+        cls = fp4_indexer.Fp4Attention
+    layer = object.__new__(cls)
     torch.nn.Module.__init__(layer)
     layer.use_pcp = False
     layer.kv_mxfp8 = False
@@ -45,6 +50,7 @@ def main():
     parser.add_argument('--block-size', type=int, choices=(32, 64), default=32)
     parser.add_argument('--page-padding', type=int, default=320)
     parser.add_argument('--seed', type=int, default=194241)
+    parser.add_argument('--attention-class', choices=('target', 'draft'), default='target')
     opts = parser.parse_args()
     assert qkv_split._NATIVE_BUILD_MATCHES, 'native build is outside verified contract'
     torch.manual_seed(opts.seed)
@@ -64,7 +70,7 @@ def main():
             backing = torch.full((4, width + opts.page_padding), 165, device='cuda', dtype=torch.uint8)
             cache = backing[:, :width].view(4, opts.block_size, 584)
             padding = backing[:, width:].clone()
-            run = owner(cache, cs, slots)
+            run = owner(cache, cs, slots, opts.attention_class)
             for magnitude in (0., .001, .25, 1., 8., 100.):
                 q.normal_().mul_(magnitude)
                 kv.normal_().mul_(magnitude)
@@ -129,13 +135,14 @@ def main():
             cs.copy_(cs_saved)
         slots = torch.arange(tokens, device='cuda')
         pos = slots + 4096
-        run = owner(cache, cs, slots)
+        run = owner(cache, cs, slots, opts.attention_class)
         for variant, function in [('native', lambda: native(q, kv, cache, slots, pos, cs)),
                                   ('owned', lambda: run(q, kv, pos))]:
             timings.append(dict(tokens=tokens, variant=variant,
                                 us=do_bench_cudagraph(function, rep=100) * 1000))
     assert len(eager) == 23 * 14 and len(replays) == 23 * 5
-    result = dict(accepted=True, block_size=opts.block_size, page_padding=opts.page_padding,
+    result = dict(accepted=True, attention_class=opts.attention_class,
+                  block_size=opts.block_size, page_padding=opts.page_padding,
                   seed=opts.seed, eager=eager, replays=replays, timings=timings,
                   gate='Q BF16 bytes and entire KV cache bytes exact; input immutable')
     with open(opts.output, 'w') as handle:
