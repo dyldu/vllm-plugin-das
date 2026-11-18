@@ -48,6 +48,7 @@ def _digest_paths():
     import hcu_adapter.v41_fp8_indexer_triton as triton
     return (
         Path(__file__).with_name('fp4_indexer.py'),
+        Path(__file__).with_name('qkv_split.py'),
         Path(__file__).with_name('fp4_indexer_lightop.py'),
         Path(__file__).with_name('v41_indexer.py'),
         Path(v41_fp8_indexer.__file__),
@@ -58,7 +59,7 @@ def _digest_paths():
 def _digest_signature():
     """Cheap change detector for the pinned files: (path, mtime, size) each.
 
-    Re-hashing five files on every decode step would put file I/O on the hot
+    Re-hashing these files on every decode step would put file I/O on the hot
     path, because the FP4 branch asks for health each step. The signature is
     what gets compared per step; the hash is only recomputed when it moves.
     """
@@ -71,9 +72,12 @@ def _digest_signature():
 
 def _compute_digest():
     import hashlib
+    from .qkv_split import _NATIVE_BUILD_MATCHES
     digest = hashlib.sha256()
     for path in _digest_paths():
         digest.update(path.read_bytes())
+    # A different native wheel must not reuse the captured split schedule.
+    digest.update(str(_NATIVE_BUILD_MATCHES).encode())
     return digest.hexdigest()
 
 
