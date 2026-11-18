@@ -17,6 +17,15 @@ case "${cudagraph_mode}" in
   *) echo "Unsupported CUDAGRAPH_MODE: ${cudagraph_mode}" >&2; exit 2 ;;
 esac
 
+draft_backend="${DSPARK_DRAFT_BACKEND:-allgather_reducescatter}"
+draft_backend_args=()
+case "${draft_backend}" in
+  allgather_reducescatter) ;;
+  deepep_low_latency)
+    draft_backend_args=(--additional-config '{"hcu_dsv41_dspark_draft_backend":"deepep_low_latency"}') ;;
+  *) echo "Unsupported DSPARK_DRAFT_BACKEND: ${draft_backend}" >&2; exit 2 ;;
+esac
+
 cleanup() {
   local rc=$?
   trap - EXIT INT TERM
@@ -101,6 +110,7 @@ save_config_yaml() {
     echo "  port: ${port}"
     echo "  served_model_name: \"${served_model_name}\""
     echo "  cudagraph_mode: \"${cudagraph_mode}\""
+    echo "  dspark_draft_backend: \"${draft_backend}\""
     echo "  fake_prefill: DecodeBenchConnector"
     echo "  dspark_synthetic: ${dspark_synthetic} p=${dspark_accept_p} n=${num_spec_tokens}"
     echo "  max_concurrency: ${prof_max_concurrency}"
@@ -342,6 +352,7 @@ setsid env PYTHONUNBUFFERED=1 "${PYTHON_BIN}" -m vllm.entrypoints.cli.main serve
   --profiler-config "{\"profiler\":\"torch\",\"torch_profiler_dir\":\"${profiler_root}\",\"torch_profiler_with_stack\":true,\"torch_profiler_record_shapes\":false,\"torch_profiler_with_memory\":false,\"torch_profiler_dump_cuda_time_total\":false,\"ignore_frontend\":true,\"wait_iterations\":5,\"warmup_iterations\":2,\"active_iterations\":10,\"delay_iterations\":5,\"max_iterations\":0}" \
   "${kv_transfer_flag[@]}" \
   "${extra_args[@]}" \
+  "${draft_backend_args[@]}" \
   --host "${host}" \
   --port "${port}" \
   --served-model-name "${served_model_name}" \

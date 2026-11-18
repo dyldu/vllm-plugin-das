@@ -11,6 +11,15 @@ case "${cudagraph_mode}" in
   *) echo "Unsupported CUDAGRAPH_MODE: ${cudagraph_mode}" >&2; exit 2 ;;
 esac
 
+draft_backend="${DSPARK_DRAFT_BACKEND:-allgather_reducescatter}"
+draft_backend_args=()
+case "${draft_backend}" in
+  allgather_reducescatter) ;;
+  deepep_low_latency)
+    draft_backend_args=(--additional-config '{"hcu_dsv41_dspark_draft_backend":"deepep_low_latency"}') ;;
+  *) echo "Unsupported DSPARK_DRAFT_BACKEND: ${draft_backend}" >&2; exit 2 ;;
+esac
+
 check_only=0
 for argument in "$@"; do
   case "${argument}" in
@@ -94,6 +103,7 @@ save_config_yaml() {
     echo "run_dir: \"${run_dir}\""
     echo "mode: acc_channel_fp8_he32"
     echo "cudagraph_mode: \"${cudagraph_mode}\""
+    echo "dspark_draft_backend: \"${draft_backend}\""
     echo ""
     echo "# 进程里实际生效的变量（外部漏进来的也在这里现形）"
     echo "effective_env:"
@@ -371,6 +381,7 @@ serve_cmd=(
   --host "${host}"
   --port "${port}"
   --served-model-name "${served_model_name}"
+  "${draft_backend_args[@]}"
 )
 printf '%s\n' "${serve_cmd[@]}" > "${run_dir}/serve_cmd.txt"
 

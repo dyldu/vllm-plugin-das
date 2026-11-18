@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: Apache-2.0
-"""Private AG-RS construction for the HCU V41 draft model.
+"""Private AG-RS construction, with explicit native LL validation opt-in.
 
 The native loader and the compressed-tensors scale-alias load view belong to the
 adapter (`hcu_adapter.dsv41_draft_weight_alias`): they are the naming bridge the
@@ -19,13 +19,17 @@ class HcuDSparkDeepseekV41ForCausalLM(HcuDSV41DraftWeightAliasModel):
     def __init__(self, *, vllm_config, prefix=""):
         from vllm.config import set_current_vllm_config
         from hcu_vllm_das.dspark_agrs import _owned_quant_kind, draft_config
+        from hcu_vllm_das.dspark_backend import native_draft_ll_requested
+        native_ll = native_draft_ll_requested(vllm_config)
 
-        # CT W4A8 and Channel-FP8 drafts both take a private AG-RS construction
+        # By default CT W4A8 and Channel-FP8 take a private AG-RS construction
         # config so they do not allocate a second DeepEP/RocSHMEM LL buffer on
-        # top of the target's already-resident weights.
+        # top of the target's already-resident weights. Explicitly admitted
+        # Channel-FP8 LL experiments retain native construction unchanged.
         if (
             _owned_quant_kind(vllm_config) is not None
             and vllm_config.parallel_config.data_parallel_size > 1
+            and not native_ll
         ):
             local = draft_config(vllm_config)
             # Native draft decoder construction reads current_config as well as
