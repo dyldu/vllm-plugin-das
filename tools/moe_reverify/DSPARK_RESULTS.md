@@ -68,5 +68,42 @@ is not established. Profiling is separate from the unprofiled formal repeats.
 
 Artifacts: run/dsv4.1/033/moe_reverify_20261118/{dspark_masked_quant_v4_*,
 masked_token_quant_v2.*,deepep_probe_shared_graph_masked_quant_v1.log}.
-The per-dispatch native clean is conservative; model-entry cleanup is a
-separate, unvalidated follow-up at this snapshot.
+The per-dispatch native clean is conservative; the following refinement removes
+redundant same-layout cleans for the verified complete model invocation.
+
+## Complete model entry cleanup
+
+Source b2bdf08, adapter80c6642: install a pre-forward hook on the complete target
+and native draft model, restricted to the verified H5120/40-layer/384+128-expert
+configuration. Each invocation records one native layout clean before all of
+its layers. Full graph capture includes the hook's GPU work; piecewise/eager
+calls run it before their pieces. No Python last-layout inference, Core method
+replacement, native manager replacement or extra Buffer allocation is used.
+Unknown geometry and standalone prepare/finalize keep per-dispatch cleaning.
+Weak model ownership rejects duplicate live entry hooks without retaining models.
+
+- 31 CPU checks pass, including native constructor/ownership and fallback paths.
+- 6,000 actual eight-rank graph output comparisons are byte-exact against the
+  preceding per-dispatch-clean implementation, with finite checks. This covers
+  both native target vendor quantization and draft stock receiver quantization,
+  three consecutive dispatches per layout, changing routes/payloads, rows
+  0/1/40/48/64 and magnitudes0/.001/.25/1/8. The draft also matches an independent
+  stock FP8/dequant value oracle. An earlier probe compared signed zero bytes
+  with the dequant oracle rather than native combine; that oracle mismatch was
+  retained and corrected before the byte-exact baseline comparison.
+- HE32 passes32/32 with identical baseline prompts/tasks, zero errors and
+  truncations; workflow0. Both target and draft graphs capture on all ranks.
+- Paired formal medians31.87492367 /31.56523106ms, aggregate31.72007737ms;
+  64/64requests and failed0 each. Original and stricter FULL+AG/RS matched and
+  aggregate SLA gates all pass, without changing any threshold.
+- Workflow0, profile0 and eight traces. Each rank records exactly10target and
+  10draft cleans in10steps, versus400target and30draft per-dispatch cleans.
+  Native draft LL dispatch/combine and masked DeepGEMM remain present.
+
+Aggregate TPOT is2.857% below the preceding accepted active-row LL version and
+1.649% below FULL+AG/RS. These are two formal repeats per configuration, not a
+statistical confidence claim. Target shared activation remains8.37..8.54us,
+draft7.38..7.49us, above SGLang; full MoE/step parity remains incomplete.
+
+Artifacts: run/dsv4.1/033/moe_reverify_20261118/{dspark_model_entry_v5_*,
+dspark_phase_clean_cpu_v1.log,deepep_probe_model_entry_v2.log}.

@@ -4,7 +4,8 @@
 The installed HCU wheel invalidates target dispatch after constructing a second
 RocSHMEM Buffer. Keep one native target-sized allocation and its native cache
 entry/destructor. IPC layout switching additionally requires an explicit clean
-before dispatch (also recorded inside CUDA graphs). This policy is deliberately
+at complete model entry, with per-dispatch fallback for unknown model geometry
+(also recorded inside CUDA graphs). This policy is deliberately
 unavailable for GDA/internode transports, where expert/QP contracts differ.
 """
 from __future__ import annotations

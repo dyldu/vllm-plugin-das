@@ -9,6 +9,9 @@ import statistics
 
 def stage(name):
     families = (
+        ("mhc_post_5120", ("_mhc_post_5120",)),
+        ("ipc_clean", ("clean_low_latency",)),
+        ("masked_token_quant", ("_masked_token_quant",)),
         ("grouped_masked", ("grouped_w8a8_fp8_nt_masked",)),
         ("grouped_contiguous", ("grouped_w8a8_fp8_nt_contiguous", "m_grouped_fp8_gemm_nt_contiguous")),
         ("dispatch_ll", ("internode_ll::dispatch",)),
