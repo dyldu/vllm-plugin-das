@@ -97,3 +97,12 @@ freeze a 2% ceiling against accepted FULL + AG/RS: matched repeats
 33.05649256564706 / 32.73739875246603 ms, aggregate32.89694565905654 ms.
 HE32 still requires32/32 with identical prompts/tasks and zero errors/truncations.
 Use two unprofiled formal repeats before independent eight-rank profiling.
+
+## Post experiment
+
+The artifact `mhc_post_preflight_sla.json` freezes an additional2% gate against
+accepted model-entry cleanup before Post serving measurement: matched
+32.512422146964965 /32.19653568146237ms, aggregate32.35447891421367ms. Original
+and DSpark gates remain required. Actual Post operator and graph outputs must
+be byte-exact with Torch for the tested shapes/magnitudes, followed by HE32
+and two formal repeats plus independent profiling. See POST_RESULTS.md.

@@ -74,13 +74,15 @@ def report(path):
                       and e.get("tid") == main and e.get("dur", 0) > 0]
             attribution = "vLLM main-stream execute_model GPU annotation; trailing ProfilerStep covers draft and sampling"
     buckets = collections.defaultdict(list)
+    all_kernels = collections.defaultdict(list)
     geometry = collections.Counter()
     for event in kernels:
+        candidates = [s for s in spans if s["ts"] <= event["ts"] < s["ts"] + s["dur"]]
+        phase = min(candidates, key=lambda s: s["dur"])["name"] if candidates else "unattributed"
+        all_kernels[(phase, event["name"])].append(event["dur"])
         family = stage(event["name"])
         if family is None:
             continue
-        candidates = [s for s in spans if s["ts"] <= event["ts"] < s["ts"] + s["dur"]]
-        phase = min(candidates, key=lambda s: s["dur"])["name"] if candidates else "unattributed"
         buckets[(phase, family)].append(event["dur"])
         args = event.get("args", {})
         geometry[(phase, family, str(args.get("grid")), str(args.get("block")))] += 1
@@ -102,6 +104,15 @@ def report(path):
         "gpu_wall_us": max(right for _, right in intervals) - intervals[0][0],
         "phase_spans": [{k: e[k] for k in ("name", "ts", "dur", "tid")} for e in spans],
         "stage_stats": [{"phase": p, "stage": s, **stats(v)} for (p, s), v in sorted(buckets.items())],
+        # Keep unclassified compute visible when a newly optimized stage
+        # exposes the next bottleneck. These are kernel sums, not wall time.
+        "top_kernels": [
+            {"phase": phase, "name": name, **stats(values)}
+            for phase in sorted({p for p, _ in all_kernels})
+            for (_, name), values in sorted(
+                ((key, values) for key, values in all_kernels.items() if key[0] == phase),
+                key=lambda item: sum(item[1]), reverse=True)[:25]
+        ],
         "launch_geometry": [{"phase": p, "stage": s, "grid": g, "block": b, "count": n}
                             for (p, s, g, b), n in sorted(geometry.items())],
     }
