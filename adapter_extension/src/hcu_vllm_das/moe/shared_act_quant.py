@@ -72,6 +72,18 @@ def _shared_bf16_value(gate, up, LIMIT: tl.constexpr):
 
 
 @triton.jit
+def _bounded_bf16_quant_div(value, scale):
+    # After the two BF16 boundaries with limit=10, |value| <= amax <= 100.
+    # Correct the reciprocal product with its division residual. Exhaustive
+    # BF16 value/amax enumeration verifies the resulting E4M3 codes against
+    # div_rn; an uncorrected reciprocal changes FP8 tie decisions.
+    reciprocal = 1.0 / scale
+    first = value * reciprocal
+    result = tl.fma(tl.fma(-first, scale, value), reciprocal, first)
+    return tl.where(value == 0.0, value, result)
+
+
+@triton.jit
 def _silu_clamp_bf16_quant_2304(X, Q, S, LIMIT: tl.constexpr):
     # Model width is 2304. A 4096-column tile spends almost half its work on
     # padding; reduce the 2048 main columns and 256 tail separately instead.
@@ -84,8 +96,14 @@ def _silu_clamp_bf16_quant_2304(X, Q, S, LIMIT: tl.constexpr):
                              tl.load(X + row * 4608 + 2304 + tail), LIMIT)
     amax = tl.maximum(tl.max(tl.abs(value), 0), tl.max(tl.abs(last), 0))
     scale = tl.maximum(tl.div_rn(amax, 448.0), 1.0 / (448.0 * 512.0))
-    quant = tl.minimum(tl.maximum(tl.div_rn(value, scale), -448.0), 448.0)
-    quant_tail = tl.minimum(tl.maximum(tl.div_rn(last, scale), -448.0), 448.0)
+    if LIMIT == 10.0:
+        divided = _bounded_bf16_quant_div(value, scale)
+        divided_tail = _bounded_bf16_quant_div(last, scale)
+    else:
+        divided = tl.div_rn(value, scale)
+        divided_tail = tl.div_rn(last, scale)
+    quant = tl.minimum(tl.maximum(divided, -448.0), 448.0)
+    quant_tail = tl.minimum(tl.maximum(divided_tail, -448.0), 448.0)
     tl.store(Q + row * 2304 + col, quant)
     tl.store(Q + row * 2304 + tail, quant_tail)
     tl.store(S + row, scale)
