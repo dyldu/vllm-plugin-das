@@ -1,0 +1,22 @@
+{
+  "frozen_at": "2026-11-19T07:31:54.970995+08:00",
+  "baseline": "dspark_mla_rope_v1_perf_summary.json",
+  "baseline_repeat_medians_ms": [
+    21.906416364542146,
+    21.540173914239514
+  ],
+  "baseline_aggregate_ms": 21.723295139390828,
+  "matched_ceilings_ms": [
+    22.34454469183299,
+    21.970977392524304
+  ],
+  "aggregate_ceiling_ms": 22.157761042178645,
+  "max_matched_regression": 0.02,
+  "precision_gate": "Active native plan descriptors/splits exact; complete attention and full bridge BF16 output bytes exact eager and changed-count Graph; inputs immutable",
+  "he32_gate": "32/32 same baseline tasks/prompts, zero errors/truncations, real prefill/acceptance",
+  "retains_all_previous_sla_gates": true,
+  "formal_measurement_started": false,
+  "plugin": "f83ff54",
+  "adapter": "9bee65c",
+  "composition": "Accepted draft QKV/final Post, MLA IO and mask/RoPE plus fresh GPU plan bound to exact installed native ABI"
+}

@@ -146,3 +146,15 @@ probes pass; HE32 passes; formal21.906416365/21.540173914ms, mean21.723295139ms,
 all exits0. Eight traces prove target400/draft30 fused mask/RoPE calls and
 exact draft Qsplit/KV/final Post selection. Earlier standalone draft207817d
 formal failure is retained; this composition includes additional optimizations.
+
+## Fresh native MLA plan admission, frozen 07:31:54 CST Nov19
+
+Pluginf83ff54 plus adapter9bee65c retain all earlier gates. The accepted
+composition21.906416365/21.540173914ms is the additional control: matched
+ceilings22.344544692/21.970977393ms and aggregate22.157761042ms,2% each.
+Current native counts must generate fresh plan contents on every Graph replay;
+active descriptors/splits and complete BF16 native consumer bytes must match,
+with inputs immutable.832direct plus1,152complete bridge cases and49CPU
+checks pass before serving. HE32 remains32/32, same prompts/tasks and
+zero errors/truncations. Separate unprofiled formal repeats and eight-rank
+fresh-plan selection evidence are mandatory. See MLA_PLAN_RESULTS.md.
