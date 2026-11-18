@@ -108,4 +108,3 @@ class SharedIPCManager:
         # Preserve the native 384-expert allocation/QP setting, cache key and
         # single destruction. Never add an alias entry for the smaller layout.
         return self.native.get_handle(expected)
-
