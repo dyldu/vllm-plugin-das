@@ -174,6 +174,7 @@ def test_owned_prepare_cleans_before_each_dispatch_when_requested(monkeypatch, r
 
 def test_stock_receiver_quant_preserves_metadata_and_native_handle(monkeypatch):
     from hcu_vllm_das.moe import channel_fp8_prepare as mod
+    from hcu_vllm_das.moe import masked_token_quant as quant_mod
     calls = []
     raw = torch.zeros((1, 8, 5120), dtype=torch.bfloat16)
     counts = torch.ones(1, dtype=torch.int32)
@@ -186,13 +187,11 @@ def test_stock_receiver_quant_preserves_metadata_and_native_handle(monkeypatch):
         def low_latency_combine(self, x, ids, topk_weights, handle, *,
                 async_finish=False, zero_copy=False, return_recv_hook=True, out=None):
             raise AssertionError('not used')
-    def quantize(x, scale, **kwargs):
+    def quantize(x, actual_counts):
         calls.append(('quantize',))
-        assert x.data_ptr() == raw.data_ptr() and x.shape == (8, 5120)
-        assert scale is None and kwargs == dict(quant_dtype=torch.float8_e4m3fn,
-            per_act_token_quant=True, block_shape=None, is_scale_swizzled=False)
-        return x.to(torch.float8_e4m3fn), torch.ones((8, 1), dtype=torch.float32)
-    monkeypatch.setattr(mod, 'moe_kernel_quantize_input', quantize)
+        assert x is raw and actual_counts is counts
+        return x.to(torch.float8_e4m3fn), torch.ones((1, 8), dtype=torch.float32)
+    monkeypatch.setattr(quant_mod, 'masked_token_quant', quantize)
     monkeypatch.setattr(mod, 'dbo_current_ubatch_id', lambda: 0)
     prepare = mod.HcuChannelFP8LLPrepareAndFinalize(Buffer(), 1, 8,
                                                     stock_quant_after_dispatch=True)

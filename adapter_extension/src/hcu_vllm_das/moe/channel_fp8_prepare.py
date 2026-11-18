@@ -221,12 +221,11 @@ class HcuChannelFP8LLPrepareAndFinalize(DeepEPLLPrepareAndFinalize):
                         or expert_x.shape[1:] != (
                             self.max_tokens_per_rank * self.num_dispatchers(), a1.shape[1])):
                     raise ChannelFP8PrepareError('LL BF16 receiver layout mismatch')
-                q, scales = moe_kernel_quantize_input(
-                    expert_x.view(-1, a1.shape[1]), None,
-                    quant_dtype=torch.float8_e4m3fn, per_act_token_quant=True,
-                    block_shape=None, is_scale_swizzled=False,
-                )
-                payload = (q.view(expert_x.shape), scales.view(expert_x.shape[:2]))
+                from .masked_token_quant import masked_token_quant
+
+                # Native counts stay on device and change at graph replay.
+                # Masked experts never consume the unused capacity rows.
+                payload = masked_token_quant(expert_x, counts)
             else:
                 payload = expert_x
             if not isinstance(payload, tuple) or len(payload) != 2:

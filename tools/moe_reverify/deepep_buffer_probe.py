@@ -79,9 +79,13 @@ def worker(rank, init, args):
                     if args.receiver_quant:
                         from vllm import _custom_ops as ops
                         shape = q.shape
-                        values, scales = ops.scaled_fp8_quant(
-                            q.reshape(-1, 5120), use_per_token_if_dynamic=True)
-                        values = values.reshape(shape)
+                        if args.masked_receiver_quant and e == 128:
+                            from hcu_vllm_das.moe.masked_token_quant import masked_token_quant
+                            values, scales = masked_token_quant(q, counts)
+                        else:
+                            values, scales = ops.scaled_fp8_quant(
+                                q.reshape(-1, 5120), use_per_token_if_dynamic=True)
+                            values = values.reshape(shape)
                     else:
                         values, scales = q
                     y = (values.float() * scales.reshape(*values.shape[:2], 1)).bfloat16()
@@ -171,8 +175,12 @@ if __name__ == '__main__':
     p.add_argument('--experts', type=int, default=384)
     p.add_argument('--receiver-quant', action='store_true')
     p.add_argument('--magnitudes', type=float, nargs='+', default=[.25])
+    p.add_argument('--masked-receiver-quant', action='store_true',
+                   help='owned E128 receiver: quantize only native counts-active rows')
     args = p.parse_args()
     if sum((args.single, args.shared, args.dual)) != 1:
         p.error('choose exactly one of --single, --shared, or --dual')
+    if args.masked_receiver_quant and not (args.shared and args.receiver_quant and args.stress):
+        p.error('--masked-receiver-quant requires --shared --receiver-quant --stress')
     with tempfile.TemporaryDirectory(prefix='deepep-dual-') as d:
         mp.spawn(worker, args=('file://' + d + '/group', args), nprocs=8, join=True)
