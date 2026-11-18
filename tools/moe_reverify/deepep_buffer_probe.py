@@ -90,10 +90,10 @@ def worker(rank, init, args):
                         torch.arange(k, device='cuda')[None, :] * 43 + rank) % e).long()
                 w = torch.full((m, k), 1. / k, dtype=torch.float32, device='cuda')
                 inputs.extend([(b, e, x, ids, w)] * args.same_layout_repeats)
-            def execute():
+            def execute(clean_each_dispatch=False):
                 outputs = []
                 for index, (b, e, x, ids, w) in enumerate(inputs):
-                    if args.model_entry_reset:
+                    if args.model_entry_reset and not clean_each_dispatch:
                         if index % args.same_layout_repeats == 0:
                             entry_models[e]()
                     else:
@@ -145,7 +145,11 @@ def worker(rank, init, args):
                     ids.add_(19).remainder_(e)
                 g.replay()
                 torch.cuda.synchronize()
-                references = execute() if args.native_target_quant else [None] * len(outputs)
+                # Compare a pure reset scheduling change against the prior
+                # per-dispatch-clean native combine, including signed zeros.
+                # Stock dequantized identity is a value oracle for draft FP8;
+                # it does not preserve native combine's zero sign bits.
+                references = execute(clean_each_dispatch=True) if args.native_target_quant else [None] * len(outputs)
                 torch.cuda.synchronize()
                 for out, reference, (_, e, x, _, _) in zip(outputs, references, inputs):
                     expected = x
@@ -158,7 +162,8 @@ def worker(rank, init, args):
                         qref, sref = ops.scaled_fp8_quant(x, use_per_token_if_dynamic=True)
                         expected = (qref.float() * sref).bfloat16()
                     err = (out.float() - expected.float()).abs().max().item() if x.numel() else 0.
-                    equal_bytes = torch.equal(out.view(torch.uint8), expected.view(torch.uint8))
+                    byte_reference = reference if args.model_entry_reset else expected
+                    equal_bytes = torch.equal(out.view(torch.uint8), byte_reference.view(torch.uint8))
                     emit('graph_replay', experts=e, rows=rows, replay=replay, max_abs=err,
                          magnitude=magnitude, equal_bytes=equal_bytes)
                     if (not math.isfinite(err) or err > .01
