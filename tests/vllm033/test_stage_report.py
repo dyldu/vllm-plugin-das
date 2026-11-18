@@ -9,4 +9,5 @@ def test_full_qkv_symbols_remain_distinct_from_post_and_unknown():
     assert stage(prefix + '64, false, false>') == 'native_qkv_fused'
     assert stage('_mhc_post_5120') == 'mhc_post_5120'
     assert stage('_compact_selectors') == 'mla_selectors'
+    assert stage('_mask_copy_native_mla') == 'mla_output_mask_copy'
     assert stage('unrelated_vectorized_elementwise_kernel') is None

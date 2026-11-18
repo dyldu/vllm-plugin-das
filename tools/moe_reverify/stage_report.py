@@ -9,6 +9,7 @@ import statistics
 
 def stage(name):
     families = (
+        ("mla_output_mask_copy", ("_mask_copy_native_mla",)),
         ("mla_selectors", ("_compact_selectors",)),
         ("q_rope_split", ("_q_rope_native_512",)),
         ("native_kv_insert", (
