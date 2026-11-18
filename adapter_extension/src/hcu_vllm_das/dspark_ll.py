@@ -16,6 +16,7 @@ class SharedIPCManager:
     """Factory argument only; never replaces the EP group's native manager."""
 
     def __init__(self, manager):
+        import deep_ep
         from vllm.distributed.device_communicators.all2all import DeepEPLLAll2AllManager
 
         if (not isinstance(manager, DeepEPLLAll2AllManager)
@@ -24,10 +25,18 @@ class SharedIPCManager:
             raise ValueError('DSpark shared LL requires single-node DP8/EP8 native LL')
         if os.environ.get('ROCSHMEM_BACKEND', 'ipc') != 'ipc':
             raise ValueError('DSpark shared LL is validated only with ROCSHMEM IPC')
-        for key in ('DEEPEP_ENABLE_LL_LAYERED_OPT', 'DEEPEP_ENABLE_LL_LAYERED_DEVELOP',
-                    'ROCSHMEM_IPC_MNVL', 'DEEP_EP_NORMAL_MNVL'):
+        # The supplied scripts request layered OPT, but this wheel resolves
+        # both layered selectors to False for <=8 ranks. Check the effective
+        # native decision, preserving the baseline environment unchanged.
+        for name in ('is_ll_layered_opt_enabled', 'is_ll_layered_develop_enabled'):
+            select = getattr(deep_ep.Buffer, name, None)
+            if not callable(select) or select(8):
+                raise ValueError('DSpark shared LL requires native legacy IPC selection')
+        for key in ('ROCSHMEM_IPC_MNVL', 'DEEP_EP_NORMAL_MNVL'):
             if os.environ.get(key, '0').strip().lower() not in ('0', 'false', 'off', ''):
                 raise ValueError('DSpark shared LL does not support ' + key)
+        if os.environ.get('DEEPEP_TEST_FORCE_ROUTE_MODE', '').strip():
+            raise ValueError('DSpark shared LL does not support forced test routes')
         self.native = manager
         self.world_size = manager.world_size
         self.dp_world_size = manager.dp_world_size

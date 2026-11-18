@@ -116,9 +116,17 @@ def test_ipc_resource_policy_refuses_other_transports(monkeypatch, change):
     if change == 'dp': native.dp_world_size = 4
     if change == 'ft': native.support_fault_tolerance = True
     if change == 'gda': monkeypatch.setenv('ROCSHMEM_BACKEND', 'gda')
-    if change == 'layered': monkeypatch.setenv('DEEPEP_ENABLE_LL_LAYERED_OPT', '1')
+    if change == 'layered':
+        import deep_ep
+        monkeypatch.setattr(deep_ep.Buffer, 'is_ll_layered_opt_enabled', lambda n: True)
     if change == 'mnvl': monkeypatch.setenv('ROCSHMEM_IPC_MNVL', '1')
     with pytest.raises(ValueError): wrapper(native)
+
+
+def test_ipc_admits_baseline_inert_layered_request(monkeypatch):
+    native, wrapper = ipc_manager(monkeypatch)
+    monkeypatch.setenv('DEEPEP_ENABLE_LL_LAYERED_OPT', '1')
+    assert wrapper(native).native is native
 
 
 @pytest.mark.parametrize('key,value', [('max_num_tokens_per_dp_rank', 256),
@@ -162,3 +170,41 @@ def test_owned_prepare_cleans_before_each_dispatch_when_requested(monkeypatch, r
         assert calls[0][1:] == ((64, 5120, 128), {'quant_group_size': 0, 'num_topk': 3})
     else:
         assert [c[0] for c in calls] == ['dispatch', 'dispatch']
+
+
+def test_stock_receiver_quant_preserves_metadata_and_native_handle(monkeypatch):
+    from hcu_vllm_das.moe import channel_fp8_prepare as mod
+    calls = []
+    raw = torch.zeros((1, 8, 5120), dtype=torch.bfloat16)
+    counts = torch.ones(1, dtype=torch.int32)
+    handle = object()
+    class Buffer:
+        def low_latency_dispatch(self, x, ids, topk_weight, cap, experts, *,
+                quant_type, quant_group_size, fp8_round_scale, async_finish, return_recv_hook):
+            calls.append(('dispatch', quant_type))
+            return raw, counts, handle, None, lambda: calls.append(('recv_hook',))
+        def low_latency_combine(self, x, ids, topk_weights, handle, *,
+                async_finish=False, zero_copy=False, return_recv_hook=True, out=None):
+            raise AssertionError('not used')
+    def quantize(x, scale, **kwargs):
+        calls.append(('quantize',))
+        assert x.data_ptr() == raw.data_ptr() and x.shape == (8, 5120)
+        assert scale is None and kwargs == dict(quant_dtype=torch.float8_e4m3fn,
+            per_act_token_quant=True, block_shape=None, is_scale_swizzled=False)
+        return x.to(torch.float8_e4m3fn), torch.ones((8, 1), dtype=torch.float32)
+    monkeypatch.setattr(mod, 'moe_kernel_quantize_input', quantize)
+    monkeypatch.setattr(mod, 'dbo_current_ubatch_id', lambda: 0)
+    prepare = mod.HcuChannelFP8LLPrepareAndFinalize(Buffer(), 1, 8,
+                                                    stock_quant_after_dispatch=True)
+    qc = NS(quant_dtype=torch.float8_e4m3fn, block_shape=None,
+            per_act_token_quant=True, per_out_ch_quant=True,
+            a1_scale=None, is_scale_swizzled=False)
+    hook, receive = prepare.prepare_async(torch.zeros((1, 5120), dtype=torch.bfloat16),
+        torch.ones((1, 3), dtype=torch.float32), torch.zeros((1, 3), dtype=torch.int64),
+        8, None, False, qc)
+    assert calls == [('dispatch', 0)]
+    hook(); values, scale, meta, ids, weights = receive()
+    assert calls == [('dispatch', 0), ('recv_hook',), ('quantize',)]
+    assert values.shape == raw.shape and values.dtype == torch.float8_e4m3fn
+    assert scale.shape == (1, 8) and meta.expert_num_tokens is counts
+    assert prepare.handles[0] is handle and ids is weights is None
