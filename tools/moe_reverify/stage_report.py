@@ -9,6 +9,9 @@ import statistics
 
 def stage(name):
     families = (
+        ("q_rope_split", ("_q_rope_native_512",)),
+        ("native_qkv_fused", ("fusedDeepseekV4QNormRopeKVRopeQuantInsertKernel",)),
+        ("native_kv_insert", ("fusedDeepseekV4KVRopeInsertKernel",)),
         ("mhc_post_5120", ("_mhc_post_5120",)),
         ("ipc_clean", ("clean_low_latency",)),
         ("masked_token_quant", ("_masked_token_quant",)),
