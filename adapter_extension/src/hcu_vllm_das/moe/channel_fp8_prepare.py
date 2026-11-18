@@ -166,9 +166,10 @@ def _check_ll_buffer(buffer):
 class HcuChannelFP8LLPrepareAndFinalize(DeepEPLLPrepareAndFinalize):
     """Own HCU channel dispatch; inherit native handle slots and combine."""
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, reset_before_dispatch=False, **kwargs):
         super().__init__(*args, **kwargs)
         _check_ll_buffer(self.buffer)
+        self.reset_before_dispatch = reset_before_dispatch
 
     def prepare_async(self, a1, topk_weights, topk_ids, num_experts, expert_map,
                       apply_router_weight_on_input, quant_config,
@@ -186,6 +187,13 @@ class HcuChannelFP8LLPrepareAndFinalize(DeepEPLLPrepareAndFinalize):
                 raise ChannelFP8PrepareError("Channel-FP8 router-weight input requires topk=1")
             a1 = a1 * topk_weights.to(a1.dtype)
         ids = self._map_global_to_physical_ids(topk_ids)
+        if self.reset_before_dispatch:
+            # Always emit the clean, including during graph capture/replay.
+            # A Python "last layout" cache misses transitions during replay.
+            self.buffer.clean_low_latency_buffer(
+                self.max_tokens_per_rank, a1.shape[1], num_experts,
+                quant_group_size=0, num_topk=ids.shape[1],
+            )
         returned = self.buffer.low_latency_dispatch(
             a1, ids, topk_weights, self.max_tokens_per_rank, num_experts,
             quant_type=2, quant_group_size=0, fp8_round_scale=False,
@@ -242,6 +250,15 @@ def make_channel_prepare(moe, quant_config, routing_tables, config=None):
             or manager.dp_world_size != parallel.dp_size
             or moe.num_local_experts * manager.world_size != moe.num_experts):
         raise ChannelFP8PrepareError("Channel-FP8 EP membership/expert capacity mismatch")
+    shared_ipc = False
+    if parallel.use_deepep_ll_kernels and config is not None:
+        from ..dspark_backend import native_draft_ll_requested
+
+        shared_ipc = native_draft_ll_requested(config)
+        if shared_ipc:
+            from ..dspark_ll import SharedIPCManager
+
+            manager = SharedIPCManager(manager)
     native = maybe_make_prepare_finalize(
         moe, quant_config, routing_tables=routing_tables,
         allow_new_interface=True, all2all_manager=manager,
@@ -260,6 +277,7 @@ def make_channel_prepare(moe, quant_config, routing_tables, config=None):
         use_fp8_dispatch=True, global_to_physical=native.global_to_physical,
         physical_to_global=native.physical_to_global,
         local_expert_global_ids=native.local_expert_global_ids,
+        reset_before_dispatch=shared_ipc,
     )
 
 
