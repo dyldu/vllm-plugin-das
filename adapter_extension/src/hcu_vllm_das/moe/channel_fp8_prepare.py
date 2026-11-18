@@ -298,7 +298,8 @@ def make_channel_prepare(moe, quant_config, routing_tables, config=None):
         use_fp8_dispatch=True, global_to_physical=native.global_to_physical,
         physical_to_global=native.physical_to_global,
         local_expert_global_ids=native.local_expert_global_ids,
-        reset_before_dispatch=shared_ipc,
+        reset_before_dispatch=(shared_ipc
+                               and not manager.has_model_entry_reset(moe.num_experts)),
         stock_quant_after_dispatch=shared_ipc and moe.num_experts == 128,
     )
 

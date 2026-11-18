@@ -207,3 +207,64 @@ def test_stock_receiver_quant_preserves_metadata_and_native_handle(monkeypatch):
     assert values.shape == raw.shape and values.dtype == torch.float8_e4m3fn
     assert scale.shape == (1, 8) and meta.expert_num_tokens is counts
     assert prepare.handles[0] is handle and ids is weights is None
+
+
+def entry_config():
+    cfg = config()
+    cfg.model_config.hf_text_config = NS(hidden_size=5120,
+        n_routed_experts=384, num_experts_per_tok=6,
+        dspark_n_routed_experts=128, dspark_num_experts_per_tok=3,
+        num_hidden_layers=40)
+    return cfg
+
+
+def test_model_entry_reset_orders_once_per_forward_and_preserves_native_owner(monkeypatch):
+    from hcu_vllm_das.dspark_ll import install_model_entry_reset
+    from vllm.model_executor.layers.fused_moe import all2all_utils
+    native, wrapper = ipc_manager(monkeypatch)
+    calls = []
+    class Buffer:
+        def clean_low_latency_buffer(self, *args, **kwargs):
+            calls.append(('clean', args, kwargs))
+    buffer = Buffer()
+    def get_handle(kwargs):
+        calls.append(('get_handle', kwargs.copy())); return buffer
+    native.get_handle = get_handle
+    monkeypatch.setattr(all2all_utils, 'get_ep_all2all_manager', lambda: native)
+    class Model(torch.nn.Module):
+        def forward(self):
+            calls.append(('forward',))
+    target, draft = Model(), Model()
+    cfg = entry_config()
+    assert install_model_entry_reset(target, cfg, 384)
+    assert install_model_entry_reset(draft, cfg, 128)
+    policy = wrapper(native)
+    assert policy.has_model_entry_reset(384) and policy.has_model_entry_reset(128)
+    assert calls == []  # No allocation or clean during registration.
+    for module in (target, draft, target, draft): module()
+    assert [c[0] for c in calls] == ['get_handle', 'clean', 'forward',
+        'get_handle', 'clean', 'forward', 'clean', 'forward', 'clean', 'forward']
+    assert all(c[1]['num_global_experts'] == 384 for c in calls if c[0]=='get_handle')
+    cleans = [c for c in calls if c[0]=='clean']
+    assert [c[1][2] for c in cleans] == [384,128,384,128]
+    assert [c[2]['num_topk'] for c in cleans] == [6,3,6,3]
+    assert 'destroy' not in vars(policy) and policy.native is native
+    with pytest.raises(ValueError, match='Duplicate live'):
+        install_model_entry_reset(Model(), cfg, 384)
+    import weakref, gc
+    ref = weakref.ref(target)
+    del target
+    gc.collect()
+    assert ref() is None and not policy.has_model_entry_reset(384)
+
+
+def test_unknown_model_geometry_keeps_per_dispatch_policy(monkeypatch):
+    from hcu_vllm_das.dspark_ll import install_model_entry_reset
+    from vllm.model_executor.layers.fused_moe import all2all_utils
+    monkeypatch.setattr(all2all_utils, 'get_ep_all2all_manager', lambda: pytest.fail('no resource access'))
+    cfg = entry_config(); cfg.model_config.hf_text_config.num_experts_per_tok = 8
+    model = torch.nn.Module()
+    assert not install_model_entry_reset(model, cfg, 384)
+    assert not model._forward_pre_hooks
+    cfg.additional_config = None
+    assert not install_model_entry_reset(model, cfg, 384)

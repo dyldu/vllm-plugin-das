@@ -39,3 +39,6 @@ class HcuDSparkDeepseekV41ForCausalLM(HcuDSV41DraftWeightAliasModel):
                 super().__init__(vllm_config=local, prefix=prefix)
         else:
             super().__init__(vllm_config=vllm_config, prefix=prefix)
+        if native_ll:
+            from ..dspark_ll import install_model_entry_reset
+            install_model_entry_reset(self, vllm_config, 128)

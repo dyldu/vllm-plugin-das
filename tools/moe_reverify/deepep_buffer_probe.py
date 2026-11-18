@@ -43,6 +43,35 @@ def worker(rank, init, args):
         emit('construct_done', experts=e)
     if args.shared:
         buffers.append((buffers[0][0], 128))
+    entry_models = {}
+    if args.model_entry_reset:
+        # This isolates the actual production hook and vendor ABI. Config
+        # admission is covered separately by the CPU/native constructor tests.
+        from types import SimpleNamespace as NS
+        from unittest.mock import patch
+        from vllm.distributed.device_communicators.all2all import DeepEPLLAll2AllManager
+        from hcu_vllm_das.dspark_ll import install_model_entry_reset
+        manager = object.__new__(DeepEPLLAll2AllManager)
+        manager.internode = manager.support_fault_tolerance = False
+        manager.world_size = manager.dp_world_size = 8
+        def get_handle(kwargs):
+            assert kwargs == dict(max_num_tokens_per_dp_rank=64, token_hidden_size=5120,
+                num_ep_ranks=8, num_global_experts=384, num_local_experts=48)
+            return buffers[0][0]
+        manager.get_handle = get_handle
+        hf = NS(hidden_size=5120, n_routed_experts=384, num_experts_per_tok=6,
+            dspark_n_routed_experts=128, dspark_num_experts_per_tok=3,
+            num_hidden_layers=40)
+        cfg = NS(model_config=NS(hf_config=hf))
+        class Entry(torch.nn.Module):
+            def forward(self):
+                pass
+        with patch('hcu_vllm_das.dspark_backend.native_draft_ll_requested', return_value=True), \
+             patch('vllm.model_executor.layers.fused_moe.all2all_utils.get_ep_all2all_manager', return_value=manager):
+            for _, e in buffers:
+                model = Entry()
+                assert install_model_entry_reset(model, cfg, e)
+                entry_models[e] = model
     if args.stress:
         assert args.clean
         failures = []
@@ -59,11 +88,15 @@ def worker(rank, init, args):
                 ids = ((torch.arange(m, device='cuda')[:, None] * 17 +
                         torch.arange(k, device='cuda')[None, :] * 43 + rank) % e).long()
                 w = torch.full((m, k), 1. / k, dtype=torch.float32, device='cuda')
-                inputs.append((b, e, x, ids, w))
+                inputs.extend([(b, e, x, ids, w)] * args.same_layout_repeats)
             def execute():
                 outputs = []
-                for b, e, x, ids, w in inputs:
-                    b.clean_low_latency_buffer(64, 5120, e, num_topk=ids.shape[1])
+                for index, (b, e, x, ids, w) in enumerate(inputs):
+                    if args.model_entry_reset:
+                        if index % args.same_layout_repeats == 0:
+                            entry_models[e]()
+                    else:
+                        b.clean_low_latency_buffer(64, 5120, e, num_topk=ids.shape[1])
                     wire = x
                     extra = {}
                     if args.prequant and x.numel():
@@ -72,11 +105,12 @@ def worker(rank, init, args):
                         if args.dequant_wire:
                             wire = (quantized.float() * scales).bfloat16()
                         extra['x_scales'] = scales
+                    receiver_quant = args.receiver_quant and not (args.native_target_quant and e == 384)
                     q, counts, handle, _, hook = b.low_latency_dispatch(
-                        wire, ids, w, 64, e, quant_type=0 if args.receiver_quant else 2, quant_group_size=0,
+                        wire, ids, w, 64, e, quant_type=0 if receiver_quant else 2, quant_group_size=0,
                         fp8_round_scale=False, async_finish=False, return_recv_hook=True, **extra)
                     hook()
-                    if args.receiver_quant:
+                    if receiver_quant:
                         from vllm import _custom_ops as ops
                         shape = q.shape
                         if args.masked_receiver_quant and e == 128:
@@ -104,14 +138,21 @@ def worker(rank, init, args):
             with torch.cuda.graph(g, stream=stream):
                 outputs = execute()
             for replay in range(5):
-                for _, e, x, ids, w in inputs:
+                # Each repeated layout aliases the same changing payload.
+                for _, e, x, ids, w in inputs[::args.same_layout_repeats]:
                     x.neg_()
                     ids.add_(19).remainder_(e)
                 g.replay()
                 torch.cuda.synchronize()
-                for out, (_, e, x, _, _) in zip(outputs, inputs):
+                references = execute() if args.native_target_quant else [None] * len(outputs)
+                torch.cuda.synchronize()
+                for out, reference, (_, e, x, _, _) in zip(outputs, references, inputs):
                     expected = x
-                    if args.stock_random and x.numel():
+                    if args.native_target_quant and e == 384:
+                        # Keep the pre-existing vendor target math. This
+                        # assertion checks eager/captured layout replay exactly.
+                        expected = reference
+                    elif args.stock_random and x.numel():
                         from vllm import _custom_ops as ops
                         qref, sref = ops.scaled_fp8_quant(x, use_per_token_if_dynamic=True)
                         expected = (qref.float() * sref).bfloat16()
@@ -177,10 +218,15 @@ if __name__ == '__main__':
     p.add_argument('--magnitudes', type=float, nargs='+', default=[.25])
     p.add_argument('--masked-receiver-quant', action='store_true',
                    help='owned E128 receiver: quantize only native counts-active rows')
+    p.add_argument('--model-entry-reset', action='store_true')
+    p.add_argument('--native-target-quant', action='store_true')
+    p.add_argument('--same-layout-repeats', type=int, default=1)
     args = p.parse_args()
     if sum((args.single, args.shared, args.dual)) != 1:
         p.error('choose exactly one of --single, --shared, or --dual')
     if args.masked_receiver_quant and not (args.shared and args.receiver_quant and args.stress):
         p.error('--masked-receiver-quant requires --shared --receiver-quant --stress')
+    if args.same_layout_repeats < 1 or (args.model_entry_reset and not args.shared):
+        p.error('model-entry reset requires shared Buffer and positive layout repeats')
     with tempfile.TemporaryDirectory(prefix='deepep-dual-') as d:
         mp.spawn(worker, args=('file://' + d + '/group', args), nprocs=8, join=True)
