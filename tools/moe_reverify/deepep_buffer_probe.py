@@ -12,6 +12,7 @@ import argparse
 import datetime
 import json
 import itertools
+import math
 import os
 import tempfile
 import time
@@ -157,9 +158,11 @@ def worker(rank, init, args):
                         qref, sref = ops.scaled_fp8_quant(x, use_per_token_if_dynamic=True)
                         expected = (qref.float() * sref).bfloat16()
                     err = (out.float() - expected.float()).abs().max().item() if x.numel() else 0.
+                    equal_bytes = torch.equal(out.view(torch.uint8), expected.view(torch.uint8))
                     emit('graph_replay', experts=e, rows=rows, replay=replay, max_abs=err,
-                         magnitude=magnitude)
-                    if err > .01:
+                         magnitude=magnitude, equal_bytes=equal_bytes)
+                    if (not math.isfinite(err) or err > .01
+                            or (args.model_entry_reset and not equal_bytes)):
                         failures.append((e, rows, replay, err))
         dist.barrier()
         buffers[0][0].destroy()
