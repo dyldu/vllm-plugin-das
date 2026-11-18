@@ -134,3 +134,15 @@ separate profile and workflow exit0,8traces prove400target/30draft new kernels.
 Accepted formal medians22.223018363/21.874368957ms, mean22.048693660ms.
 Held standalone DSpark schedule207817d is excluded. CRLF/EOF-only cleanup
 after measurement preserves full AST. See MLA_IO_RESULTS.md and three JSONs.
+
+## Draft + mask/RoPE composition, frozen06:59 CST Nov19
+
+Measured plugin2820632/adapteraf8d174. Baseline accepted MLA I/O repeat medians
+22.223018363/21.874368957ms; matched2% ceilings22.667478730/22.311856336ms,
+aggregate22.489667533ms. Pure schedule precision remains byte-exact including
+changing Graph replay, with HE32 32/32 identical tasks/prompts,zero errors/trunc.
+All prior SLA gates remain mandatory.153CPU checks and isolated operator
+probes pass; HE32 passes; formal21.906416365/21.540173914ms, mean21.723295139ms,
+all exits0. Eight traces prove target400/draft30 fused mask/RoPE calls and
+exact draft Qsplit/KV/final Post selection. Earlier standalone draft207817d
+formal failure is retained; this composition includes additional optimizations.

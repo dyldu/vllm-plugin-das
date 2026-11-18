@@ -11,8 +11,20 @@ remain unchanged. Default AG/RS construction is unchanged.
 graph replays, with exact Q/cache/page bytes and immutable inputs. The actual
 private/native final forward body, including native hc_collapse, passes48
 changed-input cases in eager and captured replay. Its isolated M48 fixture
-moves212.95us to24.25us; draft Q/KV moves104.90us to14.39..14.44us. These are
-isolated timings; serving HE32 and paired/profile results are pending.
+moves212.95us to24.25us; draft Q/KV moves104.90us to14.39..14.44us. These are isolated timings. The original standalone schedule207817d passes
+HE32 but is held for formal24.85054/22.49405ms (aggregate23.67230ms), which
+fails its frozen first-repeat/aggregate ceilings. No measurement was dropped.
+
+The new composed plugin2820632 with adapteraf8d174 adds accepted MLA I/O and
+exact mask/inverse-RoPE fusion. It passes153combined CPU checks, HE32 32/32
+same tasks/prompts with zero errors/truncations, and both formal repeats:
+21.906416365/21.540173914ms, aggregate21.723295139ms. All frozen gates pass;
+profile/workflow exit0 and8traces confirm400targetQsplit/400KVonly/830Post,
+30draftQsplit/30KVonly/60Post, with context-Qnorm30retained per10steps.
+Fused mask/RoPE400target/30draft replaces standalone writeback and rotation.
+Target phase82.093..82.255ms, draft/sampling6.335..6.493ms. Aggregate is1.476%
+below I/O and41.316% below original, from two repeats without a confidence
+claim. Full SGLang phase parity remains incomplete.
 
 A context-KV-only shortcut was **rejected and removed**: a three-layer
 precompute graph test produced one different FP8 cache byte atB64/T64,

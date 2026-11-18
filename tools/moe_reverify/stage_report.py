@@ -9,6 +9,9 @@ import statistics
 
 def stage(name):
     families = (
+        ("mla_native_plan", ("gfx9::decode::get_mla_metadata_kernel",)),
+        ("mla_mask_inverse_rope", ("_mask_copy_inverse_rope",)),
+        ("mla_fresh_plan", ("_fresh_native_plan",)),
         ("mla_output_mask_copy", ("_mask_copy_native_mla",)),
         ("mla_selectors", ("_compact_selectors",)),
         ("q_rope_split", ("_q_rope_native_512",)),

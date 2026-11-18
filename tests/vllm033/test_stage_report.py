@@ -10,4 +10,7 @@ def test_full_qkv_symbols_remain_distinct_from_post_and_unknown():
     assert stage('_mhc_post_5120') == 'mhc_post_5120'
     assert stage('_compact_selectors') == 'mla_selectors'
     assert stage('_mask_copy_native_mla') == 'mla_output_mask_copy'
+    assert stage('_mask_copy_inverse_rope') == 'mla_mask_inverse_rope'
+    assert stage('_fresh_native_plan') == 'mla_fresh_plan'
+    assert stage('gfx9::decode::get_mla_metadata_kernel(GetDecodeSchedMetaParams)') == 'mla_native_plan'
     assert stage('unrelated_vectorized_elementwise_kernel') is None
