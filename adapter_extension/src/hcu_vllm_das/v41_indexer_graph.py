@@ -28,5 +28,29 @@ def _graph_capture_patch_point(config):
     return graph_capture_allowed(config)
 
 
+def fp4_decode_graph_capture_allowed(config):
+    """Admit only the native DP8/EP8 DSpark FP4 decode graph contract.
+
+    The LightOp FP4 reader uses fixed-shape device metadata during decode.
+    Prefill still needs a breakable PIECEWISE graph; the separate host-metadata
+    FP8 reference retains its full-capture rejection.
+    """
+    mode = getattr(getattr(config, 'compilation_config', None),
+                   'cudagraph_mode', None)
+    if getattr(mode, 'name', None) != 'FULL_AND_PIECEWISE':
+        return False
+    from vllm.compilation.breakable_cudagraph import is_breakable_cudagraph_enabled
+    from hcu_adapter.fp4_indexer import applicable
+    from .dspark_graph import native_decode_dspark, token_capacity, validate_graph_capacity
+
+    if (not is_breakable_cudagraph_enabled() or not applicable(config)
+            or not native_decode_dspark(config)):
+        return False
+    token_capacity(config)
+    validate_graph_capacity(config)
+    return True
+
+
 _impl.bind_runtime_resolvers(
-    OWNER, graph_allowed=lambda: _graph_capture_patch_point)
+    OWNER, graph_allowed=lambda: _graph_capture_patch_point,
+    fp4_graph_allowed=lambda: fp4_decode_graph_capture_allowed)

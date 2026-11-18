@@ -209,6 +209,56 @@ def test_full_cudagraph_is_refused(optin):
         validate_config(optin)
 
 
+def test_fp4_decode_full_graph_requires_a_published_owner(monkeypatch):
+    from hcu_adapter import v41_fp8_indexer as contract
+    monkeypatch.setattr(contract, '_resolvers', {})
+    assert not contract.fp4_decode_graph_capture_allowed(object())
+
+
+def _full_decode_config(cfg):
+    from vllm.config import CUDAGraphMode
+    cfg.model_config.enforce_eager = False
+    cfg.attention_config = attention_config('mxfp4')
+    cfg.compilation_config = NS(cudagraph_mode=CUDAGraphMode.FULL_AND_PIECEWISE,
+                               cudagraph_capture_sizes=[1, 4, 8, 16, 32, 40, 48, 64])
+    cfg.parallel_config.data_parallel_size = 8
+    cfg.parallel_config.enable_expert_parallel = True
+    cfg.parallel_config.all2all_backend = 'deepep_low_latency'
+    cfg.scheduler_config = NS(max_num_seqs=8, max_num_batched_tokens=64)
+    cfg.speculative_config = NS(method='dspark', num_speculative_tokens=5,
+        enable_adaptive_verification=False, target_parallel_config=cfg.parallel_config,
+        draft_model_config=NS(hf_config=NS(sample_from_anchor=True)))
+    return cfg
+
+
+def test_owned_fp4_full_decode_with_piecewise_prefill_is_admitted(optin, monkeypatch):
+    monkeypatch.setenv('VLLM_USE_BREAKABLE_CUDAGRAPH', '1')
+    cfg = _full_decode_config(optin)
+    assert validate_config(cfg).page_records == 64
+    # Private AG-RS draft still identifies its reviewed DeepEP target policy.
+    from copy import copy
+    cfg.parallel_config = copy(cfg.parallel_config)
+    cfg.parallel_config.all2all_backend = 'allgather_reducescatter'
+    assert validate_config(cfg).page_records == 64
+
+
+@pytest.mark.parametrize('change', ['no_breakable', 'dp1', 'fp8', 'full_prefill'])
+def test_full_decode_admission_retains_narrow_scope(optin, monkeypatch, change):
+    from vllm.config import CUDAGraphMode
+    monkeypatch.setenv('VLLM_USE_BREAKABLE_CUDAGRAPH', '1')
+    cfg = _full_decode_config(optin)
+    if change == 'no_breakable':
+        monkeypatch.setenv('VLLM_USE_BREAKABLE_CUDAGRAPH', '0')
+    elif change == 'dp1':
+        cfg.parallel_config.data_parallel_size = 1
+    elif change == 'fp8':
+        cfg.attention_config = attention_config('fp8')
+    else:
+        cfg.compilation_config.cudagraph_mode = CUDAGraphMode.FULL
+    with pytest.raises(ValueError, match='Graph'):
+        validate_config(cfg)
+
+
 def test_legacy_inductor_piecewise_is_refused(optin):
     optin.model_config.enforce_eager = False
     optin.compilation_config = _compilation(mode='VLLM_COMPILE')
