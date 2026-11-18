@@ -33,8 +33,10 @@ Validation on nmz18 / duyl-033-1112, 8 x BW1101, 95.98 GiB per device:
   zero failures. Median TPOT **32.40832604 / 32.09548897 ms**, aggregate
   **32.25190751 ms**, versus original baseline **37.01764291 ms** (12.874%
   observed decrease). Both matched 2% ceilings and aggregate 37.75799576 ms
-  ceiling pass. The FP4 tail fix is also present; same-source PIECEWISE control
-  is pending to isolate the graph-mode effect.
+  ceiling pass. Same-source PIECEWISE control, including the same FP4 tail fix,
+  measures 37.67245226 / 36.74877211 ms (aggregate 37.21061218 ms), with 64/64
+  requests and zero failures each, all SLA gates passing. FULL is 13.326% lower
+  against that control. The control also exports 8 traces and exits 0.
 - Independent profile exports 8 traces; profile/workflow exit 0. Each rank has
   400 target mega-gates, image corrections and shared fusions, and 800 masked
   grouped GEMMs in 10 target steps.
@@ -43,6 +45,10 @@ With the same profiler settings, median phase idle fractions across ranks
 are 1.87--1.97% for draft plus sampling and 2.25--2.30% for target. Rank 0's
 prior V6 PIECEWISE values were 84.95% and 23.86%. These are profiler diagnostics,
 not unprofiled latency estimates; stack collection can inflate CPU gaps.
+The same-source PIECEWISE control's ranges are 21.20--86.09% for draft plus
+sampling and 14.92--29.44% for target, illustrating rank-to-rank waiting.
+Rank 0 runtime counts drop from 450 to 20 hipGraphLaunch calls and from 29,790
+to 520 hipLaunchKernel calls; counts describe the captured window only.
 
 MoE stage alignment remains incomplete: target shared mean is 8.416--8.503 us
 in this capture versus the SGLang reference's approximately 5.4 us. Grouped
@@ -52,9 +58,11 @@ Draft transport remains AG/RS; both frameworks already use DeepGEMM.
 
 Frozen controls and gates are in PROTOCOL.md. CUDAGRAPH_MODE selects PIECEWISE
 (default) or FULL_AND_PIECEWISE in both harnesses. Compact evidence is in
-graph_v2_{perf,he32}_summary.json. Raw artifacts, failed starts and unit logs:
+graph_v2_{perf,he32}_summary.json and graph_pw_control_perf_summary.json.
+Raw artifacts, failed starts and unit logs:
 /public/home/duyunlong/run/dsv4.1/033/moe_reverify_20261118.
 
 Accuracy: graph_v2_he32/20261119_014711/20261119_015203.
 Performance: graph_v2_pair/20261119_015351_channel_fp8_j45kIT.
+Same-source control: graph_pw_control/20261119_020404_channel_fp8_tWMoIR.
 Units: fp4_full_decode_{cpu,gpu}_v4.log.

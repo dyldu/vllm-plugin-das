@@ -35,7 +35,18 @@
   "profile_complete": true,
   "workflow_exit": 0,
   "accepted": true,
-  "same_source_piecewise_control": "pending",
+  "same_source_piecewise_control": {
+    "aggregate_median_ms": 37.210612182916094,
+    "median_tpot_ms": [
+      37.67245225645015,
+      36.74877210938203
+    ],
+    "full_observed_gain_percent": 13.32604970233126,
+    "profile_pending": false,
+    "accepted_control": true,
+    "workflow_exit": 0,
+    "trace_files": 8
+  },
   "note": "Graph+requiredFP4tailmask vs V6 baseline; paired same-code PIECEWISE control follows to isolate mode effect.",
   "trace_files": 8,
   "profile_gap_summary": [
