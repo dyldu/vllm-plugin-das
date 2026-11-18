@@ -104,6 +104,9 @@ def create_channel_fp8_moe_method(weight_quant, input_quant, moe, layer_name=Non
     The provider is invoked only for the adapter-validated Channel-FP8 scheme.
     Each PCP method retains its full shape/topology/vendor admission checks.
     """
+    from ..moe.routing_runner import install_channel_moe_runner
+
+    install_channel_moe_runner()
     parallel = getattr(moe, "moe_parallel_config", None)
     pcp_target = (
         getattr(moe, "pcp_size", None) == 8

@@ -171,12 +171,17 @@ class DeepseekV4MLP(nn.Module):
         if self.swiglu_limit is None:
             return self.act_fn(gate_up, quant_dtype=self.quant_dtype)
         # Keep DeepSeek-V4 clamp semantics while still emitting FP8 for down GEMM.
-        from lightop.activation import fuse_silu_mul_fp8_quant
-
         if self.quant_dtype == torch.float8_e4m3fn:
-            return fuse_silu_mul_fp8_quant(
-                gate_up, fp8type=0, limit=float(self.swiglu_limit)
-            )
+            from hcu_vllm_das.moe.shared_act_quant import silu_clamp_bf16_quant
+
+            if (gate_up.is_cuda and gate_up.ndim == 2
+                    and gate_up.dtype == torch.bfloat16 and gate_up.is_contiguous()
+                    and 0 < gate_up.shape[-1] <= 16384 and gate_up.shape[-1] % 2 == 0):
+                return silu_clamp_bf16_quant(gate_up, float(self.swiglu_limit))
+            from vllm import _custom_ops as ops
+
+            return ops.scaled_fp8_quant(self.act_fn(gate_up),
+                                        use_per_token_if_dynamic=True)
         from lightop.activation import fuse_silu_mul_per_token_quant
 
         return fuse_silu_mul_per_token_quant(

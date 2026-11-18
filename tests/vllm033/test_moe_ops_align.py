@@ -141,14 +141,14 @@ def test_bf16_mega_gate_matches_reference(num_tokens: int) -> None:
             apply_scale=True,
         )
 
-    ref_logits = torch.nn.functional.linear(x, w).float()
+    ref_logits = torch.nn.functional.linear(x.float(), w.float())
     ref_w, ref_ids = _golden_dsv4_topk(
         ref_logits, b, TOP_K, ROUTED_SCALING_FACTOR
     )
 
     # ---- (a) The ROUTING RULE, checked on the kernel's own logits ----
-    # The kernel and torch compute the gate GEMM with a different fp32
-    # accumulation order, so their logits differ by ~1e-3 relative. To test
+    # BF16 inputs accumulate into FP32, without rounding logits to BF16.
+    # The independent FP32 GEMM can use a different addition order. To test
     # the routing *semantics* (not the GEMM), replay the reference rule on
     # the logits the kernel itself produced. This isolates the question
     # "does the kernel implement the SGLang rule?" from "is the GEMM
@@ -167,17 +167,15 @@ def test_bf16_mega_gate_matches_reference(num_tokens: int) -> None:
         for j, e in enumerate(exp):
             want = float(kernel_w[r][j])
             got_v = gmap[int(e)]
-            assert abs(got_v - want) <= 5e-2 * max(abs(want), 1e-6), (
+            assert abs(got_v - want) <= 1e-6 + 1e-5 * abs(want), (
                 f"row {r}: weight for expert {e}: {got_v} != {want}"
             )
 
     # ---- (b) The SELECTION, checked against the independent torch GEMM ----
-    # Here the kernel may legitimately differ from the torch reference when
-    # the top-k boundary is a near-tie: the two GEMMs disagree by ~1e-3
-    # relative, which is enough to swap the 6th and 7th ranked expert.
-    # Such a swap is only acceptable when the boundary margin is
-    # negligible compared to the score magnitude.
+    # Explain a changed boundary only by the measured FP32 score error,
+    # rather than an arbitrary relative near-tie allowance.
     score_all = _golden_scores(ref_logits, b)
+    score_error = (_golden_scores(logits, b) - score_all).abs().amax(1)
     for r in range(num_tokens):
         got = set(ids[r].tolist())
         exp = set(ref_ids[r].tolist())
@@ -185,17 +183,14 @@ def test_bf16_mega_gate_matches_reference(num_tokens: int) -> None:
             continue
         srt = torch.sort(score_all[r], descending=True).values
         margin = abs(srt[TOP_K - 1].item() - srt[TOP_K].item())
-        rel_margin = margin / max(abs(srt[0].item()), 1e-9)
-        assert rel_margin < 2e-3, (
+        measured_bound = 2 * score_error[r].item() + 1e-6
+        assert margin <= measured_bound, (
             f"row {r}: ids {sorted(got)} != {sorted(exp)} and the top-k "
-            f"boundary is not a near-tie (relative margin {rel_margin:.3e})"
+            f"boundary margin {margin:.3e} exceeds measured bound {measured_bound:.3e}"
         )
 
     # the returned logits are the *unbiased* router GEMM output
-    rel = (logits.float() - ref_logits).abs().max().item() / max(
-        ref_logits.abs().max().item(), 1e-6
-    )
-    assert rel < 5e-2, f"logits relative error {rel}"
+    torch.testing.assert_close(logits, ref_logits, rtol=2e-5, atol=2e-5)
 
 
 @pytest.mark.parametrize("num_tokens", [8, 128])
@@ -232,11 +227,12 @@ def test_bf16_mega_gate_is_faster_than_unfused(num_tokens: int) -> None:
         )
 
     def run_unfused():
-        lg = torch.nn.functional.linear(x, w).float()
-        wt = torch.sqrt(F.softplus(lg))
-        _, i = torch.topk(wt + b, TOP_K, dim=-1)
-        gathered = wt.gather(1, i)
-        return gathered / gathered.sum(-1, keepdim=True) * ROUTED_SCALING_FACTOR, i
+        from vllm.model_executor.layers.fused_moe.router.fused_topk_bias_router import fused_topk_bias
+
+        lg = torch.mm(x, w.T, out_dtype=torch.float32)
+        return fused_topk_bias(x, lg, "sqrtsoftplus", b, TOP_K, True,
+                               indices_type=torch.int32,
+                               routed_scaling_factor=ROUTED_SCALING_FACTOR)
 
     t_fused = _cuda_time_us(run_fused)
     t_unfused = _cuda_time_us(run_unfused)
