@@ -14,7 +14,7 @@ from hcu_adapter.dsv41_draft_weight_alias import HcuDSV41DraftWeightAliasModel
 
 
 class HcuDSparkDeepseekV41ForCausalLM(HcuDSV41DraftWeightAliasModel):
-    """Keep native draft construction/loading; own CT DP communication policy."""
+    """Keep native loading; own CT communication and admitted LL schedules."""
 
     def __init__(self, *, vllm_config, prefix=""):
         from vllm.config import set_current_vllm_config
@@ -25,7 +25,8 @@ class HcuDSparkDeepseekV41ForCausalLM(HcuDSV41DraftWeightAliasModel):
         # By default CT W4A8 and Channel-FP8 take a private AG-RS construction
         # config so they do not allocate a second DeepEP/RocSHMEM LL buffer on
         # top of the target's already-resident weights. Explicitly admitted
-        # Channel-FP8 LL experiments retain native construction unchanged.
+        # Channel-FP8 LL uses source-pinned private native namespaces for the
+        # admitted Q/KV and final Post schedules, without rebinding Core globals.
         if (
             _owned_quant_kind(vllm_config) is not None
             and vllm_config.parallel_config.data_parallel_size > 1
@@ -37,6 +38,9 @@ class HcuDSparkDeepseekV41ForCausalLM(HcuDSV41DraftWeightAliasModel):
             # copy and retain native compiler live tables for layer discovery.
             with set_current_vllm_config(local):
                 super().__init__(vllm_config=local, prefix=prefix)
+        elif native_ll:
+            from ..dspark_schedule import initialize_owned
+            initialize_owned(self, vllm_config=vllm_config, prefix=prefix)
         else:
             super().__init__(vllm_config=vllm_config, prefix=prefix)
         if native_ll:

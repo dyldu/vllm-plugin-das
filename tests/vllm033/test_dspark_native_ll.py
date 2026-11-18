@@ -70,7 +70,10 @@ def test_native_constructor_receives_original_config(monkeypatch):
     cfg = config(); seen = []
     def constructor(self, *, vllm_config, prefix=''):
         torch.nn.Module.__init__(self); seen.append(vllm_config)
-    monkeypatch.setattr(HcuDSV41DraftWeightAliasModel, '__init__', constructor)
+    # Explicit native LL owns a private constructor namespace; the config
+    # object must still reach it unchanged and loader aliases stay inherited.
+    from hcu_vllm_das import dspark_schedule
+    monkeypatch.setattr(dspark_schedule, '_OUTER_INIT', constructor)
     HcuDSparkDeepseekV41ForCausalLM(vllm_config=cfg)
     assert seen == [cfg]
 
