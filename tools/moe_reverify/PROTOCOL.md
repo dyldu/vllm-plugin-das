@@ -80,3 +80,20 @@ candidate requirement is now32/32 (original rule: at least29/32 AND no reduction
 Record item-level outcomes and truncation/errors. A failed/skipped evaluation
 does not establish correctness. Kernel, serving accuracy and performance gates
 all precede cudagraph gap work; DSpark backend/OOM work follows graph work.
+
+## DSpark transport experiment
+
+`DSPARK_DRAFT_BACKEND=deepep_low_latency` selects the explicit additional-config
+key `hcu_dsv41_dspark_draft_backend`; the default remains AG/RS. The admitted
+single-node IPC experiment retains the native target-sized Buffer and cleans
+each dispatch layout inside graphs. Draft BF16 dispatch uses stock token-FP8
+quantization at the receiver: vendor LL quantization failed the frozen operator
+threshold against the existing AG/RS quantizer. Target quantization is unchanged.
+The tested geometry is H5120, target384/draft128 experts, cap64, DP8/EP8; GDA,
+internode, fault tolerance and effective layered/MNVL routes are refused.
+
+Before DSpark formal measurements, retain the original SLA and additionally
+freeze a 2% ceiling against accepted FULL + AG/RS: matched repeats
+33.05649256564706 / 32.73739875246603 ms, aggregate32.89694565905654 ms.
+HE32 still requires32/32 with identical prompts/tasks and zero errors/truncations.
+Use two unprofiled formal repeats before independent eight-rank profiling.
