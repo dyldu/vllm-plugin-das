@@ -106,3 +106,13 @@ accepted model-entry cleanup before Post serving measurement: matched
 and DSpark gates remain required. Actual Post operator and graph outputs must
 be byte-exact with Torch for the tested shapes/magnitudes, followed by HE32
 and two formal repeats plus independent profiling. See POST_RESULTS.md.
+
+## Q/KV split experiment
+
+`qkv_split_preflight_sla.json` freezes another 2% ceiling against accepted Post
+before serving measurement: matched 28.74440217966317 / 27.642779170176176 ms,
+aggregate 28.193590674919673 ms. All previous SLA gates remain. Require exact
+Q BF16 bytes, full KV cache bytes and untouched input/page padding, including
+changed-device-metadata graph replays. HE32 retains its existing gate. See
+QKV_RESULTS.md for the actual 584-byte page contract and the aborted initial
+528-byte-layout workflow.
