@@ -7,9 +7,15 @@
 # Usage (容器内):
 #   HCU_VLLM_DIR=... HCU_ADAPTER_SRC=... MODEL_PATH=... RUN_ROOT=... bash profile_fp8_paired.sh
 #
-# 所有参数已写死（对齐 laibao/033/w4/prof_d.sh），不再接受环境变量覆盖。
+# Baseline defaults remain fixed; CUDAGRAPH_MODE selects the separate graph experiment.
 
 set -uo pipefail
+
+cudagraph_mode="${CUDAGRAPH_MODE:-PIECEWISE}"
+case "${cudagraph_mode}" in
+  PIECEWISE|FULL_AND_PIECEWISE) ;;
+  *) echo "Unsupported CUDAGRAPH_MODE: ${cudagraph_mode}" >&2; exit 2 ;;
+esac
 
 cleanup() {
   local rc=$?
@@ -94,6 +100,7 @@ save_config_yaml() {
     echo "  host: \"${host}\""
     echo "  port: ${port}"
     echo "  served_model_name: \"${served_model_name}\""
+    echo "  cudagraph_mode: \"${cudagraph_mode}\""
     echo "  fake_prefill: DecodeBenchConnector"
     echo "  dspark_synthetic: ${dspark_synthetic} p=${dspark_accept_p} n=${num_spec_tokens}"
     echo "  max_concurrency: ${prof_max_concurrency}"
@@ -326,7 +333,7 @@ setsid env PYTHONUNBUFFERED=1 "${PYTHON_BIN}" -m vllm.entrypoints.cli.main serve
   --kernel-config '{"enable_jit_warmup":false}' \
   --max-model-len 8192 \
   --cudagraph-capture-sizes 1 2 4 8 16 32 40 48 64 \
-  -cc '{"cudagraph_mode":"PIECEWISE"}' \
+  -cc "{\"cudagraph_mode\":\"${cudagraph_mode}\"}" \
   --engram-config '{"cpu_offload": true, "dp_shared_memory": false, "embedding_across_dp": true}' \
   --speculative-config "${speculative_config}" \
   --no-enable-prefix-caching \

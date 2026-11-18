@@ -5,6 +5,12 @@
 # Usage: bash accuracy_fp8.sh [--check]
 set -uo pipefail
 
+cudagraph_mode="${CUDAGRAPH_MODE:-PIECEWISE}"
+case "${cudagraph_mode}" in
+  PIECEWISE|FULL_AND_PIECEWISE) ;;
+  *) echo "Unsupported CUDAGRAPH_MODE: ${cudagraph_mode}" >&2; exit 2 ;;
+esac
+
 check_only=0
 for argument in "$@"; do
   case "${argument}" in
@@ -87,6 +93,7 @@ save_config_yaml() {
     echo "timestamp: \"$(date '+%Y-%m-%d %H:%M:%S')\""
     echo "run_dir: \"${run_dir}\""
     echo "mode: acc_channel_fp8_he32"
+    echo "cudagraph_mode: \"${cudagraph_mode}\""
     echo ""
     echo "# 进程里实际生效的变量（外部漏进来的也在这里现形）"
     echo "effective_env:"
@@ -354,7 +361,7 @@ serve_cmd=(
   --max-num-batched-tokens 64
   --kernel-config '{"enable_jit_warmup":false}'
   --cudagraph-capture-sizes 1 4 8 16 32 40 48 64
-  -cc '{"cudagraph_mode":"PIECEWISE"}'
+  -cc "{\"cudagraph_mode\":\"${cudagraph_mode}\"}"
   --attention-config '{"indexer_kv_dtype":"mxfp4"}'
   --speculative-config '{"method":"dspark","num_speculative_tokens":5,"moe_backend":"deep_gemm"}'
   --engram-config '{"cpu_offload": true, "dp_shared_memory": false, "embedding_across_dp": true}'
