@@ -62,6 +62,35 @@ def _silu_clamp_bf16_quant(X, Q, S, N: tl.constexpr, LIMIT: tl.constexpr,
     tl.store(S + row, scale)
 
 
+@triton.jit
+def _shared_bf16_value(gate, up, LIMIT: tl.constexpr):
+    gate = tl.minimum(gate.to(tl.float32), LIMIT)
+    up = tl.minimum(tl.maximum(up.to(tl.float32), -LIMIT), LIMIT)
+    up = tl.where(up == 0.0, 0.0, up)
+    activated = (gate / (1.0 + tl.exp(-gate))).to(tl.bfloat16).to(tl.float32)
+    return (activated * up).to(tl.bfloat16).to(tl.float32)
+
+
+@triton.jit
+def _silu_clamp_bf16_quant_2304(X, Q, S, LIMIT: tl.constexpr):
+    # Model width is 2304. A 4096-column tile spends almost half its work on
+    # padding; reduce the 2048 main columns and 256 tail separately instead.
+    row = tl.program_id(0)
+    col = tl.arange(0, 2048)
+    tail = 2048 + tl.arange(0, 256)
+    value = _shared_bf16_value(tl.load(X + row * 4608 + col),
+                              tl.load(X + row * 4608 + 2304 + col), LIMIT)
+    last = _shared_bf16_value(tl.load(X + row * 4608 + tail),
+                             tl.load(X + row * 4608 + 2304 + tail), LIMIT)
+    amax = tl.maximum(tl.max(tl.abs(value), 0), tl.max(tl.abs(last), 0))
+    scale = tl.maximum(tl.div_rn(amax, 448.0), 1.0 / (448.0 * 512.0))
+    quant = tl.minimum(tl.maximum(tl.div_rn(value, scale), -448.0), 448.0)
+    quant_tail = tl.minimum(tl.maximum(tl.div_rn(last, scale), -448.0), 448.0)
+    tl.store(Q + row * 2304 + col, quant)
+    tl.store(Q + row * 2304 + tail, quant_tail)
+    tl.store(S + row, scale)
+
+
 def silu_clamp_bf16_quant(x: torch.Tensor, limit: float):
     if (not x.is_cuda or x.ndim != 2 or x.dtype != torch.bfloat16
             or not x.is_contiguous()):
@@ -73,8 +102,13 @@ def silu_clamp_bf16_quant(x: torch.Tensor, limit: float):
     q = torch.empty((m, n), dtype=torch.float8_e4m3fn, device=x.device)
     s = torch.empty((m, 1), dtype=torch.float32, device=x.device)
     if m:
-        _silu_clamp_bf16_quant[(m,)](x, q, s, n, limit, triton.next_power_of_2(n),
-                                     num_warps=4, enable_fp_fusion=False)
+        if n == 2304:
+            _silu_clamp_bf16_quant_2304[(m,)](
+                x, q, s, limit, num_warps=4, enable_fp_fusion=False)
+        else:
+            _silu_clamp_bf16_quant[(m,)](
+                x, q, s, n, limit, triton.next_power_of_2(n),
+                num_warps=4, enable_fp_fusion=False)
     return q, s
 
 
