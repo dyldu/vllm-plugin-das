@@ -1,0 +1,22 @@
+{
+  "frozen_at": "2026-11-19T06:31:01.863404+08:00",
+  "baseline": "mla_selectors_v1_perf_summary.json",
+  "baseline_repeat_medians_ms": [
+    22.870670023234926,
+    22.569727733745935
+  ],
+  "baseline_aggregate_ms": 22.72019887849043,
+  "matched_ceilings_ms": [
+    23.328083423699624,
+    23.021122288420855
+  ],
+  "aggregate_ceiling_ms": 23.174602856060236,
+  "max_matched_regression": 0.02,
+  "precision_gate": "Native decode BF16 and dynamic Graph output bytes exact; all BF16 mask-copy patterns exact; inputs immutable",
+  "he32_gate": "32/32 identical baseline prompts/tasks, zero errors/truncations, real prefill/acceptance",
+  "retains_all_previous_sla_gates": true,
+  "formal_measurement_started": false,
+  "plugin": "ec93021 (production a4687f8)",
+  "adapter": "03ef92e",
+  "held_dspark_schedule": "207817d excluded: failed frozen TPOT gates"
+}

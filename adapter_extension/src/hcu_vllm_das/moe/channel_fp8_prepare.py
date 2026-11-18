@@ -166,9 +166,12 @@ def _check_ll_buffer(buffer):
 class HcuChannelFP8LLPrepareAndFinalize(DeepEPLLPrepareAndFinalize):
     """Own HCU channel dispatch; inherit native handle slots and combine."""
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, reset_before_dispatch=False,
+                 stock_quant_after_dispatch=False, **kwargs):
         super().__init__(*args, **kwargs)
         _check_ll_buffer(self.buffer)
+        self.reset_before_dispatch = reset_before_dispatch
+        self.stock_quant_after_dispatch = stock_quant_after_dispatch
 
     def prepare_async(self, a1, topk_weights, topk_ids, num_experts, expert_map,
                       apply_router_weight_on_input, quant_config,
@@ -186,9 +189,17 @@ class HcuChannelFP8LLPrepareAndFinalize(DeepEPLLPrepareAndFinalize):
                 raise ChannelFP8PrepareError("Channel-FP8 router-weight input requires topk=1")
             a1 = a1 * topk_weights.to(a1.dtype)
         ids = self._map_global_to_physical_ids(topk_ids)
+        if self.reset_before_dispatch:
+            # Always emit the clean, including during graph capture/replay.
+            # A Python "last layout" cache misses transitions during replay.
+            self.buffer.clean_low_latency_buffer(
+                self.max_tokens_per_rank, a1.shape[1], num_experts,
+                quant_group_size=0, num_topk=ids.shape[1],
+            )
         returned = self.buffer.low_latency_dispatch(
             a1, ids, topk_weights, self.max_tokens_per_rank, num_experts,
-            quant_type=2, quant_group_size=0, fp8_round_scale=False,
+            quant_type=0 if self.stock_quant_after_dispatch else 2,
+            quant_group_size=0, fp8_round_scale=False,
             async_finish=False, return_recv_hook=True,
         )
         if not isinstance(returned, tuple) or len(returned) != 5:
@@ -199,9 +210,27 @@ class HcuChannelFP8LLPrepareAndFinalize(DeepEPLLPrepareAndFinalize):
             raise ChannelFP8PrepareError("HCU LL dispatch did not provide a receive hook")
 
         def receive():
-            if not isinstance(expert_x, tuple) or len(expert_x) != 2:
+            if self.stock_quant_after_dispatch:
+                # Keep the AG/RS draft's stock token-FP8 conversion. The HCU
+                # LL quantizer is numerically different; sending BF16 then
+                # quantizing at the receiver preserves codes/scales without
+                # requiring unsupported FP8 input to the vendor dispatch.
+                if (not isinstance(expert_x, torch.Tensor) or expert_x.ndim != 3
+                        or expert_x.dtype != torch.bfloat16
+                        or not expert_x.is_contiguous()
+                        or expert_x.shape[1:] != (
+                            self.max_tokens_per_rank * self.num_dispatchers(), a1.shape[1])):
+                    raise ChannelFP8PrepareError('LL BF16 receiver layout mismatch')
+                from .masked_token_quant import masked_token_quant
+
+                # Native counts stay on device and change at graph replay.
+                # Masked experts never consume the unused capacity rows.
+                payload = masked_token_quant(expert_x, counts)
+            else:
+                payload = expert_x
+            if not isinstance(payload, tuple) or len(payload) != 2:
                 raise ChannelFP8PrepareError("HCU LL dispatch must return (FP8, token scale)")
-            values, scales = expert_x
+            values, scales = payload
             capacity = self.max_tokens_per_rank * self.num_dispatchers()
             if (values.ndim != 3 or values.dtype != torch.float8_e4m3fn
                     or values.shape[1:] != (capacity, a1.shape[1])
@@ -242,6 +271,15 @@ def make_channel_prepare(moe, quant_config, routing_tables, config=None):
             or manager.dp_world_size != parallel.dp_size
             or moe.num_local_experts * manager.world_size != moe.num_experts):
         raise ChannelFP8PrepareError("Channel-FP8 EP membership/expert capacity mismatch")
+    shared_ipc = False
+    if parallel.use_deepep_ll_kernels and config is not None:
+        from ..dspark_backend import native_draft_ll_requested
+
+        shared_ipc = native_draft_ll_requested(config)
+        if shared_ipc:
+            from ..dspark_ll import SharedIPCManager
+
+            manager = SharedIPCManager(manager)
     native = maybe_make_prepare_finalize(
         moe, quant_config, routing_tables=routing_tables,
         allow_new_interface=True, all2all_manager=manager,
@@ -260,6 +298,9 @@ def make_channel_prepare(moe, quant_config, routing_tables, config=None):
         use_fp8_dispatch=True, global_to_physical=native.global_to_physical,
         physical_to_global=native.physical_to_global,
         local_expert_global_ids=native.local_expert_global_ids,
+        reset_before_dispatch=(shared_ipc
+                               and not manager.has_model_entry_reset(moe.num_experts)),
+        stock_quant_after_dispatch=shared_ipc and moe.num_experts == 128,
     )
 
 

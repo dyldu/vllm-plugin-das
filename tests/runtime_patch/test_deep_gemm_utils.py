@@ -1045,7 +1045,8 @@ def test_expected_m_hint_scales_by_num_dispatchers():
     )
 
     experts = _expected_m_stub(4, local_tokens=32)
-    # total = 32 * 4 = 128; replicated = 128 * 8 = 1024; //256 = 4 -> 16
+    # total = 32 * 4 = 128; replicated = 128 * 8 = 1024;
+    # (1024 + 256) // 256 = 5 -> round_up 16
     estimate = bdgm.BatchedDeepGemmExperts._hcu_estimate_expected_m(
         experts, 256, 64, 8, 32
     )
@@ -1058,8 +1059,8 @@ def test_expected_m_hint_scales_by_num_dispatchers():
     # Discriminating multiplier case (review): with the OLD shape-16 inputs
     # both the hinted and the no-dispatcher product round up to 16, so a
     # memory mutation that drops the multiplier survives. Here the hinted
-    # estimate is 96*8*2 //64 = 24 -> round_up 32 while the mutated variant
-    # yields 3 -> 16, so this case fails without the multiplier.
+    # estimate is (96*8*2 + 64) //64 = 25 -> round_up 32 while the mutated
+    # variant yields 3 -> 16, so this case fails without the multiplier.
     experts = _expected_m_stub(8, local_tokens=96)
     assert (
         bdgm.BatchedDeepGemmExperts._hcu_estimate_expected_m(
@@ -1069,6 +1070,23 @@ def test_expected_m_hint_scales_by_num_dispatchers():
     )
     assert (
         bdgm.BatchedDeepGemmExperts.estimate_expected_m(experts, 64, 128, 2)
+        == 32
+    )
+
+
+def test_expected_m_sglang_one_row_margin_crosses_round16():
+    """``+ E`` before divide must matter after round16 (SGL parity)."""
+    from vllm_hcu.model_executor.layers.fused_moe.experts import (
+        batched_deep_gemm_moe as bdgm,
+    )
+
+    # local*dp*topk = 16 * E → floor without +E is exactly 16; with +E is 17
+    # which rounds to 32. Capacity is large enough to observe the bump.
+    experts = _expected_m_stub(1, local_tokens=64)
+    assert (
+        bdgm.BatchedDeepGemmExperts._hcu_estimate_expected_m(
+            experts, 64, 128, 16, 64
+        )
         == 32
     )
 

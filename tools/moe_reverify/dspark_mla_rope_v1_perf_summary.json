@@ -1,0 +1,1177 @@
+{
+  "directory": "/public2/home/duyunlong/run/dsv4.1/033/moe_reverify_20261118/dspark_mla_rope_v1_pair/20261119_070855_channel_fp8_n60Jv1",
+  "median_tpot_ms": [
+    21.906416364542146,
+    21.540173914239514
+  ],
+  "aggregate_mean_of_repeat_medians_ms": 21.723295139390828,
+  "requests": [
+    {
+      "completed": 64,
+      "failed": 0,
+      "mean_tpot_ms": 22.25362390415435,
+      "p99_tpot_ms": 25.726555802082043,
+      "output_throughput": 2188.641740685642
+    },
+    {
+      "completed": 64,
+      "failed": 0,
+      "mean_tpot_ms": 21.777006306394007,
+      "p99_tpot_ms": 27.16992539580999,
+      "output_throughput": 2230.24260016101
+    }
+  ],
+  "gates": {
+    "matched": true,
+    "aggregate": true,
+    "requests": true,
+    "he32": true,
+    "original": true,
+    "dspark": true,
+    "post": true,
+    "qkv": true,
+    "exits": true,
+    "eight_traces": true
+  },
+  "exits": {
+    "formal_1.exit": 0,
+    "formal_2.exit": 0,
+    "profile.exit": 0,
+    "exit_code": 0
+  },
+  "trace_files": 8,
+  "tpot_gates_pass": true,
+  "stage_evidence_pass": true,
+  "accepted": true,
+  "note": "All frozen request/HE32/TPOT/workflow gates and every-rank stage selection are required.",
+  "stage_evidence": [
+    {
+      "trace": "dp0_pp0_tp0_dcp0_ep0_rank0.1795043883602964931.pt.trace.json.gz",
+      "draft_forwards": 10,
+      "passed": true,
+      "checks": [
+        {
+          "phase": "target:execute_context_0(0)_generation_8(48)",
+          "stage": "q_rope_split",
+          "actual": 400,
+          "expected": 400,
+          "passed": true
+        },
+        {
+          "phase": "target:execute_context_0(0)_generation_8(48)",
+          "stage": "native_kv_insert",
+          "actual": 400,
+          "expected": 400,
+          "passed": true
+        },
+        {
+          "phase": "target:execute_context_0(0)_generation_8(48)",
+          "stage": "mhc_post_5120",
+          "actual": 830,
+          "expected": 830,
+          "passed": true
+        },
+        {
+          "phase": "target:execute_context_0(0)_generation_8(48)",
+          "stage": "mla_selectors",
+          "actual": 780,
+          "expected": 780,
+          "passed": true
+        },
+        {
+          "phase": "target:execute_context_0(0)_generation_8(48)",
+          "stage": "mla_mask_inverse_rope",
+          "actual": 400,
+          "expected": 400,
+          "passed": true
+        },
+        {
+          "phase": "target:execute_context_0(0)_generation_8(48)",
+          "stage": "mla_output_mask_copy",
+          "actual": 0,
+          "expected": 0,
+          "passed": true
+        },
+        {
+          "phase": "target:execute_context_0(0)_generation_8(48)",
+          "stage": "mla_fresh_plan",
+          "actual": 0,
+          "expected": 0,
+          "passed": true
+        },
+        {
+          "phase": "target:execute_context_0(0)_generation_8(48)",
+          "stage": "mla_native_plan",
+          "actual": 400,
+          "expected": 400,
+          "passed": true
+        },
+        {
+          "phase": "draft_and_sampling",
+          "stage": "q_rope_split",
+          "actual": 30,
+          "expected": 30,
+          "passed": true
+        },
+        {
+          "phase": "draft_and_sampling",
+          "stage": "native_kv_insert",
+          "actual": 30,
+          "expected": 30,
+          "passed": true
+        },
+        {
+          "phase": "draft_and_sampling",
+          "stage": "mhc_post_5120",
+          "actual": 60,
+          "expected": 60,
+          "passed": true
+        },
+        {
+          "phase": "draft_and_sampling",
+          "stage": "mla_selectors",
+          "actual": 30,
+          "expected": 30,
+          "passed": true
+        },
+        {
+          "phase": "draft_and_sampling",
+          "stage": "mla_mask_inverse_rope",
+          "actual": 30,
+          "expected": 30,
+          "passed": true
+        },
+        {
+          "phase": "draft_and_sampling",
+          "stage": "mla_output_mask_copy",
+          "actual": 0,
+          "expected": 0,
+          "passed": true
+        },
+        {
+          "phase": "draft_and_sampling",
+          "stage": "native_qkv_with_norm",
+          "actual": 30,
+          "expected": 30,
+          "passed": true
+        },
+        {
+          "phase": "draft_and_sampling",
+          "stage": "native_qkv_fused",
+          "actual": 0,
+          "expected": 0,
+          "passed": true
+        },
+        {
+          "phase": "draft_and_sampling",
+          "stage": "mla_fresh_plan",
+          "actual": 0,
+          "expected": 0,
+          "passed": true
+        },
+        {
+          "phase": "draft_and_sampling",
+          "stage": "mla_native_plan",
+          "actual": 30,
+          "expected": 30,
+          "passed": true
+        }
+      ],
+      "phase_medians_us": {
+        "draft_and_sampling": 6366.239,
+        "target": 82202.864
+      },
+      "phase_idle_fractions": {
+        "draft_and_sampling": 0.0077882369919974985,
+        "target": 0.008759160422950808
+      }
+    },
+    {
+      "trace": "dp1_pp0_tp0_dcp0_ep1_rank0.1795043889585043474.pt.trace.json.gz",
+      "draft_forwards": 10,
+      "passed": true,
+      "checks": [
+        {
+          "phase": "target:execute_context_0(0)_generation_8(48)",
+          "stage": "q_rope_split",
+          "actual": 400,
+          "expected": 400,
+          "passed": true
+        },
+        {
+          "phase": "target:execute_context_0(0)_generation_8(48)",
+          "stage": "native_kv_insert",
+          "actual": 400,
+          "expected": 400,
+          "passed": true
+        },
+        {
+          "phase": "target:execute_context_0(0)_generation_8(48)",
+          "stage": "mhc_post_5120",
+          "actual": 830,
+          "expected": 830,
+          "passed": true
+        },
+        {
+          "phase": "target:execute_context_0(0)_generation_8(48)",
+          "stage": "mla_selectors",
+          "actual": 780,
+          "expected": 780,
+          "passed": true
+        },
+        {
+          "phase": "target:execute_context_0(0)_generation_8(48)",
+          "stage": "mla_mask_inverse_rope",
+          "actual": 400,
+          "expected": 400,
+          "passed": true
+        },
+        {
+          "phase": "target:execute_context_0(0)_generation_8(48)",
+          "stage": "mla_output_mask_copy",
+          "actual": 0,
+          "expected": 0,
+          "passed": true
+        },
+        {
+          "phase": "target:execute_context_0(0)_generation_8(48)",
+          "stage": "mla_fresh_plan",
+          "actual": 0,
+          "expected": 0,
+          "passed": true
+        },
+        {
+          "phase": "target:execute_context_0(0)_generation_8(48)",
+          "stage": "mla_native_plan",
+          "actual": 400,
+          "expected": 400,
+          "passed": true
+        },
+        {
+          "phase": "draft_and_sampling",
+          "stage": "q_rope_split",
+          "actual": 30,
+          "expected": 30,
+          "passed": true
+        },
+        {
+          "phase": "draft_and_sampling",
+          "stage": "native_kv_insert",
+          "actual": 30,
+          "expected": 30,
+          "passed": true
+        },
+        {
+          "phase": "draft_and_sampling",
+          "stage": "mhc_post_5120",
+          "actual": 60,
+          "expected": 60,
+          "passed": true
+        },
+        {
+          "phase": "draft_and_sampling",
+          "stage": "mla_selectors",
+          "actual": 30,
+          "expected": 30,
+          "passed": true
+        },
+        {
+          "phase": "draft_and_sampling",
+          "stage": "mla_mask_inverse_rope",
+          "actual": 30,
+          "expected": 30,
+          "passed": true
+        },
+        {
+          "phase": "draft_and_sampling",
+          "stage": "mla_output_mask_copy",
+          "actual": 0,
+          "expected": 0,
+          "passed": true
+        },
+        {
+          "phase": "draft_and_sampling",
+          "stage": "native_qkv_with_norm",
+          "actual": 30,
+          "expected": 30,
+          "passed": true
+        },
+        {
+          "phase": "draft_and_sampling",
+          "stage": "native_qkv_fused",
+          "actual": 0,
+          "expected": 0,
+          "passed": true
+        },
+        {
+          "phase": "draft_and_sampling",
+          "stage": "mla_fresh_plan",
+          "actual": 0,
+          "expected": 0,
+          "passed": true
+        },
+        {
+          "phase": "draft_and_sampling",
+          "stage": "mla_native_plan",
+          "actual": 30,
+          "expected": 30,
+          "passed": true
+        }
+      ],
+      "phase_medians_us": {
+        "draft_and_sampling": 6492.9580000000005,
+        "target": 82092.838
+      },
+      "phase_idle_fractions": {
+        "draft_and_sampling": 0.008011407676609864,
+        "target": 0.008639653496245271
+      }
+    },
+    {
+      "trace": "dp2_pp0_tp0_dcp0_ep2_rank0.1795043889587826911.pt.trace.json.gz",
+      "draft_forwards": 10,
+      "passed": true,
+      "checks": [
+        {
+          "phase": "target:execute_context_0(0)_generation_8(48)",
+          "stage": "q_rope_split",
+          "actual": 400,
+          "expected": 400,
+          "passed": true
+        },
+        {
+          "phase": "target:execute_context_0(0)_generation_8(48)",
+          "stage": "native_kv_insert",
+          "actual": 400,
+          "expected": 400,
+          "passed": true
+        },
+        {
+          "phase": "target:execute_context_0(0)_generation_8(48)",
+          "stage": "mhc_post_5120",
+          "actual": 830,
+          "expected": 830,
+          "passed": true
+        },
+        {
+          "phase": "target:execute_context_0(0)_generation_8(48)",
+          "stage": "mla_selectors",
+          "actual": 780,
+          "expected": 780,
+          "passed": true
+        },
+        {
+          "phase": "target:execute_context_0(0)_generation_8(48)",
+          "stage": "mla_mask_inverse_rope",
+          "actual": 400,
+          "expected": 400,
+          "passed": true
+        },
+        {
+          "phase": "target:execute_context_0(0)_generation_8(48)",
+          "stage": "mla_output_mask_copy",
+          "actual": 0,
+          "expected": 0,
+          "passed": true
+        },
+        {
+          "phase": "target:execute_context_0(0)_generation_8(48)",
+          "stage": "mla_fresh_plan",
+          "actual": 0,
+          "expected": 0,
+          "passed": true
+        },
+        {
+          "phase": "target:execute_context_0(0)_generation_8(48)",
+          "stage": "mla_native_plan",
+          "actual": 400,
+          "expected": 400,
+          "passed": true
+        },
+        {
+          "phase": "draft_and_sampling",
+          "stage": "q_rope_split",
+          "actual": 30,
+          "expected": 30,
+          "passed": true
+        },
+        {
+          "phase": "draft_and_sampling",
+          "stage": "native_kv_insert",
+          "actual": 30,
+          "expected": 30,
+          "passed": true
+        },
+        {
+          "phase": "draft_and_sampling",
+          "stage": "mhc_post_5120",
+          "actual": 60,
+          "expected": 60,
+          "passed": true
+        },
+        {
+          "phase": "draft_and_sampling",
+          "stage": "mla_selectors",
+          "actual": 30,
+          "expected": 30,
+          "passed": true
+        },
+        {
+          "phase": "draft_and_sampling",
+          "stage": "mla_mask_inverse_rope",
+          "actual": 30,
+          "expected": 30,
+          "passed": true
+        },
+        {
+          "phase": "draft_and_sampling",
+          "stage": "mla_output_mask_copy",
+          "actual": 0,
+          "expected": 0,
+          "passed": true
+        },
+        {
+          "phase": "draft_and_sampling",
+          "stage": "native_qkv_with_norm",
+          "actual": 30,
+          "expected": 30,
+          "passed": true
+        },
+        {
+          "phase": "draft_and_sampling",
+          "stage": "native_qkv_fused",
+          "actual": 0,
+          "expected": 0,
+          "passed": true
+        },
+        {
+          "phase": "draft_and_sampling",
+          "stage": "mla_fresh_plan",
+          "actual": 0,
+          "expected": 0,
+          "passed": true
+        },
+        {
+          "phase": "draft_and_sampling",
+          "stage": "mla_native_plan",
+          "actual": 30,
+          "expected": 30,
+          "passed": true
+        }
+      ],
+      "phase_medians_us": {
+        "draft_and_sampling": 6350.2405,
+        "target": 82255.1955
+      },
+      "phase_idle_fractions": {
+        "draft_and_sampling": 0.008065628988581585,
+        "target": 0.008667106589922112
+      }
+    },
+    {
+      "trace": "dp3_pp0_tp0_dcp0_ep3_rank0.1795043889640261176.pt.trace.json.gz",
+      "draft_forwards": 10,
+      "passed": true,
+      "checks": [
+        {
+          "phase": "target:execute_context_0(0)_generation_8(48)",
+          "stage": "q_rope_split",
+          "actual": 400,
+          "expected": 400,
+          "passed": true
+        },
+        {
+          "phase": "target:execute_context_0(0)_generation_8(48)",
+          "stage": "native_kv_insert",
+          "actual": 400,
+          "expected": 400,
+          "passed": true
+        },
+        {
+          "phase": "target:execute_context_0(0)_generation_8(48)",
+          "stage": "mhc_post_5120",
+          "actual": 830,
+          "expected": 830,
+          "passed": true
+        },
+        {
+          "phase": "target:execute_context_0(0)_generation_8(48)",
+          "stage": "mla_selectors",
+          "actual": 780,
+          "expected": 780,
+          "passed": true
+        },
+        {
+          "phase": "target:execute_context_0(0)_generation_8(48)",
+          "stage": "mla_mask_inverse_rope",
+          "actual": 400,
+          "expected": 400,
+          "passed": true
+        },
+        {
+          "phase": "target:execute_context_0(0)_generation_8(48)",
+          "stage": "mla_output_mask_copy",
+          "actual": 0,
+          "expected": 0,
+          "passed": true
+        },
+        {
+          "phase": "target:execute_context_0(0)_generation_8(48)",
+          "stage": "mla_fresh_plan",
+          "actual": 0,
+          "expected": 0,
+          "passed": true
+        },
+        {
+          "phase": "target:execute_context_0(0)_generation_8(48)",
+          "stage": "mla_native_plan",
+          "actual": 400,
+          "expected": 400,
+          "passed": true
+        },
+        {
+          "phase": "draft_and_sampling",
+          "stage": "q_rope_split",
+          "actual": 30,
+          "expected": 30,
+          "passed": true
+        },
+        {
+          "phase": "draft_and_sampling",
+          "stage": "native_kv_insert",
+          "actual": 30,
+          "expected": 30,
+          "passed": true
+        },
+        {
+          "phase": "draft_and_sampling",
+          "stage": "mhc_post_5120",
+          "actual": 60,
+          "expected": 60,
+          "passed": true
+        },
+        {
+          "phase": "draft_and_sampling",
+          "stage": "mla_selectors",
+          "actual": 30,
+          "expected": 30,
+          "passed": true
+        },
+        {
+          "phase": "draft_and_sampling",
+          "stage": "mla_mask_inverse_rope",
+          "actual": 30,
+          "expected": 30,
+          "passed": true
+        },
+        {
+          "phase": "draft_and_sampling",
+          "stage": "mla_output_mask_copy",
+          "actual": 0,
+          "expected": 0,
+          "passed": true
+        },
+        {
+          "phase": "draft_and_sampling",
+          "stage": "native_qkv_with_norm",
+          "actual": 30,
+          "expected": 30,
+          "passed": true
+        },
+        {
+          "phase": "draft_and_sampling",
+          "stage": "native_qkv_fused",
+          "actual": 0,
+          "expected": 0,
+          "passed": true
+        },
+        {
+          "phase": "draft_and_sampling",
+          "stage": "mla_fresh_plan",
+          "actual": 0,
+          "expected": 0,
+          "passed": true
+        },
+        {
+          "phase": "draft_and_sampling",
+          "stage": "mla_native_plan",
+          "actual": 30,
+          "expected": 30,
+          "passed": true
+        }
+      ],
+      "phase_medians_us": {
+        "draft_and_sampling": 6374.478,
+        "target": 82228.17249999999
+      },
+      "phase_idle_fractions": {
+        "draft_and_sampling": 0.008092747674439297,
+        "target": 0.008679613959904534
+      }
+    },
+    {
+      "trace": "dp4_pp0_tp0_dcp0_ep4_rank0.1795043889768427133.pt.trace.json.gz",
+      "draft_forwards": 10,
+      "passed": true,
+      "checks": [
+        {
+          "phase": "target:execute_context_0(0)_generation_8(48)",
+          "stage": "q_rope_split",
+          "actual": 400,
+          "expected": 400,
+          "passed": true
+        },
+        {
+          "phase": "target:execute_context_0(0)_generation_8(48)",
+          "stage": "native_kv_insert",
+          "actual": 400,
+          "expected": 400,
+          "passed": true
+        },
+        {
+          "phase": "target:execute_context_0(0)_generation_8(48)",
+          "stage": "mhc_post_5120",
+          "actual": 830,
+          "expected": 830,
+          "passed": true
+        },
+        {
+          "phase": "target:execute_context_0(0)_generation_8(48)",
+          "stage": "mla_selectors",
+          "actual": 780,
+          "expected": 780,
+          "passed": true
+        },
+        {
+          "phase": "target:execute_context_0(0)_generation_8(48)",
+          "stage": "mla_mask_inverse_rope",
+          "actual": 400,
+          "expected": 400,
+          "passed": true
+        },
+        {
+          "phase": "target:execute_context_0(0)_generation_8(48)",
+          "stage": "mla_output_mask_copy",
+          "actual": 0,
+          "expected": 0,
+          "passed": true
+        },
+        {
+          "phase": "target:execute_context_0(0)_generation_8(48)",
+          "stage": "mla_fresh_plan",
+          "actual": 0,
+          "expected": 0,
+          "passed": true
+        },
+        {
+          "phase": "target:execute_context_0(0)_generation_8(48)",
+          "stage": "mla_native_plan",
+          "actual": 400,
+          "expected": 400,
+          "passed": true
+        },
+        {
+          "phase": "draft_and_sampling",
+          "stage": "q_rope_split",
+          "actual": 30,
+          "expected": 30,
+          "passed": true
+        },
+        {
+          "phase": "draft_and_sampling",
+          "stage": "native_kv_insert",
+          "actual": 30,
+          "expected": 30,
+          "passed": true
+        },
+        {
+          "phase": "draft_and_sampling",
+          "stage": "mhc_post_5120",
+          "actual": 60,
+          "expected": 60,
+          "passed": true
+        },
+        {
+          "phase": "draft_and_sampling",
+          "stage": "mla_selectors",
+          "actual": 30,
+          "expected": 30,
+          "passed": true
+        },
+        {
+          "phase": "draft_and_sampling",
+          "stage": "mla_mask_inverse_rope",
+          "actual": 30,
+          "expected": 30,
+          "passed": true
+        },
+        {
+          "phase": "draft_and_sampling",
+          "stage": "mla_output_mask_copy",
+          "actual": 0,
+          "expected": 0,
+          "passed": true
+        },
+        {
+          "phase": "draft_and_sampling",
+          "stage": "native_qkv_with_norm",
+          "actual": 30,
+          "expected": 30,
+          "passed": true
+        },
+        {
+          "phase": "draft_and_sampling",
+          "stage": "native_qkv_fused",
+          "actual": 0,
+          "expected": 0,
+          "passed": true
+        },
+        {
+          "phase": "draft_and_sampling",
+          "stage": "mla_fresh_plan",
+          "actual": 0,
+          "expected": 0,
+          "passed": true
+        },
+        {
+          "phase": "draft_and_sampling",
+          "stage": "mla_native_plan",
+          "actual": 30,
+          "expected": 30,
+          "passed": true
+        }
+      ],
+      "phase_medians_us": {
+        "draft_and_sampling": 6375.999,
+        "target": 82232.6075
+      },
+      "phase_idle_fractions": {
+        "draft_and_sampling": 0.008331193876081383,
+        "target": 0.009033895430661432
+      }
+    },
+    {
+      "trace": "dp5_pp0_tp0_dcp0_ep5_rank0.1795043889559080301.pt.trace.json.gz",
+      "draft_forwards": 10,
+      "passed": true,
+      "checks": [
+        {
+          "phase": "target:execute_context_0(0)_generation_8(48)",
+          "stage": "q_rope_split",
+          "actual": 400,
+          "expected": 400,
+          "passed": true
+        },
+        {
+          "phase": "target:execute_context_0(0)_generation_8(48)",
+          "stage": "native_kv_insert",
+          "actual": 400,
+          "expected": 400,
+          "passed": true
+        },
+        {
+          "phase": "target:execute_context_0(0)_generation_8(48)",
+          "stage": "mhc_post_5120",
+          "actual": 830,
+          "expected": 830,
+          "passed": true
+        },
+        {
+          "phase": "target:execute_context_0(0)_generation_8(48)",
+          "stage": "mla_selectors",
+          "actual": 780,
+          "expected": 780,
+          "passed": true
+        },
+        {
+          "phase": "target:execute_context_0(0)_generation_8(48)",
+          "stage": "mla_mask_inverse_rope",
+          "actual": 400,
+          "expected": 400,
+          "passed": true
+        },
+        {
+          "phase": "target:execute_context_0(0)_generation_8(48)",
+          "stage": "mla_output_mask_copy",
+          "actual": 0,
+          "expected": 0,
+          "passed": true
+        },
+        {
+          "phase": "target:execute_context_0(0)_generation_8(48)",
+          "stage": "mla_fresh_plan",
+          "actual": 0,
+          "expected": 0,
+          "passed": true
+        },
+        {
+          "phase": "target:execute_context_0(0)_generation_8(48)",
+          "stage": "mla_native_plan",
+          "actual": 400,
+          "expected": 400,
+          "passed": true
+        },
+        {
+          "phase": "draft_and_sampling",
+          "stage": "q_rope_split",
+          "actual": 30,
+          "expected": 30,
+          "passed": true
+        },
+        {
+          "phase": "draft_and_sampling",
+          "stage": "native_kv_insert",
+          "actual": 30,
+          "expected": 30,
+          "passed": true
+        },
+        {
+          "phase": "draft_and_sampling",
+          "stage": "mhc_post_5120",
+          "actual": 60,
+          "expected": 60,
+          "passed": true
+        },
+        {
+          "phase": "draft_and_sampling",
+          "stage": "mla_selectors",
+          "actual": 30,
+          "expected": 30,
+          "passed": true
+        },
+        {
+          "phase": "draft_and_sampling",
+          "stage": "mla_mask_inverse_rope",
+          "actual": 30,
+          "expected": 30,
+          "passed": true
+        },
+        {
+          "phase": "draft_and_sampling",
+          "stage": "mla_output_mask_copy",
+          "actual": 0,
+          "expected": 0,
+          "passed": true
+        },
+        {
+          "phase": "draft_and_sampling",
+          "stage": "native_qkv_with_norm",
+          "actual": 30,
+          "expected": 30,
+          "passed": true
+        },
+        {
+          "phase": "draft_and_sampling",
+          "stage": "native_qkv_fused",
+          "actual": 0,
+          "expected": 0,
+          "passed": true
+        },
+        {
+          "phase": "draft_and_sampling",
+          "stage": "mla_fresh_plan",
+          "actual": 0,
+          "expected": 0,
+          "passed": true
+        },
+        {
+          "phase": "draft_and_sampling",
+          "stage": "mla_native_plan",
+          "actual": 30,
+          "expected": 30,
+          "passed": true
+        }
+      ],
+      "phase_medians_us": {
+        "draft_and_sampling": 6335.200000000001,
+        "target": 82233.3345
+      },
+      "phase_idle_fractions": {
+        "draft_and_sampling": 0.008481850735900732,
+        "target": 0.00890814499078767
+      }
+    },
+    {
+      "trace": "dp6_pp0_tp0_dcp0_ep6_rank0.1795043889622137274.pt.trace.json.gz",
+      "draft_forwards": 10,
+      "passed": true,
+      "checks": [
+        {
+          "phase": "target:execute_context_0(0)_generation_8(48)",
+          "stage": "q_rope_split",
+          "actual": 400,
+          "expected": 400,
+          "passed": true
+        },
+        {
+          "phase": "target:execute_context_0(0)_generation_8(48)",
+          "stage": "native_kv_insert",
+          "actual": 400,
+          "expected": 400,
+          "passed": true
+        },
+        {
+          "phase": "target:execute_context_0(0)_generation_8(48)",
+          "stage": "mhc_post_5120",
+          "actual": 830,
+          "expected": 830,
+          "passed": true
+        },
+        {
+          "phase": "target:execute_context_0(0)_generation_8(48)",
+          "stage": "mla_selectors",
+          "actual": 780,
+          "expected": 780,
+          "passed": true
+        },
+        {
+          "phase": "target:execute_context_0(0)_generation_8(48)",
+          "stage": "mla_mask_inverse_rope",
+          "actual": 400,
+          "expected": 400,
+          "passed": true
+        },
+        {
+          "phase": "target:execute_context_0(0)_generation_8(48)",
+          "stage": "mla_output_mask_copy",
+          "actual": 0,
+          "expected": 0,
+          "passed": true
+        },
+        {
+          "phase": "target:execute_context_0(0)_generation_8(48)",
+          "stage": "mla_fresh_plan",
+          "actual": 0,
+          "expected": 0,
+          "passed": true
+        },
+        {
+          "phase": "target:execute_context_0(0)_generation_8(48)",
+          "stage": "mla_native_plan",
+          "actual": 400,
+          "expected": 400,
+          "passed": true
+        },
+        {
+          "phase": "draft_and_sampling",
+          "stage": "q_rope_split",
+          "actual": 30,
+          "expected": 30,
+          "passed": true
+        },
+        {
+          "phase": "draft_and_sampling",
+          "stage": "native_kv_insert",
+          "actual": 30,
+          "expected": 30,
+          "passed": true
+        },
+        {
+          "phase": "draft_and_sampling",
+          "stage": "mhc_post_5120",
+          "actual": 60,
+          "expected": 60,
+          "passed": true
+        },
+        {
+          "phase": "draft_and_sampling",
+          "stage": "mla_selectors",
+          "actual": 30,
+          "expected": 30,
+          "passed": true
+        },
+        {
+          "phase": "draft_and_sampling",
+          "stage": "mla_mask_inverse_rope",
+          "actual": 30,
+          "expected": 30,
+          "passed": true
+        },
+        {
+          "phase": "draft_and_sampling",
+          "stage": "mla_output_mask_copy",
+          "actual": 0,
+          "expected": 0,
+          "passed": true
+        },
+        {
+          "phase": "draft_and_sampling",
+          "stage": "native_qkv_with_norm",
+          "actual": 30,
+          "expected": 30,
+          "passed": true
+        },
+        {
+          "phase": "draft_and_sampling",
+          "stage": "native_qkv_fused",
+          "actual": 0,
+          "expected": 0,
+          "passed": true
+        },
+        {
+          "phase": "draft_and_sampling",
+          "stage": "mla_fresh_plan",
+          "actual": 0,
+          "expected": 0,
+          "passed": true
+        },
+        {
+          "phase": "draft_and_sampling",
+          "stage": "mla_native_plan",
+          "actual": 30,
+          "expected": 30,
+          "passed": true
+        }
+      ],
+      "phase_medians_us": {
+        "draft_and_sampling": 6387.678,
+        "target": 82205.0375
+      },
+      "phase_idle_fractions": {
+        "draft_and_sampling": 0.008005467351103272,
+        "target": 0.009071837549000539
+      }
+    },
+    {
+      "trace": "dp7_pp0_tp0_dcp0_ep7_rank0.1795043883772343007.pt.trace.json.gz",
+      "draft_forwards": 10,
+      "passed": true,
+      "checks": [
+        {
+          "phase": "target:execute_context_0(0)_generation_8(48)",
+          "stage": "q_rope_split",
+          "actual": 400,
+          "expected": 400,
+          "passed": true
+        },
+        {
+          "phase": "target:execute_context_0(0)_generation_8(48)",
+          "stage": "native_kv_insert",
+          "actual": 400,
+          "expected": 400,
+          "passed": true
+        },
+        {
+          "phase": "target:execute_context_0(0)_generation_8(48)",
+          "stage": "mhc_post_5120",
+          "actual": 830,
+          "expected": 830,
+          "passed": true
+        },
+        {
+          "phase": "target:execute_context_0(0)_generation_8(48)",
+          "stage": "mla_selectors",
+          "actual": 780,
+          "expected": 780,
+          "passed": true
+        },
+        {
+          "phase": "target:execute_context_0(0)_generation_8(48)",
+          "stage": "mla_mask_inverse_rope",
+          "actual": 400,
+          "expected": 400,
+          "passed": true
+        },
+        {
+          "phase": "target:execute_context_0(0)_generation_8(48)",
+          "stage": "mla_output_mask_copy",
+          "actual": 0,
+          "expected": 0,
+          "passed": true
+        },
+        {
+          "phase": "target:execute_context_0(0)_generation_8(48)",
+          "stage": "mla_fresh_plan",
+          "actual": 0,
+          "expected": 0,
+          "passed": true
+        },
+        {
+          "phase": "target:execute_context_0(0)_generation_8(48)",
+          "stage": "mla_native_plan",
+          "actual": 400,
+          "expected": 400,
+          "passed": true
+        },
+        {
+          "phase": "draft_and_sampling",
+          "stage": "q_rope_split",
+          "actual": 30,
+          "expected": 30,
+          "passed": true
+        },
+        {
+          "phase": "draft_and_sampling",
+          "stage": "native_kv_insert",
+          "actual": 30,
+          "expected": 30,
+          "passed": true
+        },
+        {
+          "phase": "draft_and_sampling",
+          "stage": "mhc_post_5120",
+          "actual": 60,
+          "expected": 60,
+          "passed": true
+        },
+        {
+          "phase": "draft_and_sampling",
+          "stage": "mla_selectors",
+          "actual": 30,
+          "expected": 30,
+          "passed": true
+        },
+        {
+          "phase": "draft_and_sampling",
+          "stage": "mla_mask_inverse_rope",
+          "actual": 30,
+          "expected": 30,
+          "passed": true
+        },
+        {
+          "phase": "draft_and_sampling",
+          "stage": "mla_output_mask_copy",
+          "actual": 0,
+          "expected": 0,
+          "passed": true
+        },
+        {
+          "phase": "draft_and_sampling",
+          "stage": "native_qkv_with_norm",
+          "actual": 30,
+          "expected": 30,
+          "passed": true
+        },
+        {
+          "phase": "draft_and_sampling",
+          "stage": "native_qkv_fused",
+          "actual": 0,
+          "expected": 0,
+          "passed": true
+        },
+        {
+          "phase": "draft_and_sampling",
+          "stage": "mla_fresh_plan",
+          "actual": 0,
+          "expected": 0,
+          "passed": true
+        },
+        {
+          "phase": "draft_and_sampling",
+          "stage": "mla_native_plan",
+          "actual": 30,
+          "expected": 30,
+          "passed": true
+        }
+      ],
+      "phase_medians_us": {
+        "draft_and_sampling": 6393.679,
+        "target": 82230.19
+      },
+      "phase_idle_fractions": {
+        "draft_and_sampling": 0.007886280818435922,
+        "target": 0.008781258065665331
+      }
+    }
+  ]
+}

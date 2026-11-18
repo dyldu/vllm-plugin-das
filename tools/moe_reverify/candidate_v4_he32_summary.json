@@ -1,0 +1,9 @@
+{
+  "directory": "run/dsv4.1/033/moe_reverify_20261118/candidate_he32/20261118_235300/20261118_235802",
+  "passed": 32,
+  "total": 32,
+  "errors": 0,
+  "truncated": 0,
+  "required_pass_count": 32,
+  "accepted": true
+}

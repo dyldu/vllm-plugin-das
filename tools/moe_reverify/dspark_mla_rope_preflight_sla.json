@@ -1,0 +1,22 @@
+{
+  "frozen_at": "2026-11-19T06:59:08.164751+08:00",
+  "baseline": "mla_io_v1_perf_summary.json",
+  "baseline_repeat_medians_ms": [
+    22.22301836279551,
+    21.874368957089864
+  ],
+  "baseline_aggregate_ms": 22.048693659942685,
+  "matched_ceilings_ms": [
+    22.66747873005142,
+    22.31185633623166
+  ],
+  "aggregate_ceiling_ms": 22.48966753314154,
+  "max_matched_regression": 0.02,
+  "precision_gate": "Q/KV/cache bytes and native inverse RoPE consumer bytes exact in eager/changed Graph replay; inputs immutable; final Post bytes exact",
+  "he32_gate": "32/32 same baseline tasks/prompts, zero errors/truncations, real prefill/acceptance",
+  "retains_all_previous_sla_gates": true,
+  "formal_measurement_started": false,
+  "plugin": "2820632",
+  "adapter": "af8d174",
+  "composition": "Accepted MLA IO + isolated exact draft Q/KV/final Post + isolated exact mask/inverse RoPE; prior standalone draft TPOT rejection retained"
+}

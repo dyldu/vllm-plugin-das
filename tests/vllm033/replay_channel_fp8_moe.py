@@ -104,9 +104,13 @@ def gemm_masked(a, b, out, counts, expected_m):
             out[e, :count] = ((q[e, :count].float() * scale[e, :count, None]) @ (raw[e] * ws[e, :, None]).T).to(out.dtype)
 
 
-def activation(values, *, fp8type, expert_ids=None, tokens_per_expert=None, limit=None):
+def activation(values, *, fp8type, expert_ids=None, tokens_per_expert=None, limit=None, expect_m=-1, **_kwargs):
     assert fp8type == 0
     CALLS.append("ht_activation" if expert_ids is not None else "ll_activation")
+    if expert_ids is None:
+        # LL path must forward the same DeepGEMM tile hint into LightOp.
+        assert isinstance(expect_m, int) and expect_m > 0
+        CALLS.append(("ll_expect_m", expect_m))
     gate, up = values.float().chunk(2, dim=-1)
     if limit is not None:
         gate, up = gate.clamp(max=limit), up.clamp(-limit, limit)
@@ -304,6 +308,10 @@ def forward_case(mode, rows, rank=6, n=64):
     assert calls.count(mode + "_dispatch") == calls.count(mode + "_combine") == 1
     if rows or mode == "ll":
         assert calls.count(mode + "_gemm") == 2 and calls.count(mode + "_activation") == 1
+        if mode == "ll" and rows:
+            # SGLang-aligned: LightOp expect_m equals DeepGEMM expected_m hint.
+            expect_records = [c for c in calls if isinstance(c, tuple) and c and c[0] == "ll_expect_m"]
+            assert len(expect_records) == 1 and expect_records[0][1] > 0
     else:
         assert not any("gemm" in entry for entry in calls)
     return {"mode": mode, "rows": rows, "physical_rank": rank, "shape": list(actual.shape), "max_abs_error": float((actual.float() - expected.float()).abs().max()) if rows else 0, "calls": calls}

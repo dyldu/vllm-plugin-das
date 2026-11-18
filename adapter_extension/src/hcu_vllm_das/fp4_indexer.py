@@ -18,6 +18,7 @@ from vllm.v1.attention.backends.mla import indexer as metadata
 
 from . import fp4_packer
 from .fp4_indexer_lightop import Fp4Query, cache_view, load_providers, providers, rotate_bf16
+from .qkv_split import try_attention_split
 
 
 # anchor-baseline(③): Core 5afd482929, 0.33.1.dev3, constructor globals are
@@ -174,6 +175,13 @@ class _Fp4CommonAttention(common.DeepseekV4Attention):
 
 class Fp4Attention(rocm.DeepseekV41ROCMAiterMLAAttention, _Fp4CommonAttention):
     # MRO routes native AMD super().__init__ to our private common constructor;
-    # its post-init, attention/forward and loading stay native.
+    # post-init, attention/forward and loading stay native. Only the verified
+    # non-interleaved Q/KV preprocessing geometry below has a separate schedule.
     def _indexer_cls(self, k_cache):
         return Fp4Indexer
+
+    def _fused_qnorm_rope_kv_insert(self, q, kv, positions, attn_metadata):
+        result = try_attention_split(self, q, kv, positions, attn_metadata)
+        if result is not None:
+            return result
+        return super()._fused_qnorm_rope_kv_insert(q, kv, positions, attn_metadata)

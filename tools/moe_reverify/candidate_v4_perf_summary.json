@@ -1,0 +1,41 @@
+{
+  "directory": "run/dsv4.1/033/moe_reverify_20261118/candidate_pair_v4/20261118_234250_channel_fp8_prZgJS",
+  "median_tpot_ms": [
+    36.528126576798044,
+    36.23626777704247
+  ],
+  "aggregate_median_ms": 36.38219717692026,
+  "baseline_aggregate_ms": 37.017642905363644,
+  "gain_percent": 1.7166023511219097,
+  "matched_sla_pass": true,
+  "aggregate_sla_pass": true,
+  "requests": [
+    {
+      "completed": 64,
+      "failed": 0,
+      "mean_tpot_ms": 37.507809249763966,
+      "p99_tpot_ms": 44.861628743343225,
+      "output_throughput": 1276.9322229924744
+    },
+    {
+      "completed": 64,
+      "failed": 0,
+      "mean_tpot_ms": 36.293210552599255,
+      "p99_tpot_ms": 46.268142906061605,
+      "output_throughput": 1297.4553036127024
+    }
+  ],
+  "accuracy_pass": true,
+  "fusions_confirmed": true,
+  "accepted": true,
+  "target_fusion_count_per_rank": {
+    "mega": 400,
+    "vision": 400,
+    "shared": 400
+  },
+  "he32_passed": 32,
+  "he32_errors": 0,
+  "he32_truncated": 0,
+  "serving_gates_passed": true,
+  "stage_alignment_complete": false
+}

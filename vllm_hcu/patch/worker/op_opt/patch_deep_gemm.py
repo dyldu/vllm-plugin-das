@@ -42,7 +42,18 @@ def apply_to_module(module: ModuleType) -> bool:
     @functools.wraps(original)
     def hcu_tf32_hc_prenorm_gemm(x, fn, out, sqrsum, num_split):
         lazy_init()
-        if getattr(deep_gemm, "_tf32_hc_prenorm_gemm_impl", None) is not None:
+        # Prefer the native deepgemm HIP op. Older wheels exposed the backend
+        # via ``_tf32_hc_prenorm_gemm_impl``; current wheels call
+        # ``op.tf32_hc_prenorm_gemm`` from the original symbol. Only fall back
+        # to torch.matmul (Tensile FP32 ``Cijk_*SB_*``) when neither exists —
+        # that fallback was incorrectly taken whenever the legacy impl hook
+        # was missing, costing ~13% GPU time vs SGLang's aiter prenorm.
+        op_mod = getattr(deep_gemm, "op", None)
+        has_native = (
+            getattr(deep_gemm, "_tf32_hc_prenorm_gemm_impl", None) is not None
+            or callable(getattr(op_mod, "tf32_hc_prenorm_gemm", None))
+        )
+        if has_native:
             return original(x, fn, out, sqrsum, num_split)
 
         if (

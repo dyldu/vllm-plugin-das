@@ -1,0 +1,122 @@
+{
+  "source": "9bee65c",
+  "raw": "mla_plan_gpu_v4.json/log",
+  "accepted": true,
+  "direct_cases": 832,
+  "complete_bridge_cases": 1152,
+  "gate": "all BF16 output bytes exact in eager/dynamic graphs; all inputs immutable",
+  "timings": [
+    {
+      "rows": 8,
+      "heads": 64,
+      "swa_only": true,
+      "variant": "accepted_native_plan",
+      "us": 73.59829818586448
+    },
+    {
+      "rows": 8,
+      "heads": 64,
+      "swa_only": true,
+      "variant": "fresh_triton_plan",
+      "us": 52.28590369224548
+    },
+    {
+      "rows": 8,
+      "heads": 64,
+      "swa_only": false,
+      "variant": "accepted_native_plan",
+      "us": 98.33376064222045
+    },
+    {
+      "rows": 8,
+      "heads": 64,
+      "swa_only": false,
+      "variant": "fresh_triton_plan",
+      "us": 77.23312705170875
+    },
+    {
+      "rows": 40,
+      "heads": 64,
+      "swa_only": true,
+      "variant": "accepted_native_plan",
+      "us": 110.41563063401442
+    },
+    {
+      "rows": 40,
+      "heads": 64,
+      "swa_only": true,
+      "variant": "fresh_triton_plan",
+      "us": 93.18444525548654
+    },
+    {
+      "rows": 40,
+      "heads": 64,
+      "swa_only": false,
+      "variant": "accepted_native_plan",
+      "us": 176.48930333769368
+    },
+    {
+      "rows": 40,
+      "heads": 64,
+      "swa_only": false,
+      "variant": "fresh_triton_plan",
+      "us": 159.68289868584995
+    },
+    {
+      "rows": 48,
+      "heads": 64,
+      "swa_only": true,
+      "variant": "accepted_native_plan",
+      "us": 123.40034228216983
+    },
+    {
+      "rows": 48,
+      "heads": 64,
+      "swa_only": true,
+      "variant": "fresh_triton_plan",
+      "us": 106.87626048284746
+    },
+    {
+      "rows": 48,
+      "heads": 64,
+      "swa_only": false,
+      "variant": "accepted_native_plan",
+      "us": 193.7556286570442
+    },
+    {
+      "rows": 48,
+      "heads": 64,
+      "swa_only": false,
+      "variant": "fresh_triton_plan",
+      "us": 176.3686647602156
+    },
+    {
+      "rows": 64,
+      "heads": 64,
+      "swa_only": true,
+      "variant": "accepted_native_plan",
+      "us": 167.6307571600683
+    },
+    {
+      "rows": 64,
+      "heads": 64,
+      "swa_only": true,
+      "variant": "fresh_triton_plan",
+      "us": 150.11408616596623
+    },
+    {
+      "rows": 64,
+      "heads": 64,
+      "swa_only": false,
+      "variant": "accepted_native_plan",
+      "us": 236.16084498488556
+    },
+    {
+      "rows": 64,
+      "heads": 64,
+      "swa_only": false,
+      "variant": "fresh_triton_plan",
+      "us": 217.1172317580797
+    }
+  ]
+}

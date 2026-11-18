@@ -32,6 +32,9 @@ if TYPE_CHECKING:
     VLLM_HCU_PP_LAYER_PARTITION_D : Optional[str] = None
     VLLM_HCU_USE_FUSE_MOE_GATE : bool = True
     VLLM_HCU_USE_LIGHTOP_SQRTSOFTPLUS_GATE: bool = True
+    # Fuse gate GEMM + sqrtsoftplus top-k (SGL bf16_mega_gate_hcu). Falls back
+    # to gate linear + topk when inputs/ABI unsupported.
+    VLLM_HCU_USE_BF16_MEGA_GATE: bool = True
     VLLM_HCU_USE_LIGHTOP_QWEN_RMSNORM_GATED: bool = True
     VLLM_HCU_USE_LIGHTOP_W16A16_MOE: bool = False
     VLLM_HCU_USE_LIGHTOP_AWQ: bool = False
@@ -85,6 +88,7 @@ if TYPE_CHECKING:
     VLLM_HCU_C128_HEAD_SPLITS: int = 4
     VLLM_HCU_INVERSE_ROPE_SUFFIX: bool = True
     VLLM_HCU_SHARED_EXPERTS_EARLY_LAUNCH: bool = False
+    VLLM_HCU_SHARED_EXPERTS_MID_DISPATCH: bool = False
     VLLM_HCU_DEEPEP_AUTO_SHARED_WEIGHTS: bool = True
     VLLM_HCU_MOE_WORKSPACE_GROWTH_MB: int = 512
     VLLM_HCU_DEEPEP_HT_EXACT_LAYOUT: bool = True
@@ -429,6 +433,10 @@ hcu_vllm_environment_variables: dict[str, Callable[[], Any]] = {
     lambda: (os.environ.get(
             "VLLM_HCU_USE_LIGHTOP_SQRTSOFTPLUS_GATE", "True"
         ).lower() in ("true", "1")),
+    "VLLM_HCU_USE_BF16_MEGA_GATE":
+    lambda: (os.environ.get(
+            "VLLM_HCU_USE_BF16_MEGA_GATE", "True"
+        ).lower() in ("true", "1")),
     # Strict BF16 width-128/256 Qwen gated RMSNorm route. Unsupported layouts,
     # activations and row geometries retain vLLM's Triton implementation.
     "VLLM_HCU_USE_LIGHTOP_QWEN_RMSNORM_GATED":
@@ -682,6 +690,13 @@ hcu_vllm_environment_variables: dict[str, Callable[[], Any]] = {
     # and wait only when the shared output is consumed.
     "VLLM_HCU_SHARED_EXPERTS_EARLY_LAUNCH":
         lambda: (os.environ.get("VLLM_HCU_SHARED_EXPERTS_EARLY_LAUNCH", "False").lower() in
+                    ("true", "1")),
+
+    # SGLang decode-align: run shared_experts on the main stream between
+    # DeepEP-LL dispatch_a (prepare_async) and dispatch_b (recv hook), instead
+    # of early-launching on the aux stream across D2 / grouped GEMM.
+    "VLLM_HCU_SHARED_EXPERTS_MID_DISPATCH":
+        lambda: (os.environ.get("VLLM_HCU_SHARED_EXPERTS_MID_DISPATCH", "False").lower() in
                     ("true", "1")),
 
     # DeepEP auto DeepGEMM: keep one routed-expert weight copy for both the

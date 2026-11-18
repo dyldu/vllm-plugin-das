@@ -41,6 +41,10 @@ class SharedExpertsOrder(IntEnum):
     # Overlapped with the gate, router, experts in aux stream.
     MULTI_STREAM_OVERLAPPED = (3,)
 
+    # SGLang decode-align: between DeepEP-LL dispatch_a and dispatch_b.
+    # Called by the modular kernel after prepare_async, before recv hook.
+    MID_DISPATCH_OVERLAPPED = (4,)
+
 
 class SharedExperts(torch.nn.Module):
     def __init__(
@@ -165,10 +169,24 @@ class SharedExperts(torch.nn.Module):
             and parallel_config.all2all_backend != "allgather_reducescatter"
         ) or parallel_config.use_fi_nvl_two_sided_kernels
 
+    def _mid_dispatch_enabled(self) -> bool:
+        return bool(
+            henvs.VLLM_HCU_USE_CUSTOM_OPS
+            and henvs.VLLM_HCU_SHARED_EXPERTS_MID_DISPATCH
+        )
+
     def _determine_shared_experts_order(
         self,
         hidden_states: torch.Tensor,
     ) -> SharedExpertsOrder:
+        # Prefer SGLang decode schedule: shared between dispatch_a / dispatch_b.
+        # Takes precedence over EARLY_LAUNCH / STREAM_FORCE so D2 and grouped
+        # GEMM do not contend with shared F8BS on the aux stream.
+        if self._mid_dispatch_enabled() and self._mk_can_overlap_shared_experts():
+            if self._disable_shared_experts_overlap:
+                return SharedExpertsOrder.NO_OVERLAP
+            return SharedExpertsOrder.MID_DISPATCH_OVERLAPPED
+
         force_stream = bool(
             henvs.VLLM_HCU_USE_CUSTOM_OPS
             and (
@@ -206,7 +224,22 @@ class SharedExperts(torch.nn.Module):
         return self._determine_shared_experts_order(hidden_states) in (
             SharedExpertsOrder.MK_INTERNAL_OVERLAPPED,
             SharedExpertsOrder.MULTI_STREAM_OVERLAPPED,
+            SharedExpertsOrder.MID_DISPATCH_OVERLAPPED,
         )
+
+    def maybe_join_aux_before_dispatch_recv(self) -> None:
+        """Join early-launched aux work before DeepEP recv wait (dispatch_b).
+
+        When EARLY_LAUNCH left shared F8BS pending on the aux stream, waiting
+        here keeps the second dispatch kernel from contending for SMs.
+        Mid-dispatch mode never early-launches, so this is usually a no-op.
+        """
+        idx = self._output_idx
+        if not self._output_pending_on_stream[idx]:
+            return
+        assert self._stream is not None
+        current_stream().wait_stream(self._stream)
+        self._output_pending_on_stream[idx] = False
 
     def allows_inplace_routed_output(
         self,
@@ -348,6 +381,9 @@ class SharedExperts(torch.nn.Module):
                 x_and_scale_quanted=x_and_scale_quanted,
             )
         else:
+            # NO_OVERLAP / MK_INTERNAL / MID_DISPATCH: main-stream compute.
+            # Mid-dispatch fills the RDMA gap between dispatch_a and dispatch_b
+            # the same way SGLang's op_shared_experts sits between them.
             self._output[self._output_idx] = self._run_layer(
                 shared_experts_input,
                 x_and_scale_quanted=x_and_scale_quanted,

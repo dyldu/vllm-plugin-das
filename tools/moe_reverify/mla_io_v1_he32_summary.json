@@ -1,0 +1,587 @@
+{
+  "directory": "/public2/home/duyunlong/run/dsv4.1/033/moe_reverify_20261118/mla_io_v1_he32/20261119_063117/20261119_063812",
+  "items": [
+    {
+      "index": 0,
+      "task_id": "HumanEval/0",
+      "prompt_sha256": "64552455948f71cd884942ed74f6d26289faafb1753a25c4b5e479b6da0b7fac",
+      "passed": true,
+      "execution": {
+        "task_id": "HumanEval/0",
+        "passed": true,
+        "result": "passed",
+        "completion_id": null
+      },
+      "error": null,
+      "stop_reasons": [
+        "stop"
+      ],
+      "truncated": false,
+      "output_tokens": 172
+    },
+    {
+      "index": 1,
+      "task_id": "HumanEval/1",
+      "prompt_sha256": "fda7e5eb0ccc0011e11c1793fc938945871a4ddb7352ee0a1e75b6912cd64a00",
+      "passed": true,
+      "execution": {
+        "task_id": "HumanEval/1",
+        "passed": true,
+        "result": "passed",
+        "completion_id": null
+      },
+      "error": null,
+      "stop_reasons": [
+        "stop"
+      ],
+      "truncated": false,
+      "output_tokens": 114
+    },
+    {
+      "index": 2,
+      "task_id": "HumanEval/2",
+      "prompt_sha256": "122c4b56d9b4c5a8b527a940e3057d9a70257d4d3785b74e4233e4cb4e067bf7",
+      "passed": true,
+      "execution": {
+        "task_id": "HumanEval/2",
+        "passed": true,
+        "result": "passed",
+        "completion_id": null
+      },
+      "error": null,
+      "stop_reasons": [
+        "stop"
+      ],
+      "truncated": false,
+      "output_tokens": 19
+    },
+    {
+      "index": 3,
+      "task_id": "HumanEval/3",
+      "prompt_sha256": "80870cc9e889c59abf6c5a3bae12d0da45fa32c27247a7f4f6ff25e134e05a06",
+      "passed": true,
+      "execution": {
+        "task_id": "HumanEval/3",
+        "passed": true,
+        "result": "passed",
+        "completion_id": null
+      },
+      "error": null,
+      "stop_reasons": [
+        "stop"
+      ],
+      "truncated": false,
+      "output_tokens": 54
+    },
+    {
+      "index": 4,
+      "task_id": "HumanEval/4",
+      "prompt_sha256": "5f764ca110bd5359dc097793103db0a53fd53f3147f5f4036d549517f927ee70",
+      "passed": true,
+      "execution": {
+        "task_id": "HumanEval/4",
+        "passed": true,
+        "result": "passed",
+        "completion_id": null
+      },
+      "error": null,
+      "stop_reasons": [
+        "stop"
+      ],
+      "truncated": false,
+      "output_tokens": 154
+    },
+    {
+      "index": 5,
+      "task_id": "HumanEval/5",
+      "prompt_sha256": "c569c67896c0f831bb249904727dd9cd072264caa9f55e441e526bece40bf480",
+      "passed": true,
+      "execution": {
+        "task_id": "HumanEval/5",
+        "passed": true,
+        "result": "passed",
+        "completion_id": null
+      },
+      "error": null,
+      "stop_reasons": [
+        "stop"
+      ],
+      "truncated": false,
+      "output_tokens": 131
+    },
+    {
+      "index": 6,
+      "task_id": "HumanEval/6",
+      "prompt_sha256": "a3ae362d533e72caab84f7be9a683125ca94ba093c2c4b31a7f9bf0f74f94123",
+      "passed": true,
+      "execution": {
+        "task_id": "HumanEval/6",
+        "passed": true,
+        "result": "passed",
+        "completion_id": null
+      },
+      "error": null,
+      "stop_reasons": [
+        "stop"
+      ],
+      "truncated": false,
+      "output_tokens": 105
+    },
+    {
+      "index": 7,
+      "task_id": "HumanEval/7",
+      "prompt_sha256": "62ffe8f5ef700d26d4fb8376550e5ddc3b6353341b7c896fa1b16c7c9d59f784",
+      "passed": true,
+      "execution": {
+        "task_id": "HumanEval/7",
+        "passed": true,
+        "result": "passed",
+        "completion_id": null
+      },
+      "error": null,
+      "stop_reasons": [
+        "stop"
+      ],
+      "truncated": false,
+      "output_tokens": 107
+    },
+    {
+      "index": 8,
+      "task_id": "HumanEval/8",
+      "prompt_sha256": "ce7b9fe401bf50169bdd759a20a5e4f13acb727be35b6a5ed813cbdf3e1ef54d",
+      "passed": true,
+      "execution": {
+        "task_id": "HumanEval/8",
+        "passed": true,
+        "result": "passed",
+        "completion_id": null
+      },
+      "error": null,
+      "stop_reasons": [
+        "stop"
+      ],
+      "truncated": false,
+      "output_tokens": 145
+    },
+    {
+      "index": 9,
+      "task_id": "HumanEval/9",
+      "prompt_sha256": "8c3d5eb4c829657df2f550a386f6f0e61d55966fa6fd5003d700178779767275",
+      "passed": true,
+      "execution": {
+        "task_id": "HumanEval/9",
+        "passed": true,
+        "result": "passed",
+        "completion_id": null
+      },
+      "error": null,
+      "stop_reasons": [
+        "stop"
+      ],
+      "truncated": false,
+      "output_tokens": 148
+    },
+    {
+      "index": 10,
+      "task_id": "HumanEval/10",
+      "prompt_sha256": "0b7eb439a48963928feea14a586a141fbc06f432fbe8890345721bc2295fb902",
+      "passed": true,
+      "execution": {
+        "task_id": "HumanEval/10",
+        "passed": true,
+        "result": "passed",
+        "completion_id": null
+      },
+      "error": null,
+      "stop_reasons": [
+        "stop"
+      ],
+      "truncated": false,
+      "output_tokens": 166
+    },
+    {
+      "index": 11,
+      "task_id": "HumanEval/11",
+      "prompt_sha256": "e5328c6a825d6ed93b84af34599df6cafaea636e7dc8313a6aa42966c3f63075",
+      "passed": true,
+      "execution": {
+        "task_id": "HumanEval/11",
+        "passed": true,
+        "result": "passed",
+        "completion_id": null
+      },
+      "error": null,
+      "stop_reasons": [
+        "stop"
+      ],
+      "truncated": false,
+      "output_tokens": 102
+    },
+    {
+      "index": 12,
+      "task_id": "HumanEval/12",
+      "prompt_sha256": "944b3be1774ed7042f1419f60d3dfb17c0cdfd1928f17cd4da0dfac94a3ff7f1",
+      "passed": true,
+      "execution": {
+        "task_id": "HumanEval/12",
+        "passed": true,
+        "result": "passed",
+        "completion_id": null
+      },
+      "error": null,
+      "stop_reasons": [
+        "stop"
+      ],
+      "truncated": false,
+      "output_tokens": 121
+    },
+    {
+      "index": 13,
+      "task_id": "HumanEval/13",
+      "prompt_sha256": "96d9d8e70b2a4210b63ee6f3a24d87fadd1ec62677cc9cc98ba64b6f880f0d6c",
+      "passed": true,
+      "execution": {
+        "task_id": "HumanEval/13",
+        "passed": true,
+        "result": "passed",
+        "completion_id": null
+      },
+      "error": null,
+      "stop_reasons": [
+        "stop"
+      ],
+      "truncated": false,
+      "output_tokens": 100
+    },
+    {
+      "index": 14,
+      "task_id": "HumanEval/14",
+      "prompt_sha256": "41826fbf8aa6325c9ecc72f627f18c8f3502c596dd1bd6891e167f82b9739c9f",
+      "passed": true,
+      "execution": {
+        "task_id": "HumanEval/14",
+        "passed": true,
+        "result": "passed",
+        "completion_id": null
+      },
+      "error": null,
+      "stop_reasons": [
+        "stop"
+      ],
+      "truncated": false,
+      "output_tokens": 79
+    },
+    {
+      "index": 15,
+      "task_id": "HumanEval/15",
+      "prompt_sha256": "b6d0d4add82cd0aeeef096cc0e586ad92551f6d83f5453adaf26a816b0b570de",
+      "passed": true,
+      "execution": {
+        "task_id": "HumanEval/15",
+        "passed": true,
+        "result": "passed",
+        "completion_id": null
+      },
+      "error": null,
+      "stop_reasons": [
+        "stop"
+      ],
+      "truncated": false,
+      "output_tokens": 29
+    },
+    {
+      "index": 16,
+      "task_id": "HumanEval/16",
+      "prompt_sha256": "ca5fa30c8e3b79666ce7d28e80db7f3932ee440ed717cc664c0ca626bbc233d3",
+      "passed": true,
+      "execution": {
+        "task_id": "HumanEval/16",
+        "passed": true,
+        "result": "passed",
+        "completion_id": null
+      },
+      "error": null,
+      "stop_reasons": [
+        "stop"
+      ],
+      "truncated": false,
+      "output_tokens": 25
+    },
+    {
+      "index": 17,
+      "task_id": "HumanEval/17",
+      "prompt_sha256": "37c2bc22859108704cdc8f167386b48a037812eedd770f82c3ccf3853bbdb615",
+      "passed": true,
+      "execution": {
+        "task_id": "HumanEval/17",
+        "passed": true,
+        "result": "passed",
+        "completion_id": null
+      },
+      "error": null,
+      "stop_reasons": [
+        "stop"
+      ],
+      "truncated": false,
+      "output_tokens": 220
+    },
+    {
+      "index": 18,
+      "task_id": "HumanEval/18",
+      "prompt_sha256": "73f56812b75b7f69cf697651aefde5727784e101943e831d367fcc1a6df1aff3",
+      "passed": true,
+      "execution": {
+        "task_id": "HumanEval/18",
+        "passed": true,
+        "result": "passed",
+        "completion_id": null
+      },
+      "error": null,
+      "stop_reasons": [
+        "stop"
+      ],
+      "truncated": false,
+      "output_tokens": 86
+    },
+    {
+      "index": 19,
+      "task_id": "HumanEval/19",
+      "prompt_sha256": "0b8a7b3c2e36d3369bee0558b2e9d804b33b8f53c410a5887100c2d9c307fa42",
+      "passed": true,
+      "execution": {
+        "task_id": "HumanEval/19",
+        "passed": true,
+        "result": "passed",
+        "completion_id": null
+      },
+      "error": null,
+      "stop_reasons": [
+        "stop"
+      ],
+      "truncated": false,
+      "output_tokens": 161
+    },
+    {
+      "index": 20,
+      "task_id": "HumanEval/20",
+      "prompt_sha256": "9356eb8f5d7dd49cdc6eb110540d5b5bb30b357010f1c01212747716ddf63d3f",
+      "passed": true,
+      "execution": {
+        "task_id": "HumanEval/20",
+        "passed": true,
+        "result": "passed",
+        "completion_id": null
+      },
+      "error": null,
+      "stop_reasons": [
+        "stop"
+      ],
+      "truncated": false,
+      "output_tokens": 259
+    },
+    {
+      "index": 21,
+      "task_id": "HumanEval/21",
+      "prompt_sha256": "f90811fc84704ff74df95e2cf28f5b1c35172143721f9546336372e87d9c1e19",
+      "passed": true,
+      "execution": {
+        "task_id": "HumanEval/21",
+        "passed": true,
+        "result": "passed",
+        "completion_id": null
+      },
+      "error": null,
+      "stop_reasons": [
+        "stop"
+      ],
+      "truncated": false,
+      "output_tokens": 159
+    },
+    {
+      "index": 22,
+      "task_id": "HumanEval/22",
+      "prompt_sha256": "6dff418515605d1e9f7fa5003c1bd45edff109bc72d5af1bd2111f6c0193da27",
+      "passed": true,
+      "execution": {
+        "task_id": "HumanEval/22",
+        "passed": true,
+        "result": "passed",
+        "completion_id": null
+      },
+      "error": null,
+      "stop_reasons": [
+        "stop"
+      ],
+      "truncated": false,
+      "output_tokens": 115
+    },
+    {
+      "index": 23,
+      "task_id": "HumanEval/23",
+      "prompt_sha256": "da18403db0742804d3dea8a3418e052f440c882dc754300ec2e68465d2843035",
+      "passed": true,
+      "execution": {
+        "task_id": "HumanEval/23",
+        "passed": true,
+        "result": "passed",
+        "completion_id": null
+      },
+      "error": null,
+      "stop_reasons": [
+        "stop"
+      ],
+      "truncated": false,
+      "output_tokens": 46
+    },
+    {
+      "index": 24,
+      "task_id": "HumanEval/24",
+      "prompt_sha256": "7ca86fdfa5dbef26e0c489b2bc4f62015fb91e11ffe6e44a165da72f861ad42d",
+      "passed": true,
+      "execution": {
+        "task_id": "HumanEval/24",
+        "passed": true,
+        "result": "passed",
+        "completion_id": null
+      },
+      "error": null,
+      "stop_reasons": [
+        "stop"
+      ],
+      "truncated": false,
+      "output_tokens": 45
+    },
+    {
+      "index": 25,
+      "task_id": "HumanEval/25",
+      "prompt_sha256": "bcdb768ace29550141bbb556f592633c495483c931c2c19ee175213ffdeba839",
+      "passed": true,
+      "execution": {
+        "task_id": "HumanEval/25",
+        "passed": true,
+        "result": "passed",
+        "completion_id": null
+      },
+      "error": null,
+      "stop_reasons": [
+        "stop"
+      ],
+      "truncated": false,
+      "output_tokens": 186
+    },
+    {
+      "index": 26,
+      "task_id": "HumanEval/26",
+      "prompt_sha256": "d122a58059b710e7f35e4d8bc0b16bc0a1e8759be66e679765808bd153a570f6",
+      "passed": true,
+      "execution": {
+        "task_id": "HumanEval/26",
+        "passed": true,
+        "result": "passed",
+        "completion_id": null
+      },
+      "error": null,
+      "stop_reasons": [
+        "stop"
+      ],
+      "truncated": false,
+      "output_tokens": 110
+    },
+    {
+      "index": 27,
+      "task_id": "HumanEval/27",
+      "prompt_sha256": "ddef90bc2141a4ed2c7cccc1f30a38bbc54df87cf171de8d2ba333458abe43a0",
+      "passed": true,
+      "execution": {
+        "task_id": "HumanEval/27",
+        "passed": true,
+        "result": "passed",
+        "completion_id": null
+      },
+      "error": null,
+      "stop_reasons": [
+        "stop"
+      ],
+      "truncated": false,
+      "output_tokens": 54
+    },
+    {
+      "index": 28,
+      "task_id": "HumanEval/28",
+      "prompt_sha256": "970b358b675e8139b187bfe453662485d98595bb58f2ef17e6b6ff784670a90a",
+      "passed": true,
+      "execution": {
+        "task_id": "HumanEval/28",
+        "passed": true,
+        "result": "passed",
+        "completion_id": null
+      },
+      "error": null,
+      "stop_reasons": [
+        "stop"
+      ],
+      "truncated": false,
+      "output_tokens": 69
+    },
+    {
+      "index": 29,
+      "task_id": "HumanEval/29",
+      "prompt_sha256": "7f1d15833313dfdefa05dd70dc20bdf2b0a76a9d8c07b4dda6feb8aefbfc9707",
+      "passed": true,
+      "execution": {
+        "task_id": "HumanEval/29",
+        "passed": true,
+        "result": "passed",
+        "completion_id": null
+      },
+      "error": null,
+      "stop_reasons": [
+        "stop"
+      ],
+      "truncated": false,
+      "output_tokens": 104
+    },
+    {
+      "index": 30,
+      "task_id": "HumanEval/30",
+      "prompt_sha256": "e3827fa2a663f61b39d79d046d7282ceb293a49348337420ed2e7fbdf50af085",
+      "passed": true,
+      "execution": {
+        "task_id": "HumanEval/30",
+        "passed": true,
+        "result": "passed",
+        "completion_id": null
+      },
+      "error": null,
+      "stop_reasons": [
+        "stop"
+      ],
+      "truncated": false,
+      "output_tokens": 23
+    },
+    {
+      "index": 31,
+      "task_id": "HumanEval/31",
+      "prompt_sha256": "f75f9102be3df467fe6fda057c016db56f36c365a7a4dfe4fe9b9ba012424d5e",
+      "passed": true,
+      "execution": {
+        "task_id": "HumanEval/31",
+        "passed": true,
+        "result": "passed",
+        "completion_id": null
+      },
+      "error": null,
+      "stop_reasons": [
+        "stop"
+      ],
+      "truncated": false,
+      "output_tokens": 98
+    }
+  ],
+  "passed": 32,
+  "total": 32,
+  "errors": 0,
+  "truncated": 0,
+  "required_pass_count": 32,
+  "accepted": true
+}
