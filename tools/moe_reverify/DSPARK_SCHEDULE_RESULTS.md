@@ -7,12 +7,27 @@ parameter names, adapter loading/enumeration and native context precompute
 remain unchanged. Default AG/RS construction is unchanged.
 
 112 focused CPU checks pass. All eight capture buckets and both actual padded
-584-byte cache layouts pass644target and644draft eager records plus460dynamic
+584-byte cache layouts pass 644 target and 644 draft eager records plus 460 dynamic
 graph replays, with exact Q/cache/page bytes and immutable inputs. The actual
 private/native final forward body, including native hc_collapse, passes48
 changed-input cases in eager and captured replay. Its isolated M48 fixture
-moves212.95us to24.25us; draft Q/KV moves104.90us to14.39..14.44us. These are
-isolated timings; serving HE32 and paired/profile results are pending.
+moves 212.95us to 24.25us; draft Q/KV moves 104.90us to 14.39..14.44us. These are
+isolated timings. HumanEval passes 32/32 with identical baseline prompts/tasks,
+zero errors and truncations. Both formal clients complete 64 requests with zero
+failures, and the profiling workflow exits zero with eight traces.
+
+**Not admitted for serving performance.** Formal repeat medians are
+24.850544674 / 22.494046866 ms (mean 23.672295770 ms). The frozen matched
+ceilings are 23.328083424 / 23.021122288 ms and aggregate 23.174602856 ms,
+so repeat 1 and the aggregate fail. No ceiling was changed and no result was
+dropped. The accepted PR6 remains a4687f8 with adapter 759bb3f.
+
+All eight traces prove the intended selection: 30 draft Q split and 30 native
+KV-only calls, zero old no-Qnorm combined calls, 60 owned Post calls per ten
+actual draft forwards; the 30 native context Qnorm calls remain. Target
+400 Q split / 400 KV-only / 830 Post calls are retained. Profile phase
+medians are target 84.537..84.691 ms and draft/sampling 6.471..6.596 ms.
+These phase improvements do not override the formal TPOT rejection.
 
 A context-KV-only shortcut was **rejected and removed**: a three-layer
 precompute graph test produced one different FP8 cache byte atB64/T64,

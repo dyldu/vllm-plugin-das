@@ -1,0 +1,177 @@
+{
+  "directory": "/public2/home/duyunlong/run/dsv4.1/033/moe_reverify_20261118/dspark_schedule_v1_pair/20261119_061412_channel_fp8_5D0xEu",
+  "median_tpot_ms": [
+    24.850544673720684,
+    22.494046866351106
+  ],
+  "aggregate_mean_of_repeat_medians_ms": 23.672295770035895,
+  "requests": [
+    {
+      "completed": 64,
+      "failed": 0,
+      "mean_tpot_ms": 24.988197893356652,
+      "p99_tpot_ms": 29.408984927123218,
+      "output_throughput": 1941.932031960469
+    },
+    {
+      "completed": 64,
+      "failed": 0,
+      "mean_tpot_ms": 22.479524486755505,
+      "p99_tpot_ms": 27.74897766790873,
+      "output_throughput": 2079.9838835510513
+    }
+  ],
+  "gates": {
+    "matched": false,
+    "aggregate": false,
+    "requests": true,
+    "he32": true,
+    "original": true,
+    "dspark": true,
+    "post": true,
+    "qkv": true,
+    "exits": true,
+    "eight_traces": true
+  },
+  "exits": {
+    "formal_1.exit": 0,
+    "formal_2.exit": 0,
+    "profile.exit": 0,
+    "exit_code": 0
+  },
+  "trace_files": 8,
+  "tpot_gates_pass": false,
+  "stage_evidence_pass": true,
+  "accepted": false,
+  "note": "HE32 and all eight stage traces pass. Matched-repeat and aggregate frozen TPOT gates FAIL. Held outside accepted PR6; no baseline/SLA change.",
+  "stage_evidence": [
+    {
+      "trace": "dp0_pp0_tp0_dcp0_ep0_rank0.1795040617446259164.pt.trace.json.gz",
+      "draft_forwards": 10,
+      "draft_q": 30,
+      "draft_kv": 30,
+      "draft_native_no_norm": 0,
+      "draft_final_and_layer_post": 60,
+      "target_q": 400,
+      "target_kv": 400,
+      "target_post": 830,
+      "phase_medians_us": {
+        "draft_and_sampling": 6513.0380000000005,
+        "target": 84620.63200000001
+      },
+      "pass": true
+    },
+    {
+      "trace": "dp1_pp0_tp0_dcp0_ep1_rank0.1795040617163389976.pt.trace.json.gz",
+      "draft_forwards": 10,
+      "draft_q": 30,
+      "draft_kv": 30,
+      "draft_native_no_norm": 0,
+      "draft_final_and_layer_post": 60,
+      "target_q": 400,
+      "target_kv": 400,
+      "target_post": 830,
+      "phase_medians_us": {
+        "draft_and_sampling": 6596.077,
+        "target": 84537.0325
+      },
+      "pass": true
+    },
+    {
+      "trace": "dp2_pp0_tp0_dcp0_ep2_rank0.1795040623393036514.pt.trace.json.gz",
+      "draft_forwards": 10,
+      "draft_q": 30,
+      "draft_kv": 30,
+      "draft_native_no_norm": 0,
+      "draft_final_and_layer_post": 60,
+      "target_q": 400,
+      "target_kv": 400,
+      "target_post": 830,
+      "phase_medians_us": {
+        "draft_and_sampling": 6470.5599999999995,
+        "target": 84634.6435
+      },
+      "pass": true
+    },
+    {
+      "trace": "dp3_pp0_tp0_dcp0_ep3_rank0.1795040629689355879.pt.trace.json.gz",
+      "draft_forwards": 10,
+      "draft_q": 30,
+      "draft_kv": 30,
+      "draft_native_no_norm": 0,
+      "draft_final_and_layer_post": 60,
+      "target_q": 400,
+      "target_kv": 400,
+      "target_post": 830,
+      "phase_medians_us": {
+        "draft_and_sampling": 6512.797500000001,
+        "target": 84577.704
+      },
+      "pass": true
+    },
+    {
+      "trace": "dp4_pp0_tp0_dcp0_ep4_rank0.1795040623475198416.pt.trace.json.gz",
+      "draft_forwards": 10,
+      "draft_q": 30,
+      "draft_kv": 30,
+      "draft_native_no_norm": 0,
+      "draft_final_and_layer_post": 60,
+      "target_q": 400,
+      "target_kv": 400,
+      "target_post": 830,
+      "phase_medians_us": {
+        "draft_and_sampling": 6507.918,
+        "target": 84590.5615
+      },
+      "pass": true
+    },
+    {
+      "trace": "dp5_pp0_tp0_dcp0_ep5_rank0.1795040623639633758.pt.trace.json.gz",
+      "draft_forwards": 10,
+      "draft_q": 30,
+      "draft_kv": 30,
+      "draft_native_no_norm": 0,
+      "draft_final_and_layer_post": 60,
+      "target_q": 400,
+      "target_kv": 400,
+      "target_post": 830,
+      "phase_medians_us": {
+        "draft_and_sampling": 6508.879,
+        "target": 84635.89749999999
+      },
+      "pass": true
+    },
+    {
+      "trace": "dp6_pp0_tp0_dcp0_ep6_rank0.1795040623443772688.pt.trace.json.gz",
+      "draft_forwards": 10,
+      "draft_q": 30,
+      "draft_kv": 30,
+      "draft_native_no_norm": 0,
+      "draft_final_and_layer_post": 60,
+      "target_q": 400,
+      "target_kv": 400,
+      "target_post": 830,
+      "phase_medians_us": {
+        "draft_and_sampling": 6521.0365,
+        "target": 84691.371
+      },
+      "pass": true
+    },
+    {
+      "trace": "dp7_pp0_tp0_dcp0_ep7_rank0.1795040623578394775.pt.trace.json.gz",
+      "draft_forwards": 10,
+      "draft_q": 30,
+      "draft_kv": 30,
+      "draft_native_no_norm": 0,
+      "draft_final_and_layer_post": 60,
+      "target_q": 400,
+      "target_kv": 400,
+      "target_post": 830,
+      "phase_medians_us": {
+        "draft_and_sampling": 6526.638,
+        "target": 84624.5055
+      },
+      "pass": true
+    }
+  ]
+}
