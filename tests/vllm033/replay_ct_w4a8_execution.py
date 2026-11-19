@@ -308,10 +308,15 @@ def main():
     case('public_registration_health_and_idempotence',activation)
     case('official_CT_and_oracle_symbols_unchanged',lambda:assert_original(original))
     assert not torch.cuda.is_initialized()
-    root=Path(__file__).resolve().parents[2];sha=lambda p:subprocess.check_output(['git','-C',str(p),'rev-parse','HEAD'],text=True).strip()
-    sources={str(p.relative_to(root)):hashlib.sha256(p.read_bytes()).hexdigest() for p in (root/'adapter_extension/src/hcu_vllm_das').rglob('ct_w4a8*.py')}
+    root=Path(__file__).resolve().parents[2]
+    sha=lambda p:subprocess.check_output(['git','-c','safe.directory='+str(p),'-C',str(p),'rev-parse','HEAD'],text=True).strip()
+    core=Path(sys.modules['vllm'].__file__).resolve().parents[1]
+    adapter=Path(sys.modules['hcu_adapter'].__file__).resolve().parents[1]
+    implementation=root/'adapter_extension/src/hcu_vllm_das'
+    paths=(*implementation.rglob('ct_w4a8*.py'),*implementation.rglob('clamped_int8*.py'))
+    sources={str(p.relative_to(root)):hashlib.sha256(p.read_bytes()).hexdigest() for p in paths}
     report={'level':'CPU actual modular-kernel integration; EP, providers, quantizer and permutation doubled',
-            'plugin':sha(root),'core':sha(root.parent/'vllm'),'adapter':sha(root.parent/'adapter-das'),'cuda_initialized':False,
+            'plugin':sha(root),'core':sha(core),'adapter':sha(adapter),'cuda_initialized':False,
             'source_sha256':sources,'cases':RESULTS,'passed':sum(r['status']=='passed' for r in RESULTS),'total':len(RESULTS)}
     args.output.parent.mkdir(parents=True,exist_ok=True);args.output.write_text(json.dumps(report,indent=2)+'\n');print(json.dumps(report,indent=2))
     return 0 if report['passed']==report['total'] else 1
