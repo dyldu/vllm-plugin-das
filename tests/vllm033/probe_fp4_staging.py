@@ -38,7 +38,7 @@ def run(args):
         for records in (32,128):
             for rows in (1,8,48,64):
                 for context in (65,4096,32768):
-                    count=(context+records-1)//records;pages=rows*count
+                    count=(((context+63)//64)*64+records-1)//records;pages=rows*count
                     # Outer padding and offset detect assumptions about contiguous
                     # pages; native cache is planar within each physical page.
                     stride=records*68+256
@@ -51,7 +51,7 @@ def run(args):
                     for case in range(3):
                         table.copy_(table.flip(0));backing.random_(0,256)
                         lens=[(0,1,records-1,records,records+1,context-1,context)[(case+i)%7] for i in range(rows)]
-                        lengths.copy_(torch.tensor(lens,device='cuda',dtype=torch.int32))
+                        lengths.copy_(torch.tensor([min(context,v) for v in lens],device='cuda',dtype=torch.int32))
                         frozen=backing.clone();expected,et=baseline();got,gt=changed();torch.cuda.synchronize()
                         assert exact(expected,got) and exact(et,gt)
                         assert exact(frozen,backing)
@@ -59,7 +59,7 @@ def run(args):
                     graph,(got,gt)=capture(changed)
                     for case in range(3):
                         table.copy_(table.roll(1,0));backing.random_(0,256)
-                        lengths.copy_(torch.tensor([(context,0,records+1,1)[(case+i)%4] for i in range(rows)],device='cuda',dtype=torch.int32))
+                        lengths.copy_(torch.tensor([min(context,(context,0,records+1,1)[(case+i)%4]) for i in range(rows)],device='cuda',dtype=torch.int32))
                         frozen=backing.clone();graph.replay();torch.cuda.synchronize()
                         expected,et=baseline();torch.cuda.synchronize()
                         assert exact(expected,got) and exact(et,gt) and exact(frozen,backing)
