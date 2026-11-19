@@ -40,13 +40,8 @@ def main():
 
     def load(name):
         with safe_open(args.model/index[name], framework='pt', device='cpu') as handle:
-            actual = name
-            if actual not in handle.keys() and name.endswith('.scale'):
-                prefix = name[:-len('.scale')]
-                actual = next(prefix+suffix for suffix in ('.weight_scale', '.weight_scale_inv')
-                              if prefix+suffix in handle.keys())
-            value = handle.get_tensor(actual)
-            checkpoint.append(dict(index_key=name, shard_key=actual, shape=list(value.shape), dtype=str(value.dtype)))
+            value = handle.get_tensor(name)
+            checkpoint.append(dict(index_key=name, shard_key=name, shape=list(value.shape), dtype=str(value.dtype)))
             return value.cuda()
 
     def exact(a, b, label):
@@ -98,7 +93,7 @@ def main():
         with torch.inference_mode():
             for layer in args.layers:
                 prefix = f'layers.{layer}.attn.'
-                wa, wb, scale = (load(prefix+suffix) for suffix in ('wo_a.weight', 'wo_b.weight', 'wo_b.scale'))
+                wa, wb, scale = (load(prefix+suffix) for suffix in ('wo_a.weight', 'wo_b.weight', 'wo_b.weight_scale'))
                 assert wa.dtype == torch.bfloat16 and wa.shape == (8192, 4096)
                 assert wb.dtype == torch.int8 and wb.shape == (5120, 8192)
                 consumer = Consumer(wb, scale)
