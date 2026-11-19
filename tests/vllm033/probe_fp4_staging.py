@@ -86,7 +86,12 @@ def run(args):
                 # Original and changed graphs execute the full staging wrapper.
                 pairs=[('original',original),('fused',current)];graphs=[]
                 for label,module in pairs:
-                    graph,out=capture(lambda module=module:module.stage_decode_pages(cache,table,lengths,context,provider.gather))
+                    def batched(module=module):
+                        result=None
+                        for _ in range(8):
+                            result=module.stage_decode_pages(cache,table,lengths,context,provider.gather)
+                        return result
+                    graph,out=capture(batched)
                     graphs.append((label,graph,out))
                 for repeat in range(3):
                     random.Random(83651+repeat).shuffle(graphs)
@@ -97,7 +102,7 @@ def run(args):
                         begin.record()
                         for _ in range(100):graph.replay()
                         end.record();end.synchronize()
-                        report['timing'].append(dict(records=records,rows=rows,context=context,label=label,repeat=repeat,us=begin.elapsed_time(end)*10));save()
+                        report['timing'].append(dict(records=records,rows=rows,context=context,label=label,repeat=repeat,transactions_per_graph=8,us=begin.elapsed_time(end)*10/8));save()
                 del graphs,graph,out,cache,raw,table,lengths,old,ot,new,nt,x,y
     report['passed']=True;save();print(json.dumps({k:(len(v) if isinstance(v,list) else v) for k,v in report.items()}),flush=True)
 
