@@ -1,8 +1,8 @@
 # W4A8 DSpark final Post reuse
 
-Experimental, disabled by default. Explicit additional config
-`{"hcu_dsv41_dspark_final_post":true}` applies the already verified Adapter
-H5120 Post kernel to the native draft's final Post call. It requires the owned
+Enabled by default for the admitted deployment. It applies the already verified
+Adapter H5120 Post kernel to the native draft's final Post call. Explicit
+`{"hcu_dsv41_dspark_final_post":false}` restores the original Post. It requires the owned
 W4A8 target scope, TP1/DP8/EP8, HC4 and DSpark5. The private AG/RS construction
 lease remains validated. Unsupported tensor layouts, autocast or precision
 settings retain the native Post through the Adapter's existing selector.

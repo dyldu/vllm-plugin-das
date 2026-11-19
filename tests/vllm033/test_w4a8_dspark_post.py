@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: Apache-2.0
-"""Final Post selection remains optional and keeps native globals/loaders intact."""
+"""Default Post is scoped to the verified model and keeps native loading intact."""
 from types import SimpleNamespace as NS
 
 import pytest
@@ -23,6 +23,32 @@ def config():
 @pytest.mark.parametrize('extra', [None, {}, {dspark_post.KEY: False}])
 def test_default_does_not_resolve_a_private_native_namespace(extra):
     assert not dspark_post.requested(NS(additional_config=extra))
+
+
+@pytest.mark.parametrize('extra', [None, {}, {'unrelated_option': True}])
+def test_verified_model_uses_post_without_an_extra_flag(extra):
+    cfg = config(); cfg.additional_config = extra
+    before = vars(cfg.model_config.hf_config).copy()
+    assert dspark_post.requested(cfg)
+    assert cfg.additional_config is extra
+    assert vars(cfg.model_config.hf_config) == before
+
+
+def test_explicit_false_keeps_the_original_draft_schedule():
+    cfg = config(); cfg.additional_config = {dspark_post.KEY: False}
+    assert not dspark_post.requested(cfg)
+
+
+@pytest.mark.parametrize('change', ['hidden', 'hc', 'n', 'quant', 'dp', 'tp'])
+def test_unsupported_default_retains_native_path(change):
+    cfg = config(); cfg.additional_config = {}
+    if change == 'hidden': cfg.model_config.hf_config.hidden_size = 4096
+    if change == 'hc': cfg.model_config.hf_config.hc_mult = 8
+    if change == 'n': cfg.speculative_config.num_speculative_tokens = 3
+    if change == 'quant': cfg.quant_config = object()
+    if change == 'dp': cfg.parallel_config.data_parallel_size = 1
+    if change == 'tp': cfg.parallel_config.tensor_parallel_size = 2
+    assert not dspark_post.requested(cfg)
 
 
 @pytest.mark.parametrize('value', [0, 1, 'true', 'false'])

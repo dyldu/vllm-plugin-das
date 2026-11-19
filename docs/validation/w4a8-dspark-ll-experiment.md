@@ -1,16 +1,18 @@
 # Fixed-capacity W4A8 DSpark DeepEP validation
 
-The optional draft DeepEP path passed exact transport/consumer gates,
+The draft DeepEP path passed exact transport/consumer gates,
 complete real-prefill HumanEval, frozen performance regression limits and
-eight-rank actual-dispatch checks. It remains disabled by default: paired
-end-to-end TPOT does not demonstrate the minimum 2% incremental speedup.
+eight-rank actual-dispatch checks under explicit selection. The user requested
+it as the default despite no minimum2% incremental end-to-end TPOT speedup.
+Default selection is now included; its new complete GPU validation and matched
+VRAM comparison are still pending. See `w4a8-dspark-default-selection.md`.
 
 ## Communication and ownership
 
-The default draft retains native DeepGEMM computation with AG/RS
-communication. Explicit additional config
-`{"hcu_dsv41_dspark_draft_backend":"deepep_low_latency"}` selects native LL
-draft construction and passes an instance-local shared-buffer manager to
+The admitted W4A8 draft retains native DeepGEMM computation and now defaults
+to DeepEP communication. Explicit additional config
+`{"hcu_dsv41_dspark_draft_backend":"allgather_reducescatter"}` restores AG/RS.
+The LL path uses native draft construction and an instance-local shared-buffer manager in
 the native prepare factory. Target and draft request the same native
 384-expert cache key, retaining one allocation and one destructor. Owned
 complete-model entries emit one native IPC clean per invocation, including
@@ -72,7 +74,8 @@ median TPOT repeats are:
 
 Both DeepEP repeats pass the frozen median/p99 regression limits. The mean
 difference is0.1406% and the first repeat is slightly slower, so the minimum
-2% incremental speedup gate fails. Default AG/RS is retained. All eight
+2% incremental speedup gate fails. This does not claim a transport speedup.
+The user subsequently selected DeepEP as the default. All eight
 DeepEP traces confirm one native clean at each target/draft model entry,
 40 target and3 draft LL layers, a shared buffer and single FULL target graph.
 The eight AG/RS traces confirm no draft LL layers. Existing exact-commit

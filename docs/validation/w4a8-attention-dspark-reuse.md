@@ -13,11 +13,12 @@ historical FP8 experiments are not used as model validation.
 - Adapter45a32f3 avoids redundant MLA query copies, fuses inverse-RoPE with
   exact BF16 mask/writeback, and prepares fresh native plans from current GPU
   counts. Core FlashMLA computation is unchanged. Dynamic plans are not cached.
-- Explicit `hcu_dsv41_dspark_final_post=true` uses the admitted H5120 Post
+- The draft final Post path uses the admitted H5120 Post
   kernel for the final draft Post. Private constructor/forward namespaces keep
   native globals intact.48 actual native/private forward cases and48 changing
-  graph cases passed exact BF16 bytes and input immutability. This option stays
-  disabled by default; existing layout/autocast/precision fallback applies.
+  graph cases passed exact BF16 bytes and input immutability. It now defaults
+  on for the admitted deployment; explicit false retains the original path.
+  Existing layout/autocast/precision fallback applies.
 - The optional DSpark DeepEP path shares the native target buffer and emits
   one native IPC clean at each complete model entry, including captured graph
   execution. It retains capacity256, target384/topk6 and draft128/topk3 layouts.
@@ -59,8 +60,11 @@ paired medians were33.333352/33.402917ms, mean33.368134ms versus the
 AG/RS composition33.431361ms. All eight actual-dispatch/FULL/clean-count
 checks passed and the frozen regression SLA passed. The0.1891% mean
 difference fails the minimum2% speedup claim gate; no end-to-end transport
-speedup is established. Default draft communication remains AG/RS;
-selecting `hcu_dsv41_dspark_draft_backend="deepep_low_latency"` is explicit.
+speedup is established. Those measurements explicitly selected DeepEP.
+The user subsequently requested DeepEP by default; that policy update is
+included, with complete combined default-policy GPU validation still pending.
+Explicit `hcu_dsv41_dspark_draft_backend="allgather_reducescatter"` restores
+AG/RS. See `w4a8-dspark-default-selection.md` for the distinct validation state.
 
 ## User-corrected five-position acceptance workload
 
