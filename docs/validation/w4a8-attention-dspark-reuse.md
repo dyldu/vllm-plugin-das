@@ -19,7 +19,7 @@ historical FP8 experiments are not used as model validation.
   graph cases passed exact BF16 bytes and input immutability. It now defaults
   on for the admitted deployment; explicit false retains the original path.
   Existing layout/autocast/precision fallback applies.
-- The optional DSpark DeepEP path shares the native target buffer and emits
+- The admitted DSpark DeepEP path shares the native target buffer and emits
   one native IPC clean at each complete model entry, including captured graph
   execution. It retains capacity256, target384/topk6 and draft128/topk3 layouts.
   Draft BF16 transport invokes the actual native AG/RS row quantizer after
@@ -62,7 +62,7 @@ checks passed and the frozen regression SLA passed. The0.1891% mean
 difference fails the minimum2% speedup claim gate; no end-to-end transport
 speedup is established. Those measurements explicitly selected DeepEP.
 The user subsequently requested DeepEP by default; that policy update is
-included, with complete combined default-policy GPU validation still pending.
+included and now passes the separate complete default-policy GPU validation.
 Explicit `hcu_dsv41_dspark_draft_backend="allgather_reducescatter"` restores
 AG/RS. See `w4a8-dspark-default-selection.md` for the distinct validation state.
 

@@ -1,0 +1,306 @@
+{
+  "accepted_default_policy": true,
+  "plugin": "a5bc072d0a1cb80f97f1a69db771a09525f79d09",
+  "adapter": "45a32f39bd48ec74dc007595853d00daac73a590",
+  "additional_config_required": false,
+  "post_default": true,
+  "draft_transport_default": "deepep_low_latency",
+  "full_accuracy": {
+    "passed": 159,
+    "total": 164,
+    "first32_passed": 32,
+    "errors": 0,
+    "missing_outputs": 0,
+    "truncated": 0
+  },
+  "comparison": {
+    "sla_passed": true,
+    "speedup_claim_passed": false,
+    "control_mean_ms": 19.915724560933732,
+    "candidate_mean_ms": 19.846486861773542,
+    "mean_improvement": 0.003476534280656085,
+    "repeats": [
+      {
+        "control_median_ms": 20.118194294902754,
+        "candidate_median_ms": 20.12241383882489,
+        "control_p99_ms": 23.4595380930274,
+        "candidate_p99_ms": 23.79288778358,
+        "improvement": -0.00020973770609256093,
+        "median_pass": true,
+        "p99_pass": true,
+        "speedup_claim_pass": false
+      },
+      {
+        "control_median_ms": 19.713254826964707,
+        "candidate_median_ms": 19.570559884722194,
+        "control_p99_ms": 24.3974158692533,
+        "candidate_p99_ms": 24.297764317029866,
+        "improvement": 0.007238527756833424,
+        "median_pass": true,
+        "p99_pass": true,
+        "speedup_claim_pass": false
+      }
+    ]
+  },
+  "post_default_followup_comparison": {
+    "sla_passed": true,
+    "speedup_claim_passed": false,
+    "control_mean_ms": 19.980962430383627,
+    "candidate_mean_ms": 19.915724560933732,
+    "mean_improvement": 0.0032650013570263425,
+    "repeats": [
+      {
+        "control_median_ms": 20.329347595308473,
+        "candidate_median_ms": 20.118194294902754,
+        "control_p99_ms": 23.715398646817786,
+        "candidate_p99_ms": 23.4595380930274,
+        "improvement": 0.010386624529674982,
+        "median_pass": true,
+        "p99_pass": true,
+        "speedup_claim_pass": false
+      },
+      {
+        "control_median_ms": 19.632577265458785,
+        "candidate_median_ms": 19.713254826964707,
+        "control_p99_ms": 24.383038240924886,
+        "candidate_p99_ms": 24.3974158692533,
+        "improvement": -0.004109371908489257,
+        "median_pass": true,
+        "p99_pass": true,
+        "speedup_claim_pass": false
+      }
+    ]
+  },
+  "prior_post_only_failed_gate": "nmz18/default_post.acceptance.json",
+  "all8_actual_dispatch_passed": true,
+  "limits": "User explicitly selected DeepEP default. No minimum2% transport speedup is required or claimed. Real-prefill accuracy is independent of fakeKV five-literal0.6 performance. Memory sampling is reported separately.",
+  "model": "DeepSeek-V4.1-Flash-Channel-INT4-w4a8",
+  "recorded_at": "2026-11-19T22:43:25.985767+08:00",
+  "gpu_node": "nmz18",
+  "performance_workload": {
+    "fake_prefill": "zero_KV",
+    "acceptance_rates": [
+      0.6,
+      0.6,
+      0.6,
+      0.6,
+      0.6
+    ],
+    "num_speculative_tokens": 5,
+    "input_tokens": 4096,
+    "output_tokens": 128,
+    "concurrency": 64,
+    "requests_per_repeat": 64,
+    "unprofiled_repeats_per_transport": 2
+  },
+  "vram": {
+    "deepep_minus_agrs": {
+      "card0": {
+        "formal_median_total_gib": 0.185546875,
+        "observed_peak_total_gib": 0.6962890625,
+        "native_accounting": {
+          "consumed_weights_and_nontorch_gib": 0.29999999999999716,
+          "peak_activation_gib": 0.2799999999999998,
+          "cudagraph_gib": 0.53,
+          "kv_cache_gib": -0.5700000000000003
+        },
+        "kv_cache_tokens": -270639
+      },
+      "card1": {
+        "formal_median_total_gib": 0.185546875,
+        "observed_peak_total_gib": 0.6962890625,
+        "native_accounting": {
+          "consumed_weights_and_nontorch_gib": 0.28999999999999915,
+          "peak_activation_gib": 0.2799999999999998,
+          "cudagraph_gib": 0.53,
+          "kv_cache_gib": -0.5700000000000003
+        },
+        "kv_cache_tokens": -270640
+      },
+      "card2": {
+        "formal_median_total_gib": 0.185546875,
+        "observed_peak_total_gib": 0.6962890625,
+        "native_accounting": {
+          "consumed_weights_and_nontorch_gib": 0.28999999999999915,
+          "peak_activation_gib": 0.2799999999999998,
+          "cudagraph_gib": 0.53,
+          "kv_cache_gib": -0.5700000000000003
+        },
+        "kv_cache_tokens": -270640
+      },
+      "card3": {
+        "formal_median_total_gib": 0.185546875,
+        "observed_peak_total_gib": 0.6962890625,
+        "native_accounting": {
+          "consumed_weights_and_nontorch_gib": 0.28999999999999915,
+          "peak_activation_gib": 0.2799999999999998,
+          "cudagraph_gib": 0.53,
+          "kv_cache_gib": -0.5700000000000003
+        },
+        "kv_cache_tokens": -270640
+      },
+      "card4": {
+        "formal_median_total_gib": 0.185546875,
+        "observed_peak_total_gib": 0.6962890625,
+        "native_accounting": {
+          "consumed_weights_and_nontorch_gib": 0.28999999999999915,
+          "peak_activation_gib": 0.2799999999999998,
+          "cudagraph_gib": 0.53,
+          "kv_cache_gib": -0.5700000000000003
+        },
+        "kv_cache_tokens": -270640
+      },
+      "card5": {
+        "formal_median_total_gib": 0.185546875,
+        "observed_peak_total_gib": 0.6962890625,
+        "native_accounting": {
+          "consumed_weights_and_nontorch_gib": 0.28999999999999915,
+          "peak_activation_gib": 0.2799999999999998,
+          "cudagraph_gib": 0.53,
+          "kv_cache_gib": -0.5700000000000003
+        },
+        "kv_cache_tokens": -270640
+      },
+      "card6": {
+        "formal_median_total_gib": 0.185546875,
+        "observed_peak_total_gib": 0.6748046875,
+        "native_accounting": {
+          "consumed_weights_and_nontorch_gib": 0.28999999999999915,
+          "peak_activation_gib": 0.2799999999999998,
+          "cudagraph_gib": 0.53,
+          "kv_cache_gib": -0.5700000000000003
+        },
+        "kv_cache_tokens": -270640
+      },
+      "card7": {
+        "formal_median_total_gib": 0.185546875,
+        "observed_peak_total_gib": 0.6748046875,
+        "native_accounting": {
+          "consumed_weights_and_nontorch_gib": 0.28999999999999915,
+          "peak_activation_gib": 0.2799999999999998,
+          "cudagraph_gib": 0.53,
+          "kv_cache_gib": -0.5799999999999983
+        },
+        "kv_cache_tokens": -270639
+      }
+    },
+    "total_formal_median_delta_gib": 1.484375,
+    "limits": "Observed whole-device totals include KV cache and runtime allocations. The fixed0.85 memory policy automatically changes KV capacity; the total difference is not isolated communication-buffer size. Two-second SMI sampling can miss transient peaks. Native rounded accounting is reported independently."
+  },
+  "single_step_reference": {
+    "delta_ms": 15.763404052734373,
+    "ratio": 1.2421478036530782,
+    "definition": "Measure target/VERIFY start through the following DSpark GPU annotation end.",
+    "limits": "Profiled DP0 main-stream annotations, including inter-phase gap, excluding next-step scheduling. Discard unmatched trace edge. Quantization kernel paths, batch and hardware/runtime are not fully matched; SGLang is a stage reference. TPOT comes from separate unprofiled requests.",
+    "candidate": {
+      "target_ms": 74.37037600000001,
+      "draft_ms": 6.459199,
+      "stage_sum_ms": 80.84735900000001,
+      "target_to_draft_end_ms": 80.86167797851563,
+      "between_stages_ms": 0.014399058593749941,
+      "all_target_median_ms": 74.37037600000001,
+      "all_draft_median_ms": 6.459199000000001,
+      "samples": 10,
+      "unpaired_edge_targets": 0,
+      "trace": "run/dsv4.1/033/w4a8_reverify_20261119/nmz18/defaults_deepep_20261119_v2/performance/20261119_222958_prof_w4_cim9S8/torch_profiler/dp0_pp0_tp0_dcp0_ep0_rank0.1795099061513874463.pt.trace.json.gz",
+      "sha256": "5d5453107ff2ad64ed16ad517b14853416c7cbaf6ef90a23311430373a20dc3f"
+    },
+    "sglang": {
+      "target_ms": 60.174119,
+      "draft_ms": 4.354558,
+      "stage_sum_ms": 64.524997,
+      "target_to_draft_end_ms": 65.09827392578126,
+      "between_stages_ms": 0.5751968710937508,
+      "all_target_median_ms": 60.1825645,
+      "all_draft_median_ms": 4.3536779999999995,
+      "samples": 9,
+      "unpaired_edge_targets": 1,
+      "trace": "/public/home/duyunlong/laibao/fake_128k_c56-1795054024.3325562-TP-0-DP-0-EP-0-DECODE.trace.json.gz",
+      "sha256": "845254118a73bad4016d957ff346a636a02e2a43ba8be263566397299db2fe6f"
+    }
+  },
+  "evidence": {
+    "nmz18/defaults_deepep_20261119_v2/acceptance.json": {
+      "sha256": "9d0cef53946a5a0d4a8f1bdf723dd6154dea5e66ce20c2c1b6b08d90e0489331"
+    },
+    "nmz18/defaults_deepep_20261119_v2/memory_comparison.json": {
+      "sha256": "b68a6969240e9810d243a3e567c01c2c84e04c88bf411c14e73a7e9f038789c3"
+    },
+    "nmz18/defaults_deepep_20261119_v2/he164.gate.json": {
+      "sha256": "4975c959f003ad9ba47bbcda0d9a7c6d2580726bff3c31a95a8ad9fc972cd163"
+    },
+    "nmz18/default_post.acceptance.json": {
+      "sha256": "c05b23fe9f53c300098e8191f9ad3c0fab0bdbfdec2dc1970adfa5e84ecffed2"
+    }
+  },
+  "independent_traces": {
+    "default_deepep": [
+      {
+        "file": "dp0_pp0_tp0_dcp0_ep0_rank0.1795099061513874463.pt.trace.json.gz",
+        "sha256": "5d5453107ff2ad64ed16ad517b14853416c7cbaf6ef90a23311430373a20dc3f"
+      },
+      {
+        "file": "dp1_pp0_tp0_dcp0_ep1_rank0.1795099055748744469.pt.trace.json.gz",
+        "sha256": "cd4b7c3d7f8a16d009000a3049865169f4d3595667af6cab990291d3eecf2cd3"
+      },
+      {
+        "file": "dp2_pp0_tp0_dcp0_ep2_rank0.1795099061546408597.pt.trace.json.gz",
+        "sha256": "cc6f5d2c2890fb7081d70bc37cf141dcc701cc5d95cf155beabdb3608c8c3718"
+      },
+      {
+        "file": "dp3_pp0_tp0_dcp0_ep3_rank0.1795099061571973095.pt.trace.json.gz",
+        "sha256": "9196015d44c8002e4de96a2651d76f221efe46a718a7406876d79081b6ea8bb0"
+      },
+      {
+        "file": "dp4_pp0_tp0_dcp0_ep4_rank0.1795099061550119269.pt.trace.json.gz",
+        "sha256": "7c65106bb812550d8d0ea29fac7aceee4037050fdbd48549c8c007a0c47d6add"
+      },
+      {
+        "file": "dp5_pp0_tp0_dcp0_ep5_rank0.1795099061538655914.pt.trace.json.gz",
+        "sha256": "042140f8f68640547d6cd35146e2dd0344bed85cba248287a755f69120fc52e6"
+      },
+      {
+        "file": "dp6_pp0_tp0_dcp0_ep6_rank0.1795099061594603336.pt.trace.json.gz",
+        "sha256": "cb6579ac8d38e5de380a34ffce0397c6ac7bd2a268abdb1b59fa6888a7ef5431"
+      },
+      {
+        "file": "dp7_pp0_tp0_dcp0_ep7_rank0.1795099055709045249.pt.trace.json.gz",
+        "sha256": "03f6b3074b3647e2fee61b7b9a6136671b00e6c21a63a118bc1c1dfbb765c19f"
+      }
+    ],
+    "same_source_agrs": [
+      {
+        "file": "dp0_pp0_tp0_dcp0_ep0_rank0.1795098537883322320.pt.trace.json.gz",
+        "sha256": "b4d6397c6d25a67d39ad2fa0207e133587ea54ec213be9bed70f46cdd8af226e"
+      },
+      {
+        "file": "dp1_pp0_tp0_dcp0_ep1_rank0.1795098537841972405.pt.trace.json.gz",
+        "sha256": "29b517b1032cb157bf802ce3ade550d44ca7dca206219e036dbf6cd458b2b174"
+      },
+      {
+        "file": "dp2_pp0_tp0_dcp0_ep2_rank0.1795098543606777784.pt.trace.json.gz",
+        "sha256": "2637edb39a248c423f2ddb996bf8af80b891eaecf0cd1709f4030be3ff9bcd1d"
+      },
+      {
+        "file": "dp3_pp0_tp0_dcp0_ep3_rank0.1795098543767002711.pt.trace.json.gz",
+        "sha256": "c0e9f559b0eed1f81a364f5d369614aedd89bb532ed5f85c1abb9e97e1b40edc"
+      },
+      {
+        "file": "dp4_pp0_tp0_dcp0_ep4_rank0.1795098543815507201.pt.trace.json.gz",
+        "sha256": "4bd4d7ed46d3a3a7770eacccb4150e070109e01cf83ebd0fc3afd795264c0556"
+      },
+      {
+        "file": "dp5_pp0_tp0_dcp0_ep5_rank0.1795098543771795217.pt.trace.json.gz",
+        "sha256": "6f298bcee0b13e9bfac240cedeac814b2510385714cbc62d407b180204699592"
+      },
+      {
+        "file": "dp6_pp0_tp0_dcp0_ep6_rank0.1795098543819742800.pt.trace.json.gz",
+        "sha256": "1284fe5236e37b076b8cd095fd2cf0f1bb3dc2fff73edd1d2d42caf0c652422c"
+      },
+      {
+        "file": "dp7_pp0_tp0_dcp0_ep7_rank0.1795098537909259912.pt.trace.json.gz",
+        "sha256": "fff8d63346c6ee53e07aea79f46460c7cc88ca2dcbe8c05c1ff6d9c785c7118e"
+      }
+    ]
+  }
+}
