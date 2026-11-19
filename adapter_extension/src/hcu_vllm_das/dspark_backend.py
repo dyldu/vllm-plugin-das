@@ -26,6 +26,14 @@ def native_draft_ll_requested(config):
     if (scheduler.max_num_batched_tokens, scheduler.max_num_seqs,
             spec.num_speculative_tokens) != (256, 32, 5):
         raise ValueError("W4A8 draft LL requires the fixed 256/32/5 token contract")
+    mc = config.model_config
+    hf = getattr(mc, "hf_text_config", None)
+    if hf is None:
+        hf = getattr(mc.hf_config, "text_config", mc.hf_config)
+    names = ("hidden_size", "n_routed_experts", "num_experts_per_tok",
+             "dspark_n_routed_experts", "dspark_num_experts_per_tok")
+    if tuple(getattr(hf, name, None) for name in names) != (5120, 384, 6, 128, 3):
+        raise ValueError("W4A8 draft LL requires the fixed target/draft expert geometry")
     # Reuse all default feature, topology and graph capacity checks without
     # constructing any model, communicator or transport resource.
     draft_config(config)

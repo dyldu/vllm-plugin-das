@@ -14,7 +14,9 @@ from hcu_vllm_das.quantization.ct_w4a8 import HcuDSV41CTW4A8Config
 
 
 def config():
-    hf = NS(model_type='deepseek_v41', sample_from_anchor=True)
+    hf = NS(model_type='deepseek_v41', sample_from_anchor=True,
+            hidden_size=5120, n_routed_experts=384, num_experts_per_tok=6,
+            dspark_n_routed_experts=128, dspark_num_experts_per_tok=3)
     return NS(
         additional_config={KEY: 'deepep_low_latency'},
         quant_config=object.__new__(HcuDSV41CTW4A8Config),
@@ -44,7 +46,8 @@ def test_explicit_native_selection_does_not_mutate_target():
     assert cfg.additional_config == {KEY: 'deepep_low_latency'}
 
 
-@pytest.mark.parametrize('change', ['unknown', 'dp1', 'tp2', 'ht', 'quant', 'capacity', 'eplb'])
+@pytest.mark.parametrize('change', ['unknown', 'dp1', 'tp2', 'ht', 'quant',
+                                    'capacity', 'eplb', 'hidden', 'draft_topk'])
 def test_native_selection_rejects_unsupported_contract(change):
     cfg = config()
     if change == 'unknown': cfg.additional_config[KEY] = 'other'
@@ -54,6 +57,8 @@ def test_native_selection_rejects_unsupported_contract(change):
     if change == 'quant': cfg.quant_config = object()
     if change == 'capacity': cfg.scheduler_config.max_num_batched_tokens = 39
     if change == 'eplb': cfg.parallel_config.enable_eplb = True
+    if change == 'hidden': cfg.model_config.hf_config.hidden_size = 4096
+    if change == 'draft_topk': cfg.model_config.hf_config.dspark_num_experts_per_tok = 6
     with pytest.raises(ValueError): native_draft_ll_requested(cfg)
 
 
