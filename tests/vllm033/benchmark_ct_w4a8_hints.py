@@ -82,7 +82,7 @@ def run(args, report):
             report['package_versions'][name] = importlib.metadata.version(name)
         except importlib.metadata.PackageNotFoundError:
             report['package_versions'][name] = None
-    e, capacity, k, n = 48, 2048, 5120, 4608
+    e, capacity, k, n = args.experts, 2048, 5120, 4608
     device = 'cuda'
     props = torch.cuda.get_device_properties(0)
     report['hardware'] = {'name': props.name, 'arch': props.gcnArchName,
@@ -304,6 +304,8 @@ def run(args, report):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--output', required=True)
+    parser.add_argument('--experts', type=int, choices=(16, 48), default=48,
+                        help='Target48 or DSpark16 local experts; capacity remains2048')
     args = parser.parse_args()
     report = {'started': datetime.datetime.now(datetime.timezone.utc).isoformat(),
               'operator_contract': 'exact active bytes vs unchanged native provider',
