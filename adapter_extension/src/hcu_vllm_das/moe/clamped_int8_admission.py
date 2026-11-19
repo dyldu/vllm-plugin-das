@@ -13,7 +13,9 @@ import torch
 
 @lru_cache(maxsize=2)
 def _log_admission(masked):
-    logging.getLogger(__name__).info(
+    # vLLM's INFO handler lives on its non-propagating namespace. Retain
+    # the Plugin identity below it so serving admission is observable.
+    logging.getLogger("vllm." + __name__).info(
         "HCU W4A8 live-row INT8 activation admitted: layout=%s H5120 N2304 clamp10",
         "masked" if masked else "contiguous")
 
