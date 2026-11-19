@@ -65,8 +65,10 @@ def test_changed_native_source_is_rejected():
         dspark_post._clone(native.DSparkDeepseekV4Model, 'forward', 'unknown', {})
 
 
-def test_changed_native_identity_is_rejected_before_construction(monkeypatch):
+@pytest.mark.parametrize('anchor', ['forward', 'mhc_post_torch'])
+def test_changed_native_identity_is_rejected_before_construction(monkeypatch, anchor):
     dspark_post.implementation()
-    monkeypatch.setattr(native.DSparkDeepseekV4Model, 'forward', lambda *args: None)
+    owner = native.DSparkDeepseekV4Model if anchor == 'forward' else native
+    monkeypatch.setattr(owner, anchor, lambda *args: None)
     with pytest.raises(RuntimeError, match='identity changed'):
         dspark_post.initialize_owned(object(), vllm_config=config(), prefix='draft')
