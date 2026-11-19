@@ -42,8 +42,8 @@ def check(actual, expected, cache, reference):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--output', required=True)
-    parser.add_argument('--block-size', type=int, choices=(32, 64), default=32)
-    parser.add_argument('--page-padding', type=int, default=320)
+    parser.add_argument('--block-size', type=int, choices=(32, 64), default=64)
+    parser.add_argument('--page-padding', type=int, default=64)
     parser.add_argument('--seed', type=int, default=194241)
     opts = parser.parse_args()
     assert qkv_split._NATIVE_BUILD_MATCHES, 'native build is outside verified contract'

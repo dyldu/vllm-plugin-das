@@ -1,3 +1,7 @@
+> W4A8 reuse status: isolated candidate on Plugin526b626. The figures below
+> are historical FP8 evidence; current W4A8 native consumer, full164 and paired
+> performance gates are pending. No W4A8 gain is claimed.
+
 # Q/KV preprocessing follow-up
 
 Production scope: owned FP4 attention, gfx938, verified installed native binary,
