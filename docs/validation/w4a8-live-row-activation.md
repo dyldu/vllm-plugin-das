@@ -15,14 +15,14 @@ communication, capacity, request limits and graph buckets are unchanged.
 
 GPU operator evidence on nmz18 (2026-11-19):
 
--75 cases passed byte equality for active INT8 codes and FP32 scales,
+- 75 cases passed byte equality for active INT8 codes and FP32 scales,
   input immutability, zero/tiny/saturated/random inputs, all finite BF16 gate
   bit patterns, changing graph counts through2048 and actual packed W4A8
   down-projection consumption.
--Contiguous16-expert median147us ->19.49/21.06/29.15us for8/32/64
+- Contiguous16-expert median147us ->19.49/21.06/29.15us for8/32/64
   live rows per expert-alignment segment.
--Masked16-expert10.72/25.25/44.51us ->6.54/14.02/24.32us.
--Masked48-expert21.63/61.56/111.18us ->12.93/35.62/65.22us.
+- Masked16-expert10.72/25.25/44.51us ->6.54/14.02/24.32us.
+- Masked48-expert21.63/61.56/111.18us ->12.93/35.62/65.22us.
 
 Each latency is a CUDA-event median over80 graph replays with10 launches per
 replay. These are operator measurements, not an end-to-end performance claim.
