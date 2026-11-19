@@ -7,6 +7,7 @@ import argparse
 import hashlib
 import inspect
 import json
+import tempfile
 from pathlib import Path
 from types import SimpleNamespace
 
@@ -32,6 +33,11 @@ def main():
     patch_compressed_tensors_w8a8_int8.apply()
     from vllm.model_executor.layers.quantization.compressed_tensors.schemes.compressed_tensors_w8a8_int8 import CompressedTensorsW8A8Int8
     from lightop.quant import per_token_quant_int8
+    from vllm.config import VllmConfig, set_current_vllm_config
+    from vllm.distributed import (
+        destroy_distributed_environment, destroy_model_parallel,
+        init_distributed_environment, initialize_model_parallel,
+    )
 
     assert torch.cuda.get_device_properties(0).gcnArchName.split(':')[0] == 'gfx938'
     assert torch.cuda.get_device_properties(0).multi_processor_count == 64
@@ -89,7 +95,16 @@ def main():
                                                      ('wo_b', CompressedTensorsW8A8Int8.apply_weights),
                                                      ('activation_quant', per_token_quant_int8)]})
     args.output.parent.mkdir(parents=True, exist_ok=True)
+    rendezvous = tempfile.TemporaryDirectory(prefix='w4a8-wo-a-tp1-')
+    config_scope = set_current_vllm_config(VllmConfig())
+    config_scope.__enter__()
     try:
+        # ModelWeightParameter records the real TP rank during native loading.
+        # Initialize the actual TP1 environment instead of mocking that owner.
+        init_distributed_environment(world_size=1, rank=0, local_rank=0,
+            distributed_init_method='file://' + str(Path(rendezvous.name) / 'store'),
+            backend='gloo')
+        initialize_model_parallel(1, 1, backend='gloo')
         with torch.inference_mode():
             for layer in args.layers:
                 prefix = f'layers.{layer}.attn.'
@@ -160,6 +175,10 @@ def main():
         report['unit_gate_passed'] = True
     finally:
         args.output.write_text(json.dumps(report, indent=2)+'\n')
+        destroy_model_parallel()
+        destroy_distributed_environment()
+        config_scope.__exit__(None, None, None)
+        rendezvous.cleanup()
     print(json.dumps(dict(unit_gate_passed=True, serving_admitted=False,
                           eager=len(report['eager']), graph_replays=len(report['graph_replays']))))
 
