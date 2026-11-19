@@ -32,10 +32,12 @@ FULL_AND_PIECEWISE is a later, explicitly recorded experimental variable.
 Keep all failed launches/tests and fallback paths. Known no-kernel startup
 failures may be retried twice under the identical configuration.
 
-nmz20/nmz22: the original Nov19 12:30 CST window was superseded by the
-user's authorization to continue until explicitly stopped. RESOURCE_AUTHORIZATION.json
-records this extension; frozen model, launch arguments and SLA are unchanged.
-nmz18: no GPU work before Nov19 13:00; authorized until Nov20 08:00 CST.
+Current resource status: the user revoked nmz20/nmz22 for today and moved
+work to nmz16/nmz18. The later instruction to continue past15:00 was then
+superseded by a pause after this round and an immediate nmz16 stop. Own nmz16
+container is now stopped; no further GPU experiments are launched. Other users'
+processes are never cleaned. RESOURCE_AUTHORIZATION.json and stop records
+retain the exact instruction history.
 Record hardware, container image and native providers on each node. Compare
 candidate and baseline on the SAME node; another node's result is not a matched
 repeat even when the GPU product name matches.
@@ -104,7 +106,7 @@ quantiles and representative distributed expert counts; preserve all raw cases.
 ## SGLang attribution and comparison limits
 
 Reference trace:
-`/public/home/duyunlong/laibao/hyq/1793613146.8607268-TP-0-DP-0-EP-0.trace.json.gz`.
+`/public/home/duyunlong/laibao/fake_128k_c56-1795054024.3325562-TP-0-DP-0-EP-0-DECODE.trace.json.gz`.
 Map phases by semantics and producer/consumer work, not identical kernel spelling.
 Keep target VERIFY and draft separate. Report per-rank load/skew, communication
 wait, kernel sum, busy union and phase wall time separately. A matched operator
@@ -334,3 +336,65 @@ cache; that test-only ABI error is repaired and the failed artifact retained.
 The new Post/selector runtime is excluded from this MR until its operator,
 HE32, full164, same-node paired performance and actual trace-dispatch gates
 complete. See POST_SELECTORS_REUSE_EXPERIMENT.json and its probe amendment.
+
+## Measured Post/selector composition on current HYGON Adapter main
+
+Adapter MR1 now stacks the exact H5120 mHC Post and sparse-MLA INT32 selector
+fusions onto its FP4 graph-admission change. Tested Adapter3b6ecb8 is based on
+HYGON main ef63bbb. Published Adapter904f455 adds only the verification note;
+its entire hcu_adapter and tests trees match3b6ecb8. Tested plugin remains
+f9af645; this plugin series has identical runtime/test content and additional
+evidence documentation. The original MoE scheduling and FULL graph changes
+remain active; no frozen checkpoint or capacity parameter changes.
+
+Real-KV HE32:32/32 with identical baseline prompts and no errors, missing
+outputs or truncation. Full164:159/164 (96.9512%), first32 32/32, workflow0,
+no errors/missing/truncation. Same-node nmz16 release baseline:157/164. The
+candidate newly passes91/93/163 and loses97; failures32/83/97/132/145. Scores
+satisfy the frozen156/164 minimum; changed generated outputs do not establish
+whole-model byte equality.
+
+CPU77 passed. Post147 eager plus50 changed-input graph replays match BF16
+bytes exactly; selectors480 eager plus480 changed-metadata graph checks and
+50 actual native MLA consumer checks are exact. Covered block64/padded cache
+pages and unsupported192/256-row fallback. The original selector probe's
+block32/block64 fixture mismatch is retained as failed evidence; its corrected
+fixture changes no production code.
+
+The controlled Post/selector increment uses nmz18 Graph-only Adapter3bf4b68
+versus3b6ecb8, identical native hashes/packages/plugin/arguments:
+
+| Unprofiled TPOT | MoE+FULL control | Add Post/selectors |
+| --- | ---: | ---: |
+| Repeat1 median | 52.1898ms | 38.3444ms |
+| Repeat2 median | 52.1243ms | 38.1159ms |
+| Mean of medians | 52.1571ms | 38.2301ms |
+| Repeat1 p99 | 58.7738ms | 43.2175ms |
+| Repeat2 p99 | 59.3973ms | 43.4676ms |
+
+The mean incremental reduction is26.70%, supported by both repeats and frozen
+median/p99 acceptance. Both complete64/64,0 errors, actual4096/128 tokens,
+workflow0. This is fake KV/synthetic acceptance; no real-KV production TPOT or
+individual attribution of the two fused operators is claimed.
+
+All8 traces pass CRC and retain single FULL target graph launches. DP0
+execution spans contain830 Post and780 selector kernels. Profiled target wall
+119.0877->85.3593ms, gap2.7107->1.4062ms; draft+sampling wall9.6312->7.9817ms.
+The latest SGLang FP8/bs7 trace is a phase reference with different workload and
+144GiB hardware; this nmz18 is96GiB. No controlled cross-framework alignment
+claim is made.
+
+Evidence: nmz16/post_selectors_full164.gate.json,
+nmz18/post_selectors_incremental.audit.json,
+nmz18/post_selectors_all_ranks_trace.audit.json and
+nmz18/post_selectors_performance/20261119_145143_prof_w4_lc8gZf/ under the
+workspace evidence root. Latest DP0 export:
+`torch_profiler/dp0_pp0_tp0_dcp0_ep0_rank0.1795071704034911327.pt.trace.json.gz`.
+
+The user stopped nmz16 during a separate composition-vs-release performance
+run. Its38.1442/37.9644ms formal medians have no completed workflow or profile
+exports and are excluded from acceptance/total-release-gain claims. The user
+then explicitly requested pushing the verified series to the existing MRs.
+No W4A8 DSpark LL/OOM GPU experiment was started; draft remains DeepGEMM
+compute with AG/RS transport. Both MRs remain drafts for review of the recorded
+limits and unexplained full-set generated-code differences.
