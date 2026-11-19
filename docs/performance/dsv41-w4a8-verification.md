@@ -32,7 +32,9 @@ FULL_AND_PIECEWISE is a later, explicitly recorded experimental variable.
 Keep all failed launches/tests and fallback paths. Known no-kernel startup
 failures may be retried twice under the identical configuration.
 
-nmz20/nmz22: authorized now until Nov19 12:30 CST (confirmed by user).
+nmz20/nmz22: the original Nov19 12:30 CST window was superseded by the
+user's authorization to continue until explicitly stopped. RESOURCE_AUTHORIZATION.json
+records this extension; frozen model, launch arguments and SLA are unchanged.
 nmz18: no GPU work before Nov19 13:00; authorized until Nov20 08:00 CST.
 Record hardware, container image and native providers on each node. Compare
 candidate and baseline on the SAME node; another node's result is not a matched
@@ -222,16 +224,88 @@ Workspace evidence root: `run/dsv4.1/033/w4a8_reverify_20261119/`.
 Every raw run retains its complete script, argv, source provenance, results and
 logs. Prior interrupted runs and FP8 results remain separate. The profiler's
 existing CUDA-time text-table diagnostic is disabled in both accepted runs;
-trace recording is unchanged. Full-graph/gap and draft DeepGEMM work remains
-outside this first operator patch.
+trace recording is unchanged. The graph extension below is a separate measured
+step on top of this operator patch. Draft transport changes remain outstanding.
+
+## Measured FULL_AND_PIECEWISE extension
+
+The plugin now admits the narrowly validated native V4.1 TP1/DP8/EP8 DSpark
+FP4 decode path into FULL_AND_PIECEWISE capture. Prefill remains excluded.
+Because the native FP4 reader leaves the logits tail unwritten when
+`clean_logits=False`, the decode path masks columns outside each device-side
+sequence length to negative infinity before top-k selection. General FP8
+host-metadata capture policy is unchanged.
+
+This requires the optional, default-deny FP4 owner predicate in Adapter
+commit `3bf4b68362387f8e33b816645a8917609bfd58fd`:
+https://github.com/dyldu/adapter-das/pull/1 . The Adapter does not import the
+plugin. Tested plugin commit is `f9af645a85040f26427e6f5f222632d3f92d9322`;
+the published series cherry-picks the same runtime and test files onto the
+MoE MR branch. Documentation is the only difference from that tested snapshot.
+
+All screenshot parameters and the frozen SLA remain unchanged; the explicit
+graph mode and paired plugin/Adapter changes are the experimental variables.
+Two unprofiled formal repeats on nmz22 completed64/64 requests each, zero
+failures, actual4096 input/128 output, workflow0:
+
+| TPOT | Release PIECEWISE | MoE PIECEWISE | MoE + FULL graphs |
+| --- | ---: | ---: | ---: |
+| Repeat1 median | 70.4067ms | 66.2890ms | 52.7124ms |
+| Repeat2 median | 70.0225ms | 65.5945ms | 52.3160ms |
+| Mean of medians | 70.2146ms | 65.9417ms | 52.5142ms |
+| Repeat1 p99 | 81.4512ms | 75.9197ms | 59.5065ms |
+| Repeat2 p99 | 82.6422ms | 77.0615ms | 60.6634ms |
+
+The mean of medians falls25.21% from release and20.36% from the MoE-only
+candidate. Both repeats pass the frozen median/p99 ceilings and the
+pre-recorded2% incremental improvement gate. The zero-KV/synthetic-acceptance
+and two-repeat limitations stated above still apply.
+
+Validation:66 CPU checks passed (two GPU cases skipped there); the separate
+native GPU graph probe passed9/9 without skips. GPU cases cover compression
+ratios1/2, rows2/8/48/64, contexts128/4096/32768 and top-k4/1024, changed query,
+cache payload, weights, lengths and block tables across replays, exact eager
+comparison and zero/short/full contexts. The ninth check rejects FULL prefill.
+The composed real-KV HumanEval first32 run passed32/32 with identical prompts,
+no lost baseline passes, no API errors, missing outputs or truncation and
+workflow0. Full164 for this graph composition is pending. The MoE-only
+full164 result above does not establish the graph composition's full score.
+
+All eight graph traces passed gzip CRC and retain SHA256 values. DP0 contains
+800 target masked GEMMs; each80-GEMM target span maps to exactly one native
+`hipGraphLaunch`. Total graph launches fell450 to20 and manual kernel launches
+29840 to520 versus the MoE PIECEWISE capture. Median observed target-phase
+wall/busy/gap times fell179.406/154.618/24.423ms to
+120.112/117.370/2.721ms. Draft-plus-sampling wall/gap fell72.297/14.029ms to
+9.649/0.206ms. These are profiler observations, separate from formal TPOT.
+
+Evidence under the workspace root:
+
+- Frozen experiment: `GRAPH_EXPERIMENT.json`.
+- Native GPU checks: `nmz22/fp4_graph_native_probe.log` and `.json`.
+- Real-KV HE32: `nmz22/fullgraph_he32/20261119_130618/`;
+  `nmz22/fullgraph_he32_summary.json`.
+- Formal/profile: `nmz22/fullgraph_performance/20261119_131324_prof_w4_UtGOwm/`;
+  `nmz22/fullgraph_performance_audit.json` and
+  `nmz22/fullgraph_performance_comparison.json`.
+- Actual FULL execution and phase gaps: `nmz22/fullgraph_trace_audit.json`.
+
+Keep both MRs draft until the graph composition's full164 and the two extra
+MoE-only task failures are addressed. A diagnostic-only real-input old/new
+MoE comparison lives in a separate worktree and is excluded from this patch
+and all performance measurements. The nmz20 retry failed before inference
+after a driver/device fault; it is not an accuracy result or evidence that
+the previous nmz20 stall has the same cause.
 
 Latest SGLang phase reference supplied by the user:
 `/public/home/duyunlong/laibao/fake_128k_c56-1795054024.3325562-TP-0-DP-0-EP-0-DECODE.trace.json.gz`.
 It contains ten VERIFY and ten DRAFT GPU spans, each labeled bs=7, with
 masked W8A8 FP8 GEMMs and low-latency DeepEP dispatch/combine in both phases.
 It supersedes the earlier phase reference. vLLM target annotations are
-generation_8(48), with INT4 W4A8 target GEMMs; workload, hardware and effective
-context equivalence are not established. These traces therefore support
+generation_8(48), with INT4 W4A8 target GEMMs. Latest SGLang device metadata
+matches nmz22's BW1100/64-CU/approximately144GiB device class, but checkpoint,
+quantization, workload and effective context equivalence remain unestablished.
+These traces therefore support
 stage/scheduling diagnosis, not a controlled cross-framework percentage.
 Per-span data, kernel identities and SHA256 are recorded in
 `LATEST_SGLANG_PHASE_COMPARISON.json`, with a compact table in the matching
