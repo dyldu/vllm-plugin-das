@@ -77,7 +77,9 @@ def clamped_int8_2304(x, metadata, *, masked, expected_m=32, output=None):
     scales = torch.empty((*shape, 1), device=x.device, dtype=torch.float32)
     t = shape[1] if masked else shape[0]
     if x.numel():
-        stride = min(t, max(1, int(expected_m))) if masked else 1
+        # Contiguous launches already have one program per padded row. Each
+        # program must visit that row once, rather than walking all later rows.
+        stride = min(t, max(1, int(expected_m))) if masked else t
         grid = (shape[0], stride) if masked else (t,)
         _clamped_int8_2304[grid](x, output, scales, metadata, t, masked, stride,
                                 num_warps=4, enable_fp_fusion=False)
