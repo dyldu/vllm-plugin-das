@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: Apache-2.0
-"""W4A8 LL policy preserves fixed capacity, native resources and default AG/RS."""
+"""W4A8 default LL policy preserves fixed capacity and native resource ownership."""
 import copy
 import sys
 from types import SimpleNamespace as NS
@@ -34,9 +34,18 @@ def config():
         use_v2_model_runner=True, lora_config=None)
 
 
-@pytest.mark.parametrize('extra', [None, {}, {KEY: 'allgather_reducescatter'}])
-def test_default_keeps_agrs(extra):
+@pytest.mark.parametrize('extra', [None, {}, {'unrelated': True}])
+def test_default_selects_admitted_ll_without_mutating_config(extra):
     cfg = config(); cfg.additional_config = extra
+    before = copy.deepcopy(extra)
+    parallel = copy.copy(cfg.parallel_config)
+    assert native_draft_ll_requested(cfg)
+    assert cfg.additional_config == before
+    assert vars(cfg.parallel_config) == vars(parallel)
+
+
+def test_explicit_agrs_keeps_native_fallback():
+    cfg = config(); cfg.additional_config = {KEY: 'allgather_reducescatter'}
     assert not native_draft_ll_requested(cfg)
 
 
@@ -61,6 +70,23 @@ def test_native_selection_rejects_unsupported_contract(change):
     if change == 'hidden': cfg.model_config.hf_config.hidden_size = 4096
     if change == 'draft_topk': cfg.model_config.hf_config.dspark_num_experts_per_tok = 6
     with pytest.raises(ValueError): native_draft_ll_requested(cfg)
+
+
+@pytest.mark.parametrize('change', ['dp1', 'tp2', 'ht', 'quant', 'capacity',
+                                    'eplb', 'hidden', 'draft_topk', 'tokens'])
+def test_automatic_selection_keeps_other_deployments_on_agrs(change):
+    cfg = config(); cfg.additional_config = None
+    if change == 'dp1': cfg.parallel_config.data_parallel_size = 1
+    if change == 'tp2': cfg.parallel_config.tensor_parallel_size = 2
+    if change == 'ht': cfg.parallel_config.all2all_backend = 'deepep_high_throughput'
+    if change == 'quant': cfg.quant_config = object()
+    if change == 'capacity': cfg.scheduler_config.max_num_batched_tokens = 39
+    if change == 'eplb': cfg.parallel_config.enable_eplb = True
+    if change == 'hidden': cfg.model_config.hf_config.hidden_size = 4096
+    if change == 'draft_topk': cfg.model_config.hf_config.dspark_num_experts_per_tok = 6
+    if change == 'tokens': cfg.speculative_config.num_speculative_tokens = 4
+    assert not native_draft_ll_requested(cfg)
+    assert cfg.additional_config is None
 
 
 def test_loader_native_path_preserves_config_without_agrs_scope():
