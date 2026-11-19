@@ -4,7 +4,10 @@ Model: `/models/DeepSeek-V4.1-Flash-Channel-INT4-w4a8`, config SHA256
 `ae297e9513323a65d120a3cb05a0f8d3d7b41ddaf358c048016d9e7924619244`.
 Baseline plugin: release branch `release_dsv41-flash_20261114_v0330`,
 `a5b5806d4c49aeba9a0fbcac3f9bdd6b49ce5384` (clean independent worktree).
-Adapter: `35c397aed8c3ec31542bd11a0ea971e304b90fcf` (clean independent worktree).
+Original Adapter: `35c397aed8c3ec31542bd11a0ea971e304b90fcf` (preserved worktree).
+At the user's request, the current Adapter baseline is HYGON-AI/main
+`ef63bbbd73a42812db9de1683e6720239c42fd68` in a separate clean worktree.
+Keep these two source baselines and their measurements distinct.
 The three pre-existing local edits on the former main branch were stashed,
 backed up and excluded from this release baseline. See BRANCH_SWITCH.json.
 Historical FP8 measurements and previous W4A8 runs on other source snapshots
@@ -67,7 +70,10 @@ thresholds after a candidate failure.
 
 ## Correctness gates
 
-Run the release baseline on all164 HumanEval tasks. Audit unique task IDs and
+Run the release baseline on all164 HumanEval tasks. The latest user-approved
+minimum full-set score is95% (at least156/164); the user accepts95-97%.
+Scores above97% also pass. This supersedes the earlier96% (158/164) request.
+Retain item-level changes and the strict first32 candidate check below. Audit unique task IDs and
 prompt hashes, item-level execution results, API errors, missing outputs,
 stop reasons/truncation. Retain all failures; do not demand164/164 to declare a
 baseline evaluation complete. Earlier155/164 belongs to a different source snapshot.
@@ -75,7 +81,9 @@ For each candidate: first32 identical task/prompt entries, batch16, seed42,
 temperature0, top_p0.95, max_tokens16384, enable_thinking=false, stream=true.
 Require no lost baseline passes and >=baseline first32 score, zero API errors,
 missing outputs or truncation. If the new baseline is32/32, candidate requires32/32.
-Final admitted composition also reruns full164 and must not lose baseline passes.
+Final admitted composition also reruns full164, must reach the user-approved
+minimum156/164 with no missing/error/truncated output, and reports every
+changed task outcome against the recorded baseline.
 
 Before full-model evaluation, test each changed operator against the actual
 pre-change implementation AND an independent oracle. Cover native dtype,
@@ -134,8 +142,25 @@ checks passed 7/7 execution cases and 13/13 packed-weight cases with the loaded
 worktree modules audited. GPU providers and EP operations are explicitly doubled
 in those tests; they do not establish GPU correctness or model accuracy.
 
-The W4A8 full164 release baseline, numerical TPOT ceilings, eight-rank profile
-and candidate measurements are pending. nmz20/nmz22 SSH access and environment
-preflight have passed; their existing eight-GPU jobs are awaiting disposition.
-Keep this MR in draft until the baseline and subsequent admission gates have
-complete evidence. Old FP8 measurements are excluded from this MR's results.
+The latest-upstream W4A8 baseline completed on nmz22:158/164 (96.34146%),
+first32:32/32, zero API errors, missing outputs or truncation, workflow exit0.
+Sources are the unchanged release plugin a5b5806 and Adapter main ef63bbb.
+The original Adapter35c397a full164 retry on nmz20 remains in progress.
+The numerical TPOT SLA and new upstream eight-rank profile are being collected
+separately. Prior performance repeats76.04/71.99ms had exported eight traces,
+but their /stop_profile diagnostic text-table aggregation stalled; preserve
+that interrupted workflow and do not treat it as an accepted complete baseline.
+Future runs disable only the native profiler's CUDA-time diagnostic text table;
+trace recording and all fixed serving arguments are unchanged.
+
+Workspace evidence root:
+`run/dsv4.1/033/w4a8_reverify_20261119/`.
+Accuracy audit:`nmz22/upstream_accuracy_gate.json`;
+full raw run:`nmz22/upstream_main_accuracy/20261119_114057/`.
+Native per-operator comparisons may run after accepted full164 accuracy on an
+idle device; each compares baseline/candidate in one process. End-to-end
+candidate admission still requires the separately frozen same-node TPOT SLA.
+Candidate GEMM-hint and activation-hint edits are isolated in experiment
+worktrees; no serving optimization has entered this MR yet.
+Keep this MR in draft until subsequent operator, accuracy and performance gates
+have complete evidence. Old FP8 measurements are excluded from this MR's results.
