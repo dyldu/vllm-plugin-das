@@ -181,7 +181,14 @@ end-to-end stage durations. The checked-in native benchmark is
 Baseline full164:158/164 (96.34146%), first32:32/32, zero request errors,
 missing outputs or truncation. Candidate HE32:32/32, identical prompts,
 zero errors/missing/truncation and no lost baseline passes. Candidate full164
-is still pending; this MR remains draft until that final composition check.
+completed with156/164 (95.12195%), first32:32/32, zero request errors,
+missing outputs or truncation, workflow exit0. This meets the user's95%
+minimum, but loses the baseline passes on HumanEval/99 and130 with no new
+passes. Both are generated-code differences, not missing responses or grader
+timeouts; their cause is not established. The full run has identical prompts,
+serving argv, Adapter commit, native Python hashes and package versions.
+Keep the MR draft while these differences are investigated; the score gate
+and sampled exact operator probes do not prove whole-model equivalence.
 The additional same-source nmz20 full164 run is diagnostic and is not the
 nmz22 baseline. Its slow-progress root cause remains unproven.
 
@@ -202,6 +209,9 @@ Workspace evidence root: `run/dsv4.1/033/w4a8_reverify_20261119/`.
   `nmz22/moe_hint_operator_probe.json`.
 - Candidate HE32: `nmz22/combined_hint_he32/20261119_120611/`;
   `nmz22/combined_hint_he32_summary.json`.
+- Candidate full164: `nmz22/combined_hint_full164/20261119_124734/`;
+  `nmz22/combined_hint_full164.gate.json` and
+  `CANDIDATE_FULL164_COMPARISON.json`.
 - Candidate performance/profile:
   `nmz22/combined_hint_performance/20261119_121259_prof_w4_mQ9eGl/`;
   `nmz22/combined_hint_performance_comparison.json`.
@@ -214,3 +224,15 @@ logs. Prior interrupted runs and FP8 results remain separate. The profiler's
 existing CUDA-time text-table diagnostic is disabled in both accepted runs;
 trace recording is unchanged. Full-graph/gap and draft DeepGEMM work remains
 outside this first operator patch.
+
+Latest SGLang phase reference supplied by the user:
+`/public/home/duyunlong/laibao/fake_128k_c56-1795054024.3325562-TP-0-DP-0-EP-0-DECODE.trace.json.gz`.
+It contains ten VERIFY and ten DRAFT GPU spans, each labeled bs=7, with
+masked W8A8 FP8 GEMMs and low-latency DeepEP dispatch/combine in both phases.
+It supersedes the earlier phase reference. vLLM target annotations are
+generation_8(48), with INT4 W4A8 target GEMMs; workload, hardware and effective
+context equivalence are not established. These traces therefore support
+stage/scheduling diagnosis, not a controlled cross-framework percentage.
+Per-span data, kernel identities and SHA256 are recorded in
+`LATEST_SGLANG_PHASE_COMPARISON.json`, with a compact table in the matching
+Markdown file under the workspace evidence root.
