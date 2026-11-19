@@ -23,7 +23,9 @@ identity, bounded native-cache ownership, unsupported transport/geometry and
 clean/dispatch/hook order across changing target/draft layouts. Meta tensors
 cover full frozen receive extents without substituting a smaller capacity.
 The existing native hint probe also accepts16local experts for a separate
-DSpark masked-GEMM check; no16-expert serving hint is enabled by this patch.
+DSpark masked-GEMM check. Its passing independent oracle and fresh-count
+graphs admit hints16/32/48 for this exact draft geometry. Larger initialization
+shapes retain the native2048 hint; every kernel still consumes actual counts.
 
 Required remaining GPU gates, in order:
 
@@ -47,8 +49,8 @@ row IDs to skip expert padding; the masked version follows device counts with
 a grid-stride loop, so the expected row count never bounds valid rows.
 `tests/vllm033/probe_w4a8_clamped_int8.py --consumer` compares native code/scale
 bytes, finite BF16 gate sweeps, changing graph counts up to2048, actual packed
-W4A8 down GEMMs and graph replay latency. GPU results are pending; no serving
-hook imports this candidate.
+W4A8 down GEMMs and graph replay latency. The75-case GPU gate passed; this
+worktree does not install its serving activation hook.
 
 
 2026-11-19 GPU update: the direct INT8 wire failed exact AG/RS comparison
@@ -62,3 +64,28 @@ The current draft alternative sends BF16 and invokes the source-pinned actual
 AG/RS row JIT at the receiver, masked by fresh counts. Target384-expert INT8
 wire remains unchanged. Quantization is deferred until the recv hook completes.
 All graph/wire/consumer/serving gates above still apply to this alternative.
+
+Receiver GPU gate,2026-11-19: all8 ranks passed16 eager transactions each
+and60 changing graph replays each (128 and480 total). Graph buckets include
+0/1/4/8/16/32/40/48/64/160/192/256 rows, alternating target384 and draft128
+layouts on the same buffer with per-dispatch clean. Eager cases cover zero,
+tiny, half-way rounding, uneven/empty ranks and full2048-row expert skew.
+INT8 codes and FP32 scale bits match the actual AG/RS row JIT. Combine round
+trips match original input quantization; graph outputs match eager bytes.
+
+The initial cross-transaction oracle sorted by source token index alone.
+Those indices repeat across source ranks under full skew, making row pairing
+ambiguous. The corrected oracle quantizes the same received BF16 rows and
+separately verifies the combine round trip against source inputs. Thresholds
+were not relaxed; the repeated-index case is reported in the JSON evidence.
+
+Reproduce on an authorized idle eight-GPU node with the pinned providers:
+
+```bash
+python tests/vllm033/probe_w4a8_dspark_ll_wire.py \
+  --bf16-receiver --graph --output /path/to/new-output-directory
+```
+
+Evidence: `run/dsv4.1/033/w4a8_reverify_20261119/nmz18/moe_reuse_probes_20261119_v5/ll_wire/`.
+This transport/quantization gate does not establish model accuracy, native
+expert-path integration, AG/RS performance parity or serving memory use.
