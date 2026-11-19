@@ -47,7 +47,8 @@ def main():
     def save():out.write_text(json.dumps(report,indent=2)+'\n')
     torch.manual_seed(20261125);save()
     try:
-        for m in (1,2,4,8,16,32):
+        for m, anchor_dtype in ((m,dtype) for dtype in (torch.int32,torch.int64)
+                                for m in (1,2,4,8,16,32)):
             base=torch.empty((m*5,v),device='cuda',dtype=torch.bfloat16)
             model.compute_draft_logits=MethodType(lambda self,hidden:base,model)
             spec=Spec.__new__(Spec)
@@ -59,7 +60,7 @@ def main():
             spec.sample_idx_mapping=torch.arange(m,device='cuda').repeat_interleave(5)
             spec.sample_pos=torch.ones(m*5,device='cuda',dtype=torch.int64)
             spec._step_cols=list(range(5))
-            spec.input_buffers=SimpleNamespace(input_ids=torch.randint(v,(m,),device='cuda'))
+            spec.input_buffers=SimpleNamespace(input_ids=torch.randint(v,(m,),device='cuda',dtype=anchor_dtype))
             spec._anchor_idx=torch.arange(m,device='cuda')
             spec.draft_tokens=torch.empty((m+1,5),device='cuda',dtype=torch.int64)
             hidden=torch.zeros((m*5,5120),device='cuda',dtype=torch.bfloat16)
@@ -71,7 +72,7 @@ def main():
                 spec.draft_tokens.fill_(-9)
                 assert sample_sequential(model,spec,m,hidden)
                 equal=bool(torch.equal(spec.draft_tokens,expected))
-                report['rows'].append(dict(m=m,magnitude=mag,all_ids_and_tail_exact=equal))
+                report['rows'].append(dict(m=m,anchor_dtype=str(anchor_dtype),magnitude=mag,all_ids_and_tail_exact=equal))
                 save();assert equal,report['rows'][-1]
             if m in (1,8,32):
                 stream=torch.cuda.Stream();stream.wait_stream(torch.cuda.current_stream())
@@ -83,7 +84,7 @@ def main():
                     Spec._sample_sequential(spec,m,hidden);expected=spec.draft_tokens.clone()
                     spec.draft_tokens.fill_(-9);graph.replay()
                     equal=bool(torch.equal(spec.draft_tokens,expected))
-                    report['graphs'].append(dict(m=m,replay=replay,all_ids_and_tail_exact=equal))
+                    report['graphs'].append(dict(m=m,anchor_dtype=str(anchor_dtype),replay=replay,all_ids_and_tail_exact=equal))
                     save();assert equal,report['graphs'][-1]
             changes={'draft_logits':torch.empty(1,device='cuda'),'draft_watermarker':object(),
                      '_d2t_scatter_index':object(),'_draft_topk':object(),
@@ -93,7 +94,7 @@ def main():
                 old=getattr(spec,name);setattr(spec,name,value);spec.draft_tokens.fill_(-7)
                 assert not sample_sequential(model,spec,m,hidden)
                 assert bool((spec.draft_tokens==-7).all())
-                setattr(spec,name,old);report['fallbacks'].append(dict(m=m,field=name,untouched=True))
+                setattr(spec,name,old);report['fallbacks'].append(dict(m=m,anchor_dtype=str(anchor_dtype),field=name,untouched=True))
             with torch.autocast('cuda',dtype=torch.bfloat16):
                 assert not sample_sequential(model,spec,m,hidden)
             save()
