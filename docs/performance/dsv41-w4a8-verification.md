@@ -268,8 +268,13 @@ cache payload, weights, lengths and block tables across replays, exact eager
 comparison and zero/short/full contexts. The ninth check rejects FULL prefill.
 The composed real-KV HumanEval first32 run passed32/32 with identical prompts,
 no lost baseline passes, no API errors, missing outputs or truncation and
-workflow0. Full164 for this graph composition is pending. The MoE-only
-full164 result above does not establish the graph composition's full score.
+workflow0. The exact graph composition subsequently completed real-KV full164
+on nmz18: **158/164 (96.34%)**, first32 32/32, no request errors, missing
+outputs or truncation, workflow0. This passes the user minimum156/164.
+The nmz18 accelerator has approximately96GiB VRAM; the earlier nmz22
+performance evidence above belongs to the144GiB device class. Do not combine
+them into a same-node performance comparison. Task-level differences alone
+do not prove whole-model numerical equivalence.
 
 All eight graph traces passed gzip CRC and retain SHA256 values. DP0 contains
 800 target masked GEMMs; each80-GEMM target span maps to exactly one native
@@ -289,9 +294,13 @@ Evidence under the workspace root:
   `nmz22/fullgraph_performance_audit.json` and
   `nmz22/fullgraph_performance_comparison.json`.
 - Actual FULL execution and phase gaps: `nmz22/fullgraph_trace_audit.json`.
+- Graph full164: `nmz18/fullgraph_he164/20261119_142616/`;
+  `nmz18/fullgraph_he164.gate.json` (158/164, workflow0).
 
-Keep both MRs draft until the graph composition's full164 and the two extra
-MoE-only task failures are addressed. A diagnostic-only real-input old/new
+Keep both MRs draft while the two extra MoE-only task failures remain
+unexplained. The final graph composition now passes its full164 gate; tasks99
+and130 pass in that run, which does not establish the cause of their earlier
+MoE-only failures. A diagnostic-only real-input old/new
 MoE comparison lives in a separate worktree and is excluded from this patch
 and all performance measurements. The nmz20 retry failed before inference
 after a driver/device fault; it is not an accuracy result or evidence that
@@ -310,3 +319,18 @@ stage/scheduling diagnosis, not a controlled cross-framework percentage.
 Per-span data, kernel identities and SHA256 are recorded in
 `LATEST_SGLANG_PHASE_COMPARISON.json`, with a compact table in the matching
 Markdown file under the workspace evidence root.
+
+
+## Reuse composition under verification
+
+The subsequent candidate preserves this complete MoE scheduling and FULL graph
+series, then layers the earlier exact H5120 mHC Post and integer MLA selector
+kernels onto Adapter3bf4b68 in a separate worktree. CPU77 checks pass. The Post
+probe passes147 eager cases and50 changed-input graph replays with exact BF16
+bytes, including rows192/256; rows40 isolated graph timing is162.9607us Torch
+versus6.47193us fused. These isolated timings are not an end-to-end claim.
+The selector native-consumer fixture initially passed block32 to a block64
+cache; that test-only ABI error is repaired and the failed artifact retained.
+The new Post/selector runtime is excluded from this MR until its operator,
+HE32, full164, same-node paired performance and actual trace-dispatch gates
+complete. See POST_SELECTORS_REUSE_EXPERIMENT.json and its probe amendment.
