@@ -49,6 +49,7 @@ def _digest_paths():
     return (
         Path(__file__).with_name('fp4_indexer.py'),
         Path(__file__).with_name('qkv_split.py'),
+        Path(__file__).with_name('wo_a_layout.py'),
         Path(__file__).with_name('dspark_post.py'),
         Path(__file__).with_name('fp4_indexer_lightop.py'),
         Path(__file__).with_name('v41_indexer.py'),
@@ -74,11 +75,13 @@ def _digest_signature():
 def _compute_digest():
     import hashlib
     from .qkv_split import _NATIVE_BUILD_MATCHES
+    from .wo_a_layout import _SOURCE_MATCHES
     digest = hashlib.sha256()
     for path in _digest_paths():
         digest.update(path.read_bytes())
     # A different native wheel must not reuse the captured split schedule.
     digest.update(str(_NATIVE_BUILD_MATCHES).encode())
+    digest.update(str(_SOURCE_MATCHES).encode())
     return digest.hexdigest()
 
 
