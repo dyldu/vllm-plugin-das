@@ -191,6 +191,17 @@ def main():
                             for variant in ('native', 'token_major'):
                                 us = do_bench_cudagraph(lambda: execute(variant), rep=100) * 1000
                                 report['timing'].append(dict(layer=layer, weight_layout=weight_layout, rows=rows, heads=heads, variant=variant, us=us))
+                            if args.owned and layer == args.layers[0] and weight_layout == 'NN' and rows == 48 and heads == 128:
+                                with torch.profiler.profile(activities=[torch.profiler.ProfilerActivity.CPU,
+                                        torch.profiler.ProfilerActivity.CUDA], record_shapes=True) as profiler:
+                                    for variant in ('native', 'token_major'):
+                                        with torch.profiler.record_function('wo_a_' + variant):
+                                            execute(variant)
+                                    torch.cuda.synchronize()
+                                trace = args.output.parent / 'wo_a_owned_signatures.trace.json.gz'
+                                profiler.export_chrome_trace(str(trace))
+                                report['signature_trace'] = str(trace)
+                                report['signature_trace_sha256'] = hashlib.sha256(trace.read_bytes()).hexdigest()
                             del base_graph, new_graph
                     exact(cached, original, 'static cached weight modified')
                 exact(consumer.weight, wb, 'INT8 WO_B weight modified')
