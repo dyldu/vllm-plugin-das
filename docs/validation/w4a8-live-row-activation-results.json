@@ -1,0 +1,48 @@
+{
+  "accepted": true,
+  "same_recorded_environment": true,
+  "hsa_candidate_proof": "exact detached invocation",
+  "contract_sha256": "af2995d56cf483252d3fbd771b755952bd16fcb2a7071163c953075ed4664c94",
+  "repeats": [
+    {
+      "control_median_ms": 38.764281335880796,
+      "candidate_median_ms": 37.14519322072486,
+      "control_p99_ms": 45.553757524865816,
+      "candidate_p99_ms": 41.874220976166015,
+      "improvement": 0.04176752565401698,
+      "median_pass": true,
+      "p99_pass": true,
+      "improvement_pass": true
+    },
+    {
+      "control_median_ms": 39.23196825895488,
+      "candidate_median_ms": 37.17002318622031,
+      "control_p99_ms": 43.676179687668544,
+      "candidate_p99_ms": 41.91690238790337,
+      "improvement": 0.052557777859231325,
+      "median_pass": true,
+      "p99_pass": true,
+      "improvement_pass": true
+    }
+  ],
+  "control_mean_median_ms": 38.99812479741784,
+  "candidate_mean_median_ms": 37.15760820347259,
+  "mean_improvement": 0.04719500241373431,
+  "full_accuracy": "159/164; first32 32/32; zero errors/missing/truncations",
+  "actual_dispatch_all8": true,
+  "limits": "Two unprofiled repeats, not statistical significance. Fake KV and synthetic DSpark acceptance; SGLang trace remains a stage reference.",
+  "tested_plugin": "dec9f79dbf261eb07dcfd6f3a951fd491d378e8f",
+  "adapter": "8a1c05c925cdd0e24afc4f21e03083ab5575d0fe",
+  "operator_cases": 75,
+  "accuracy": {
+    "correct": 159,
+    "total": 164,
+    "first32_correct": 32,
+    "errors": 0,
+    "missing": 0,
+    "truncated": 0
+  },
+  "environment": {
+    "HSA_USERPTR_FOR_PAGED_MEM": "0"
+  }
+}
