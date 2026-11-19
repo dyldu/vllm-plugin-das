@@ -39,3 +39,26 @@ Required remaining GPU gates, in order:
 
 Published-HEAD baseline remains Plugin526b626 + Adapter8a1c05c and is verified
 separately. Experimental code is isolated in its own Git worktree.
+
+An additional uninstalled activation experiment reuses the earlier 2304-column
+split (2048+256), retaining the native clamp10, BF16 SiLU/product boundaries,
+INT8 RNE and minimum absmax1e-10. The contiguous version uses native negative
+row IDs to skip expert padding; the masked version follows device counts with
+a grid-stride loop, so the expected row count never bounds valid rows.
+`tests/vllm033/probe_w4a8_clamped_int8.py --consumer` compares native code/scale
+bytes, finite BF16 gate sweeps, changing graph counts up to2048, actual packed
+W4A8 down GEMMs and graph replay latency. GPU results are pending; no serving
+hook imports this candidate.
+
+
+2026-11-19 GPU update: the direct INT8 wire failed exact AG/RS comparison
+on zero/minimum scales, half-way rounding and some normal scale bits. It is
+not admitted. The16-expert native masked GEMM hint probe passed active byte
+comparison, signed-INT4 independent samples, native down consumers, changing
+counts and full2048-row skew. A separate activation branch passed75 exact
+operator cases; its end-to-end evaluation is separate from this LL experiment.
+
+The current draft alternative sends BF16 and invokes the source-pinned actual
+AG/RS row JIT at the receiver, masked by fresh counts. Target384-expert INT8
+wire remains unchanged. Quantization is deferred until the recv hook completes.
+All graph/wire/consumer/serving gates above still apply to this alternative.

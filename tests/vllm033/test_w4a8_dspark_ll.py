@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: Apache-2.0
 """W4A8 LL policy preserves fixed capacity, native resources and default AG/RS."""
 import copy
+import sys
 from types import SimpleNamespace as NS
 
 import pytest
@@ -188,5 +189,40 @@ def test_captured_dispatch_records_clean_without_python_layout_cache(monkeypatch
         assert [c[1:] for c in calls if c[0] == 'clean'] == [
             ((256, 5120, e), dict(quant_group_size=0, num_topk=k))
             for e, k in ((384, 6), (128, 3), (384, 6))]
+
+
+def test_draft_receiver_quantizes_only_after_transport_hook(monkeypatch):
+    from hcu_vllm_das.moe import ct_w4a8_prepare as mod
+
+    calls = []
+    raw = torch.empty((16, 2048, 5120), dtype=torch.bfloat16, device='meta')
+    counts = torch.empty((16,), dtype=torch.int32, device='meta')
+    handle = object()
+
+    class Buffer:
+        def low_latency_dispatch(self, *args, **kwargs):
+            assert kwargs['quant_type'] == 0
+            calls.append('dispatch')
+            return raw, counts, handle, None, lambda: calls.append('hook')
+
+    def quantize(x, actual_counts):
+        assert calls == ['dispatch', 'hook'] and x is raw and actual_counts is counts
+        calls.append('native_quantize')
+        return x.to(torch.int8), torch.empty((16, 2048, 1), dtype=torch.float32, device='meta')
+
+    monkeypatch.setitem(sys.modules, 'hcu_vllm_das.dspark_ll_quant', NS(quantize_receiver=quantize))
+    monkeypatch.setattr(mod, 'dbo_current_ubatch_id', lambda: 0)
+    prepare = mod.HcuCTLLPrepareAndFinalize(Buffer(), 256, 8, preserve_agrs_quantization=True)
+    quant = NS(quant_dtype=torch.int8, per_act_token_quant=True, block_shape=None)
+    hook, receive = prepare.prepare_async(
+        torch.empty((48, 5120), dtype=torch.bfloat16, device='meta'),
+        torch.empty((48, 3), dtype=torch.float32, device='meta'),
+        torch.empty((48, 3), dtype=torch.int32, device='meta'), 128, None, False, quant)
+    assert calls == ['dispatch']
+    hook()
+    q, scale, metadata, ids, weights = receive()
+    assert q.dtype == torch.int8 and scale.dtype == torch.float32
+    assert metadata.expert_num_tokens is counts and ids is weights is None
+    assert calls == ['dispatch', 'hook', 'native_quantize'] and prepare.handles[0] is handle
 
 
