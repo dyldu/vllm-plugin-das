@@ -39,8 +39,10 @@ def main():
         patch_deepseek_v4_rocm_wo_a_layout.apply()
         assert wo_a_layout._SOURCE_MATCHES and wo_a_layout._source_matches()
         assert wo_a_layout._cache_contract(native._get_cached_wo_a_bf16) == (True, True)
+        hf = SimpleNamespace(**json.loads((args.model / 'config.json').read_text()))
+        hf.text_config = SimpleNamespace(**hf.text_config)
         cfg = SimpleNamespace(quant_config=object.__new__(HcuDSV41CTW4A8Config),
-            model_config=SimpleNamespace(hf_config=SimpleNamespace(model_type='deepseek_v41', hidden_size=5120)),
+            model_config=SimpleNamespace(hf_config=hf, hf_text_config=hf.text_config),
             parallel_config=SimpleNamespace(tensor_parallel_size=1, prefill_context_parallel_size=1,
                 pipeline_parallel_size=1, data_parallel_size=8, enable_expert_parallel=True))
         assert wo_a_layout.configured(cfg)

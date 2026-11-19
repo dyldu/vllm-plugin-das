@@ -41,6 +41,19 @@ def test_known_nn_cache_can_install_after_plugin_import(monkeypatch):
     assert layout._cache_contract(layout.native._get_cached_wo_a_bf16) == (True, True)
 
 
+@pytest.mark.parametrize('explicit_text_property', [False, True])
+def test_actual_multimodal_config_uses_text_hidden_size(monkeypatch, explicit_text_property):
+    monkeypatch.setattr(layout, '_SOURCE_MATCHES', True)
+    cfg = config()
+    text = NS(model_type='deepseek_v41_text', hidden_size=5120)
+    cfg.model_config.hf_config = NS(model_type='deepseek_v41', text_config=text)
+    if explicit_text_property:
+        cfg.model_config.hf_text_config = text
+    assert layout.configured(cfg)
+    text.hidden_size = 4096
+    assert not layout.configured(cfg)
+
+
 @pytest.mark.parametrize('field,value', [('hidden_size',4096), ('model_type','other'),
     ('tensor_parallel_size',2), ('prefill_context_parallel_size',2),
     ('pipeline_parallel_size',2), ('data_parallel_size',1), ('enable_expert_parallel',False)])
