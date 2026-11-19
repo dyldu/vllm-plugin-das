@@ -134,33 +134,83 @@ exact reproduction commands, raw results and remaining limitations. Adapter
 changes may be staged on a dyldu branch. Never overwrite the user's baseline
 checkout or silently apply the saved local edits to the release baseline.
 
-## Current admission status
+## Measured W4A8 masked MoE change
 
-This new MR starts from the unmodified release at a5b5806. No FP8 optimization
-has been cherry-picked and no production code has changed yet. The CPU replay
-checks passed 7/7 execution cases and 13/13 packed-weight cases with the loaded
-worktree modules audited. GPU providers and EP operations are explicitly doubled
-in those tests; they do not establish GPU correctness or model accuracy.
+Code commit `ea82e732eb2f586a4d257877739cec476329c237` replaces the
+workspace-capacity scheduling hint (2048) with a token-derived, rounded hint
+for the target masked W4A8 GEMMs and clamp/INT8 quantizer. Native device expert
+counts still control every valid row; allocation sizes remain unchanged.
+The activation condition is restricted to the measured gfx938/64-CU device,
+capacity256/dispatchers8, E48/H5120/FFN2304, global384 experts/topk6 and clamp10.
+Other configurations retain the existing hint. Draft AG/RS is unchanged.
 
-The latest-upstream W4A8 baseline completed on nmz22:158/164 (96.34146%),
-first32:32/32, zero API errors, missing outputs or truncation, workflow exit0.
-Sources are the unchanged release plugin a5b5806 and Adapter main ef63bbb.
-The original Adapter35c397a full164 retry on nmz20 remains in progress.
-The numerical TPOT SLA and new upstream eight-rank profile are being collected
-separately. Prior performance repeats76.04/71.99ms had exported eight traces,
-but their /stop_profile diagnostic text-table aggregation stalled; preserve
-that interrupted workflow and do not treat it as an accepted complete baseline.
-Future runs disable only the native profiler's CUDA-time diagnostic text table;
-trace recording and all fixed serving arguments are unchanged.
+Matched nmz22 results use Adapter main ef63bbb, the same native providers,
+all frozen launch arguments and PIECEWISE. Both workflows exited0; each formal
+repeat completed64/64 requests, zero failures, actual4096 input/128 output.
 
-Workspace evidence root:
-`run/dsv4.1/033/w4a8_reverify_20261119/`.
-Accuracy audit:`nmz22/upstream_accuracy_gate.json`;
-full raw run:`nmz22/upstream_main_accuracy/20261119_114057/`.
-Native per-operator comparisons may run after accepted full164 accuracy on an
-idle device; each compares baseline/candidate in one process. End-to-end
-candidate admission still requires the separately frozen same-node TPOT SLA.
-Candidate GEMM-hint and activation-hint edits are isolated in experiment
-worktrees; no serving optimization has entered this MR yet.
-Keep this MR in draft until subsequent operator, accuracy and performance gates
-have complete evidence. Old FP8 measurements are excluded from this MR's results.
+| TPOT | Release baseline | Candidate | Reduction |
+| --- | ---: | ---: | ---: |
+| Repeat1 median | 70.4067ms | 66.2890ms | 5.85% |
+| Repeat2 median | 70.0225ms | 65.5945ms | 6.32% |
+| Mean of medians | 70.2146ms | 65.9417ms | 6.09% |
+| Repeat1 p99 | 81.4512ms | 75.9197ms | 6.79% |
+| Repeat2 p99 | 82.6422ms | 77.0615ms | 6.75% |
+
+Both repeats pass the frozen median/p99 SLA. These are two repeats of the
+DecodeBench zero-KV/synthetic-acceptance workload, with no statistical
+significance or real-KV production latency claim.
+
+Native before/after probes passed on both nmz20 and nmz22: exact active BF16
+outputs, INT8 codes/scales and following native GEMM outputs; independent
+signed-INT4 CPU-dot oracle; empty/skewed experts, poison padding and changed
+input/count/scale graph replays. Example nmz22 graph/event operator medians
+(microseconds, capacity2048 to hint16 for decode or hint32 for verify):
+
+| Operator | Decode before/after | Verify before/after |
+| --- | ---: | ---: |
+| Gate/up W4A8 GEMM | 745.055 / 338.312 | 755.319 / 359.808 |
+| Down W4A8 GEMM | 374.616 / 169.672 | 383.040 / 191.824 |
+| Clamp and INT8 quant | 375.112 / 17.760 | 411.600 / 58.568 |
+
+These standalone workloads are exact operator comparisons, not per-layer
+end-to-end stage durations. The checked-in native benchmark is
+`tests/vllm033/benchmark_ct_w4a8_hints.py`; run in the documented container with
+`HCU_ADAPTER_HOST=none VLLM_PLUGINS= HIP_VISIBLE_DEVICES=0 python3
+ tests/vllm033/benchmark_ct_w4a8_hints.py --output report.json` on an idle device.
+
+Baseline full164:158/164 (96.34146%), first32:32/32, zero request errors,
+missing outputs or truncation. Candidate HE32:32/32, identical prompts,
+zero errors/missing/truncation and no lost baseline passes. Candidate full164
+is still pending; this MR remains draft until that final composition check.
+The additional same-source nmz20 full164 run is diagnostic and is not the
+nmz22 baseline. Its slow-progress root cause remains unproven.
+
+All eight candidate gzip traces passed CRC verification. DP0 shows800/800
+target masked GEMMs changed from the native128-row template to16-row template;
+400 masked clamp/quant calls remain present. Trace durations support stage
+attribution but do not replace the unprofiled TPOT pair or controlled native
+probe. Physical launch grids are absent in the exported trace args.
+
+Workspace evidence root: `run/dsv4.1/033/w4a8_reverify_20261119/`.
+
+- Baseline full164: `nmz22/upstream_main_accuracy/20261119_114057/`;
+  `nmz22/upstream_accuracy_gate.json`.
+- Baseline performance/profile:
+  `nmz22/upstream_main_performance/20261119_115114_prof_w4_HN7tRU/`;
+  `nmz22/SLA_FROZEN.json`.
+- Native probes: `nmz20/moe_hint_operator_probe.json` and
+  `nmz22/moe_hint_operator_probe.json`.
+- Candidate HE32: `nmz22/combined_hint_he32/20261119_120611/`;
+  `nmz22/combined_hint_he32_summary.json`.
+- Candidate performance/profile:
+  `nmz22/combined_hint_performance/20261119_121259_prof_w4_mQ9eGl/`;
+  `nmz22/combined_hint_performance_comparison.json`.
+- Trace audit: `nmz22/combined_hint_trace_dispatch_gate.json`;
+  `nmz22/upstream_baseline_dp0_moe_trace.json` and
+  `nmz22/combined_hint_dp0_moe_trace.json`.
+
+Every raw run retains its complete script, argv, source provenance, results and
+logs. Prior interrupted runs and FP8 results remain separate. The profiler's
+existing CUDA-time text-table diagnostic is disabled in both accepted runs;
+trace recording is unchanged. Full-graph/gap and draft DeepGEMM work remains
+outside this first operator patch.
