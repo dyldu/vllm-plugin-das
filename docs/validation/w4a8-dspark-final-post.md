@@ -29,5 +29,9 @@ The fixture invokes the actual native/private three-layer draft forward and
 native hc_collapse, across every frozen capture bucket, six input magnitudes,
 eager execution and changing-input graphs. It checks BF16 bytes, finite outputs
 and input immutability, then measures both schedules with CUDA graphs.
-GPU fixture and W4A8 HE32/full164/paired TPOT gates are still required before
-promotion or a serving speedup claim.
+Current W4A8 validation passed48 eager native/private forward cases and48
+changed-input graph cases. Combined Plugin9bc97af/Adapter45a32f3 passed full
+159/164, first32=32 and paired TPOT/actual eight-rank dispatch gates. These
+results validate the complete Q/RoPE + MLA + Post composition and do not
+attribute its end-to-end improvement to final Post alone. See
+`w4a8-attention-dspark-reuse.md` for measured sources and limitations.
