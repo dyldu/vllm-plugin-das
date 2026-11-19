@@ -20,7 +20,7 @@ import torch.multiprocessing as mp
 CAPACITY, HIDDEN, WORLD = 256, 5120, 8
 
 
-def worker(rank, init, output, graph_enabled, bf16_receiver):
+def worker(rank, init, output, graph_enabled, bf16_receiver, entry_clean):
     torch.cuda.set_device(rank)
     import deep_ep
     from vllm.model_executor.layers.fused_moe.utils import moe_kernel_quantize_input
@@ -62,8 +62,9 @@ def worker(rank, init, output, graph_enabled, bf16_receiver):
         weights[:, 0] = 1.
         return ids.long(), weights
 
-    def dispatch(x, ids, weights, experts, quant_type):
-        buffer.clean_low_latency_buffer(CAPACITY, HIDDEN, experts,
+    def dispatch(x, ids, weights, experts, quant_type, clean=True):
+        if clean:
+            buffer.clean_low_latency_buffer(CAPACITY, HIDDEN, experts,
                                         quant_group_size=0, num_topk=ids.shape[1])
         value, counts, handle, _, hook = buffer.low_latency_dispatch(
             x, ids, weights, CAPACITY, experts, quant_type=quant_type,
@@ -187,18 +188,19 @@ def worker(rank, init, output, graph_enabled, bf16_receiver):
         # outputs, completing each transaction before the next layout.
         for rows in (0, 1, 4, 8, 16, 32, 40, 48, 64, 160, 192, 256):
             transactions = []
-            for experts, topk in ((384, 6), (384, 6), (128, 3), (128, 3), (384, 6)):
-                m = max(0, rows-rank)
+            for experts, topk in (((384, 6),) * 3 + ((128, 3),) * 3 + ((384, 6),) * 3
+                                  if entry_clean else ((384, 6), (384, 6), (128, 3), (128, 3), (384, 6))):
+                m = rows if entry_clean and rows == CAPACITY else max(0, rows-rank)
                 x = torch.randn((m, HIDDEN), device='cuda').bfloat16()
                 ids, weights = routing(m, experts, topk, False)
                 transactions.append((experts, x, ids, weights))
 
-            def execute():
+            def execute_group(group, clean_each=True):
                 outputs = []
-                for experts, x, ids, weights in transactions:
+                for experts, x, ids, weights in group:
                     use_receiver = bf16_receiver and experts == 128
                     received, counts, handle = dispatch(x, ids, weights, experts,
-                                                       0 if use_receiver else 1)
+                                                       0 if use_receiver else 1, clean=clean_each)
                     q, scale = quant_receiver(received, counts) if use_receiver else received
                     y = (q.float() * scale.reshape(*q.shape[:2], 1)).bfloat16()
                     out, _, hook = buffer.low_latency_combine(y, ids, weights, handle,
@@ -207,30 +209,64 @@ def worker(rank, init, output, graph_enabled, bf16_receiver):
                     outputs.append(out)
                 return outputs
 
+            class ModelEntry(torch.nn.Module):
+                def __init__(self, group):
+                    super().__init__()
+                    self.group = group
+                    self.register_forward_pre_hook(self.clean)
+
+                def clean(self, _module, _args):
+                    experts, _, ids, _ = self.group[0]
+                    buffer.clean_low_latency_buffer(CAPACITY, HIDDEN, experts,
+                        quant_group_size=0, num_topk=ids.shape[1])
+
+                def forward(self):
+                    return execute_group(self.group, clean_each=False)
+
+            groups = ([transactions[i:i+3] for i in (0, 3, 6)]
+                      if entry_clean else [transactions])
+            models = ([ModelEntry(g) for g in groups] if entry_clean else
+                      [lambda: execute_group(transactions)])
+            graphs, captured_groups = [], []
             stream = torch.cuda.Stream()
             stream.wait_stream(torch.cuda.current_stream())
-            with torch.cuda.stream(stream):
-                execute()
-            stream.synchronize()
-            graph = torch.cuda.CUDAGraph()
-            with torch.cuda.graph(graph, stream=stream):
-                captured = execute()
+            for model in models:
+                with torch.cuda.stream(stream):
+                    model()
+                stream.synchronize()
+                graph = torch.cuda.CUDAGraph()
+                with torch.cuda.graph(graph, stream=stream):
+                    captured = model()
+                graphs.append(graph)
+                captured_groups.append(captured)
             for replay in range(5):
                 for experts, x, ids, weights in transactions:
                     x.normal_().mul_((0., 2.**-22, .25, 8., 100.)[replay])
-                    ids.add_(19).remainder_(experts)
-                graph.replay()
-                torch.cuda.synchronize()
-                expected = execute()
-                torch.cuda.synchronize()
-                exact = all(torch.equal(a.view(torch.uint8), b.view(torch.uint8))
-                            for a, b in zip(captured, expected))
-                finite = all(torch.isfinite(a).all().item() for a in captured)
+                    if replay == 4:
+                        # All source ranks route to the same experts, covering
+                        # 2048 live rows/expert without changing graph capacity.
+                        skew_ids, _ = routing(x.shape[0], experts, ids.shape[1], True)
+                        ids.copy_(skew_ids)
+                    else:
+                        ids.add_(19).remainder_(experts)
+                exact, finite = True, True
+                # Replay distinct target/draft/target graphs. The reference
+                # retains the original clean-before-each-dispatch policy.
+                for graph, captured, group in zip(graphs, captured_groups, groups):
+                    graph.replay()
+                    torch.cuda.synchronize()
+                    expected = execute_group(group, clean_each=True)
+                    torch.cuda.synchronize()
+                    exact = exact and all(
+                        torch.equal(a.view(torch.uint8), b.view(torch.uint8))
+                        for a, b in zip(captured, expected))
+                    finite = finite and all(torch.isfinite(a).all().item() for a in captured)
                 emit('graph', rows=rows, replay=replay, native_bytes_exact=exact,
-                     finite=finite, passed=exact and finite)
+                     entry_clean=entry_clean, distinct_model_graphs=len(graphs),
+                     transactions=len(transactions), finite=finite, passed=exact and finite)
                 if not exact or not finite:
                     failures.append(dict(rows=rows, replay=replay, reason='graph_combine_bytes'))
-            del graph, captured, expected, transactions
+            del graphs, captured_groups, graph, captured, expected, transactions, models, groups
     all_failures = [None] * WORLD
     dist.all_gather_object(all_failures, failures)
     global_passed = not any(all_failures)
@@ -250,9 +286,10 @@ if __name__ == '__main__':
     parser.add_argument('--output', required=True)
     parser.add_argument('--graph', action='store_true')
     parser.add_argument('--bf16-receiver', action='store_true')
+    parser.add_argument('--entry-clean', action='store_true')
     args = parser.parse_args()
     Path(args.output).mkdir(parents=True, exist_ok=False)
     with tempfile.TemporaryDirectory(prefix='w4a8-ll-wire-') as directory:
         mp.spawn(worker, args=('file://'+directory+'/group', args.output, args.graph,
-                               args.bf16_receiver),
+                               args.bf16_receiver, args.entry_clean),
                  nprocs=WORLD, join=True)
