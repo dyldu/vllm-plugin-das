@@ -1,7 +1,10 @@
 #!/usr/bin/env python3
 """Actual owned attention path versus installed native Q/KV, including graphs."""
 import argparse
+import hashlib
+from importlib.util import find_spec
 import json
+from pathlib import Path
 from types import SimpleNamespace as NS
 
 import torch
@@ -45,7 +48,15 @@ def main():
     parser.add_argument('--block-size', type=int, choices=(32, 64), default=64)
     parser.add_argument('--page-padding', type=int, default=64)
     parser.add_argument('--seed', type=int, default=194241)
+    parser.add_argument('--validate-native-sha256', help='Probe a named new native build without admitting it in serving')
     opts = parser.parse_args()
+    native_sha = hashlib.sha256(Path(find_spec('vllm._C_stable_libtorch').origin).read_bytes()).hexdigest()
+    validation_only = bool(opts.validate_native_sha256)
+    if validation_only:
+        assert native_sha == opts.validate_native_sha256, 'probe native fingerprint differs'
+        # This process contains isolated differential tests, not a server.
+        # Production keeps its old fingerprint until all native consumers pass.
+        qkv_split._NATIVE_BUILD_MATCHES = True
     assert qkv_split._NATIVE_BUILD_MATCHES, 'native build is outside verified contract'
     torch.manual_seed(opts.seed)
     angle = torch.randn(8192, 32, device='cuda')
@@ -136,6 +147,7 @@ def main():
                                 us=do_bench_cudagraph(function, rep=100) * 1000))
     assert len(eager) == 23 * 14 and len(replays) == 23 * 5
     result = dict(accepted=True, block_size=opts.block_size, page_padding=opts.page_padding,
+                  native_sha256=native_sha, validation_only=validation_only,
                   seed=opts.seed, eager=eager, replays=replays, timings=timings,
                   gate='Q BF16 bytes and entire KV cache bytes exact; input immutable')
     with open(opts.output, 'w') as handle:
