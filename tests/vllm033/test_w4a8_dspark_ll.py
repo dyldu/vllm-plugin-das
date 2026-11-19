@@ -224,5 +224,3 @@ def test_draft_receiver_quantizes_only_after_transport_hook(monkeypatch):
     assert q.dtype == torch.int8 and scale.dtype == torch.float32
     assert metadata.expert_num_tokens is counts and ids is weights is None
     assert calls == ['dispatch', 'hook', 'native_quantize'] and prepare.handles[0] is handle
-
-
