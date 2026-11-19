@@ -11,21 +11,27 @@ from vllm.v1.attention.backends.mla.indexer import DeepseekV32IndexerMetadata
 
 
 @pytest.mark.parametrize('ratio', [1, 2])
-def test_decode_graph_reads_changed_query_cache_and_metadata(monkeypatch, ratio):
+@pytest.mark.parametrize('rows,context_len,topk', [
+    (2, 128, 4), (8, 32768, 1024), (48, 4096, 1024), (64, 32768, 1024),
+])
+def test_decode_graph_reads_changed_query_cache_and_metadata(
+        monkeypatch, ratio, rows, context_len, topk):
     if not torch.cuda.is_available():
         pytest.skip('HCU required')
     torch.cuda.set_device(0)
     torch.manual_seed(79)
-    rows, context_len, page_records = 2, 128, 64 // ratio
-    cache = torch.empty((8, page_records, 68), dtype=torch.uint8, device='cuda')
+    page_records = 64 // ratio
+    pages_per_row = (context_len + page_records - 1) // page_records
+    pages = rows * pages_per_row
+    cache = torch.empty((pages, page_records, 68), dtype=torch.uint8, device='cuda')
     # The ABI stores page-local payload/scale planes, not 68-byte records.
     # Randomizing record-shaped slices corrupts UE8M0 scales (including 255/NaN).
-    cache_bytes = cache.view(8, page_records * 68)
+    cache_bytes = cache.view(pages, page_records * 68)
     payload = cache_bytes[:, :page_records * 64]
     payload.random_(0, 256)
     cache_bytes[:, page_records * 64:] = 127
-    table = torch.arange(8, device='cuda', dtype=torch.int32).reshape(2, 4)
-    lengths = torch.tensor([37, 61], device='cuda', dtype=torch.int32)
+    table = torch.arange(pages, device='cuda', dtype=torch.int32).reshape(rows, pages_per_row)
+    lengths = torch.full((rows,), 37, device='cuda', dtype=torch.int32)
     query = reader.Fp4Query(
         torch.randint(256, (rows, 32, 64), device='cuda', dtype=torch.uint8),
         torch.full((rows, 32), 0x7F7F7F7F, device='cuda', dtype=torch.int32),
@@ -33,8 +39,8 @@ def test_decode_graph_reads_changed_query_cache_and_metadata(monkeypatch, ratio)
     weights = torch.rand(rows, 32, device='cuda') / 32
     hidden = torch.empty(rows, 128, device='cuda', dtype=torch.bfloat16)
     layer = NS(k_cache=NS(prefix='indexer', kv_cache=cache),
-               topk_indices_buffer=torch.empty(rows, 4, device='cuda', dtype=torch.int32),
-               topk_tokens=4, candidate_blocks=None, candidate_block_size=0,
+               topk_indices_buffer=torch.empty(rows, topk, device='cuda', dtype=torch.int32),
+               topk_tokens=topk, candidate_blocks=None, candidate_block_size=0,
                candidate_write=False, max_model_len=context_len, compress_ratio=ratio)
     meta = DeepseekV32IndexerMetadata(
         seq_lens=lengths, max_seq_len=context_len,
@@ -62,7 +68,8 @@ def test_decode_graph_reads_changed_query_cache_and_metadata(monkeypatch, ratio)
     graph = torch.cuda.CUDAGraph()
     with torch.cuda.graph(graph, stream=stream):
         captured = run()
-    for values in ([101, 71], [52, 19], [17, 57], [0, 7], [4, 0]):
+    for pair in ((context_len, context_len - 1), (52, 19), (17, 57), (0, 7), (4, 0)):
+        values = [pair[row % 2] for row in range(rows)]
         lengths.copy_(torch.tensor(values, device='cuda', dtype=torch.int32))
         table.copy_(table.flip(0))
         query[0].random_(0, 256)
