@@ -12,7 +12,9 @@ Two formal C64 rounds completed 64/64 with zero failures each. Median TPOT 17.51
 
 Global 512 capacity stress completed 512/512 with zero failures/OOM/preemptions; observed up to 42 running requests per rank; sampled peak VRAM 91143MiB. First large-batch traversal took 181.19s, median TPOT 274.73ms and p99 1149.65ms. Inference logs record JIT compilation of multiple MLA/metadata kernels during this traversal. This is capacity/cold-path evidence, not a steady high-concurrency performance claim; the earlier intermediate build's 512 stress took 56.90s. Matched-load formal timing remains the separate C64 pair above.
 
-Real HumanEval164 is currently running; no score is claimed yet. Its exact run and source provenance are recorded in the evidence JSON. The accuracy result will be added when the run completes.
+Real HumanEval164 completed with 159/164 passed (96.9512%), meeting the fixed minimum 156/164. All 164 unique tasks are present; zero API errors, missing outputs, truncations or execution timeouts; the first 32 all passed. Prompt hashes and every task pass/fail outcome match the frozen 159/164 baseline. The natural-DSpark service used batch 16, seed 42/temp 0, real KV and no DecodeBenchConnector. Workflow exit code was 0; no OOM/preemptions were observed; sampled accuracy peak VRAM was 92450 MiB. Its exact run and source provenance are recorded in the evidence JSON.
+
+After evaluation, Torch weakref finalizers log a ValueError in _clear_torch_ops_cache during service teardown. The same teardown message is present in the frozen baseline log. All tasks completed before shutdown and the evaluation workflow exited 0.
 
 287 relevant CPU tests passed, including the actual native AOT cache-key check (rerun with VLLM_TARGET_ROOT set). GPU probes passed for every modified arithmetic/consumer path.
 

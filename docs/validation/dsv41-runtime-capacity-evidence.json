@@ -493,8 +493,42 @@
     "note": "286 passed in main group; the actual AOT cache-key test required VLLM_TARGET_ROOT and passed when rerun with the installed native root explicitly set."
   },
   "accuracy": {
-    "state": "running",
+    "total": 164,
+    "passed": 159,
+    "pass_at_1": 0.9695121951219512,
+    "failed_tasks": [
+      "HumanEval/32",
+      "HumanEval/83",
+      "HumanEval/97",
+      "HumanEval/132",
+      "HumanEval/145"
+    ],
+    "errors": 0,
+    "execution_timeouts": 0,
+    "truncated": 0,
+    "missing_outputs": 0,
+    "evaluation_complete": true,
+    "first32_passed": 32,
+    "required_correct": 156,
+    "meets_user_accuracy_gate": true,
+    "state": "finished",
     "run": "/public2/home/duyunlong/run/dsv4.1/033/maxseq64_capacity_fix_20261120/accuracy64/he164/20261120_153655",
-    "contract": "real HumanEval164, batch16, natural DSpark, seq64/budget256/length32768; no DecodeBenchConnector"
+    "contract": "real HumanEval164, batch16, seed42/temp0, natural DSpark, seq64/budget256/length32768; no fake KV/DecodeBenchConnector",
+    "workflow_exit_code": 0,
+    "gate_path": "/public2/home/duyunlong/run/dsv4.1/033/maxseq64_capacity_fix_20261120/accuracy64/he164.gate.json",
+    "gate_sha256": "94ef93e46a956b1a3d25ebfd5bb0ae0bcc9959965ea7dd3a7876aa17262f5f6a",
+    "baseline_comparison": {
+      "baseline": "/public2/home/duyunlong/run/dsv4.1/033/w4a8_reverify_20261119/nmz18/rms_int8_owned_service_20261120/he164.gate.json",
+      "baseline_sha256": "b0221c7e38f88d03c7e2cf406f158b12bc851894fce422d60557986f9ffbb270",
+      "baseline_passed": 159,
+      "candidate_passed": 159,
+      "prompts_identical": true,
+      "changed_outcomes": [],
+      "first32_passed": 32
+    },
+    "oom_observed": false,
+    "max_preemptions_total": 0.0,
+    "sampled_peak_vram_MiB": 92450,
+    "teardown_note": "After evaluation, Torch weakref finalizer logs ValueError in _clear_torch_ops_cache; the same teardown message is present in the frozen baseline log. Evaluation workflow exits 0 and all tasks are complete."
   }
 }
