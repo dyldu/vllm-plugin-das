@@ -52,7 +52,16 @@ def test_decode_graph_reads_changed_query_cache_and_metadata(
                   requires_padding=False))
     context = NS(attn_metadata={'indexer': meta}, cudagraph_runtime_mode=CUDAGraphMode.FULL)
     monkeypatch.setattr(reader, 'get_forward_context', lambda: context)
-    reader.load_providers()
+    provider = reader.load_providers()
+    scored = []
+
+    def decode(*args, **kwargs):
+        logits = provider.decode(*args, **kwargs)
+        scored.append(logits)
+        return logits
+
+    monkeypatch.setattr(reader, 'providers', lambda: reader.Providers(
+        provider.gather, provider.prefill, decode, provider.native))
     cfg = NS(cache_config=NS(block_size=64), speculative_config=None,
              scheduler_config=NS(max_num_seqs=rows, max_num_batched_tokens=rows))
     reader.reserve_decode_staging(cfg, context_len, ratio, hidden.device)
@@ -68,6 +77,7 @@ def test_decode_graph_reads_changed_query_cache_and_metadata(
     graph = torch.cuda.CUDAGraph()
     with torch.cuda.graph(graph, stream=stream):
         captured = run()
+    captured_logits = scored[-1]
     for pair in ((context_len, context_len - 1), (52, 19), (17, 57), (0, 7), (4, 0)):
         values = [pair[row % 2] for row in range(rows)]
         lengths.copy_(torch.tensor(values, device='cuda', dtype=torch.int32))
@@ -79,11 +89,24 @@ def test_decode_graph_reads_changed_query_cache_and_metadata(
         replayed = captured.clone()
         expected = run().clone()
         torch.cuda.synchronize()
-        torch.testing.assert_close(replayed, expected, rtol=0, atol=0)
+        # Top-k may permute equal-score IDs between eager and graph launches.
+        # Require byte-exact native logits and selected scores instead, while
+        # retaining exact padding, valid counts and unique in-range indices.
+        valid_scores = torch.arange(context_len, device='cuda')[None, :] < lengths[:, None]
+        assert torch.equal(captured_logits[valid_scores].view(torch.uint8),
+                           scored[-1][valid_scores].view(torch.uint8))
+        assert torch.equal(replayed < 0, expected < 0)
+        replay_scores = captured_logits.gather(1, replayed.clamp_min(0).long())
+        expected_scores = scored[-1].gather(1, expected.clamp_min(0).long())
+        valid_output = replayed >= 0
+        assert torch.equal(replay_scores[valid_output].view(torch.uint8),
+                           expected_scores[valid_output].view(torch.uint8))
         for row, length in enumerate(values):
-            valid = replayed[row][replayed[row] >= 0]
-            assert valid.numel() == min(length, layer.topk_tokens)
-            assert (valid < length).all()
+            for output in (replayed, expected):
+                valid = output[row][output[row] >= 0]
+                assert valid.numel() == min(length, layer.topk_tokens)
+                assert (valid < length).all()
+                assert torch.unique(valid).numel() == valid.numel()
 
 
 def test_full_graph_refuses_prefill_metadata(monkeypatch):
