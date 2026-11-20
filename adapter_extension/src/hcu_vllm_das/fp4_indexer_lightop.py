@@ -382,6 +382,56 @@ def _validate(layer, meta, hidden, cache, query, weights):
     return actual
 
 
+def prefill_logits_plan(chunk, max_model_len, max_logits_bytes):
+    """Bound actual FP32 allocation, including the native four-column pitch.
+
+    Core chunks by gathered KV extent, but this provider returns window-local
+    columns. Use the metadata's CPU upper bound, never the configured context
+    capacity or a host read of device lengths. Subdivide query rows when pitch
+    rounding or a different caller's metadata would exceed the byte budget.
+    """
+    extent = chunk.max_seqlen_k
+    if (type(extent) is not int or not 0 <= extent <= max_model_len
+            or type(max_logits_bytes) is not int or max_logits_bytes <= 0):
+        raise ValueError('FP4 prefill requires valid KV extent and logits byte budget')
+    width = max(4, (extent + 3) // 4 * 4)
+    rows = max_logits_bytes // (width * 4)
+    if rows < 1:
+        raise ValueError('FP4 prefill logits budget cannot hold one aligned score row')
+    return width, rows
+
+
+def _prefill_chunk(layer, chunk, cache, flat, query, weights, out, p, select,
+                   max_logits_bytes):
+    """Own one gathered KV chunk; release its temporaries before the next."""
+    start, end = chunk.token_start, chunk.token_end
+    total = chunk.total_seq_lens
+    if not total or start == end:
+        return
+    width, rows = prefill_logits_plan(chunk, layer.max_model_len, max_logits_bytes)
+    page_records = physical_page_records(cache)
+    positions = torch.arange(total, dtype=torch.int64, device=cache.device)
+    requests = chunk.token_to_seq[:total].long()
+    local = positions - chunk.cu_seq_lens[requests]
+    slots = (chunk.block_table[requests, local // page_records].long()
+             * page_records + local % page_records).contiguous()
+    k, sf = p.gather(flat, slots, page_records)
+    del positions, requests, local, slots
+    for lo in range(start, end, rows):
+        hi = min(end, lo + rows)
+        within = slice(lo - start, hi - start)
+        logits = p.prefill((query.bf16[lo:hi].contiguous(), None), (k, sf),
+                           weights[lo:hi].contiguous(), chunk.cu_seqlen_ks[within],
+                           chunk.cu_seqlen_ke[within], False, width, None, None)
+        lengths = chunk.cu_seqlen_ke[within] - chunk.cu_seqlen_ks[within]
+        starts = torch.zeros_like(lengths)
+        select(logits, starts, lengths, out[lo:hi],
+               None if layer.candidate_blocks is None else layer.candidate_blocks[lo:hi],
+               layer.candidate_block_size, layer.candidate_write)
+        # Assignment of the next RHS must not retain the previous logits.
+        del logits, lengths, starts
+
+
 def execute(layer, hidden, query, weights):
     context = get_forward_context()
     if not isinstance(context.attn_metadata, dict):
@@ -413,30 +463,14 @@ def execute(layer, hidden, query, weights):
     out[:hidden.shape[0]].fill_(-1)
     page_records = physical_page_records(cache)
     if meta.prefill is not None:
+        from vllm import envs
+        max_logits_bytes = envs.VLLM_SPARSE_INDEXER_MAX_LOGITS_MB * 1024 * 1024
         flat = cache.as_strided(
             (cache.shape[0], page_records * 68), (cache.stride(0), 1)
         )
         for chunk in meta.prefill.chunks:
-            start, end = chunk.token_start, chunk.token_end
-            total = chunk.total_seq_lens
-            if not total or start == end:
-                continue
-            positions = torch.arange(total, dtype=torch.int64, device=cache.device)
-            requests = chunk.token_to_seq[:total].long()
-            local = positions - chunk.cu_seq_lens[requests]
-            slots = (
-                chunk.block_table[requests, local // page_records].long()
-                * page_records + local % page_records
-            ).contiguous()
-            k, sf = p.gather(flat, slots, page_records)
-            logits = p.prefill((query.bf16[start:end].contiguous(), None), (k, sf),
-                               weights[start:end].contiguous(), chunk.cu_seqlen_ks,
-                               chunk.cu_seqlen_ke, False, width, None, None)
-            lengths = chunk.cu_seqlen_ke - chunk.cu_seqlen_ks
-            starts = torch.zeros_like(lengths)
-            _select(logits, starts, lengths, out[start:end],
-                    None if layer.candidate_blocks is None else layer.candidate_blocks[start:end],
-                    layer.candidate_block_size, layer.candidate_write)
+            _prefill_chunk(layer, chunk, cache, flat, query, weights, out, p,
+                           _select, max_logits_bytes)
     if meta.num_decode_tokens:
         n = meta.num_decode_tokens
         d = meta.decode
