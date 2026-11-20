@@ -162,6 +162,8 @@ class HcuV41PcpForCausalLM(native_vl.DeepseekV41ForCausalLM):
             check_health()
             check_native_contract()
             _FP4_OUTER_INIT(self, vllm_config=vllm_config, prefix=prefix)
+            from ..dspark_ll import install_model_entry_reset
+            install_model_entry_reset(self, vllm_config, 384)
             return
         from ..v41_pcp_activation import check_health
         check_health()
@@ -177,6 +179,9 @@ class HcuV41PcpForCausalLM(native_vl.DeepseekV41ForCausalLM):
         else:
             # PCP1 without the explicit host route remains fully native.
             super().__init__(vllm_config=vllm_config, prefix=prefix)
+
+        from ..dspark_ll import install_model_entry_reset
+        install_model_entry_reset(self, vllm_config, 384)
 
 
 def _fp4_attention(cfg):
@@ -197,6 +202,22 @@ class HcuV41Fp4DecoderLayer(native.DeepseekV4DecoderLayer):
         cfg = args[0] if args else kwargs['vllm_config']
         init = _FP4_HOST_DECODER_INIT if use_host_target(cfg) else _FP4_DECODER_INIT
         init(self, *args, **kwargs)
+        from ..rms_int8 import install_owned_decoder
+        self._hcu_paired_attention_norm = install_owned_decoder(self)
+
+    def forward(self, *args, **kwargs):
+        if not self._hcu_paired_attention_norm:
+            return super().forward(*args, **kwargs)
+        from hcu_adapter.rms_int8_scope import attention_norm_scope
+        with attention_norm_scope():
+            return super().forward(*args, **kwargs)
+
+    def write_kv(self, *args, **kwargs):
+        if not self._hcu_paired_attention_norm:
+            return super().write_kv(*args, **kwargs)
+        from hcu_adapter.rms_int8_scope import attention_norm_scope
+        with attention_norm_scope():
+            return super().write_kv(*args, **kwargs)
 
 
 _FP4_BACKBONE_INIT = _constructor(_BACKBONE_NATIVE, _REVIEWED[1],

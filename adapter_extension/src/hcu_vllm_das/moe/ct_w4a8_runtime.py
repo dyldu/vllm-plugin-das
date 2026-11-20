@@ -50,8 +50,19 @@ def make_prepare(moe,descriptor,routing_tables,config=None):
     if backend=='allgather_reducescatter':
         from hcu_vllm_das.dspark_agrs import make_draft_prepare
         return make_draft_prepare(moe,config)
+    shared_ipc = False
+    factory_args = {}
+    if backend == 'deepep_low_latency' and config is not None:
+        from hcu_vllm_das.dspark_backend import native_draft_ll_requested
+
+        shared_ipc = native_draft_ll_requested(config)
+        if shared_ipc:
+            from vllm.model_executor.layers.fused_moe.all2all_utils import get_ep_all2all_manager
+            from hcu_vllm_das.dspark_ll import SharedIPCManager
+
+            factory_args['all2all_manager'] = SharedIPCManager(get_ep_all2all_manager())
     native=native_make_prepare_finalize(moe=moe,quant_config=descriptor,routing_tables=routing_tables,
-        allow_new_interface=True,use_monolithic=False,input_dtype=None)
+        allow_new_interface=True,use_monolithic=False,input_dtype=None,**factory_args)
     if backend=='deepep_low_latency' and not isinstance(native,DeepEPLLPrepareAndFinalize):
         raise RuntimeError('HCU W4A8 requested LL but native preparation chose another format')
     if backend=='deepep_high_throughput' and not isinstance(native,DeepEPHTPrepareAndFinalize):
@@ -63,7 +74,10 @@ def make_prepare(moe,descriptor,routing_tables,config=None):
         _require_abi(native.buffer.low_latency_combine,('out','return_recv_hook'))
         return HcuCTLLPrepareAndFinalize(native.buffer,native.max_num_tokens_per_rank(),native.num_dispatchers(),
             global_to_physical=native.global_to_physical,physical_to_global=native.physical_to_global,
-            local_expert_global_ids=native.local_expert_global_ids)
+            local_expert_global_ids=native.local_expert_global_ids,
+            reset_before_dispatch=(shared_ipc and not
+                factory_args['all2all_manager'].has_model_entry_reset(moe.num_experts)),
+            preserve_agrs_quantization=shared_ipc and moe.num_experts == 128)
     if isinstance(native,DeepEPHTPrepareAndFinalize):
         if native.num_dispatchers()!=moe.moe_parallel_config.ep_size:
             raise RuntimeError('DeepEP HT group disagrees with loaded MoE')
@@ -123,6 +137,9 @@ class HcuCTContiguousExperts(_Experts):
     ALIGNMENT=256
     def __init__(self,moe,quant,weights,ops):
         super().__init__(moe,quant);self.weights=weights;self.ops=ops
+        from .clamped_int8_admission import admitted
+        self._live_row_activation = admitted(ops, weights, self.w1_scale,
+            self.w2_scale, quant.gemm1_clamp_limit, masked=False)
     @staticmethod
     def activation_format(): return mk.FusedMoEActivationFormat.Standard
     def finalize_weight_and_reduce_impl(self): return TopKWeightAndReduceNoOP()
@@ -144,7 +161,10 @@ class HcuCTContiguousExperts(_Experts):
         self.ops.gemm_contiguous((data,scale),(self.weights[0],self.w1_scale),gateup,indices)
         qout=_resize_cache(workspace13.view(dtype=torch.int8),(aligned,n//2))
         limit=self.quant_config.gemm1_clamp_limit
-        if limit is not None and limit>0:
+        if self._live_row_activation:
+            from .clamped_int8_triton import clamped_int8_2304
+            mid,ms=clamped_int8_2304(gateup,indices,masked=False,output=qout)
+        elif limit is not None and limit>0:
             mid,ms=self.ops.clamp_quant(gateup,limit=limit,output=qout)
         else:
             mid,ms=self.ops.silu_quant(gateup,output=qout,expert_ids=indices)
@@ -159,6 +179,23 @@ class HcuCTMaskedExperts(_Experts):
     def __init__(self,moe,quant,weights,ops,capacity,dispatchers):
         super().__init__(moe,quant,max_num_tokens=capacity,num_dispatchers=dispatchers)
         self.weights=weights;self.ops=ops
+        from .clamped_int8_admission import admitted
+        self._live_row_activation = (capacity == 256 and dispatchers == 8
+            and admitted(ops, weights, self.w1_scale, self.w2_scale,
+                         quant.gemm1_clamp_limit, masked=True))
+        # These exact W4A8 shapes and this device are covered by the native
+        # masked-GEMM/activation replay, including above-hint expert skew.
+        self._small_batch_hint = False
+        local_experts = int(self.w1_scale.shape[0])
+        if (capacity == 256 and dispatchers == 8
+                and local_experts in (16, 48)
+                and tuple(self.w1_scale.shape[:2]) == (local_experts, 4608)
+                and tuple(self.w2_scale.shape[:2]) == (local_experts, 5120)
+                and quant.gemm1_clamp_limit == 10
+                and weights[0].device.type == "cuda"):
+            props = torch.cuda.get_device_properties(weights[0].device)
+            self._small_batch_hint = (props.gcnArchName.split(":")[0] == "gfx938"
+                                      and props.multi_processor_count == 64)
     @staticmethod
     def activation_format(): return mk.FusedMoEActivationFormat.BatchedExperts
     def finalize_weight_and_reduce_impl(self): return TopKWeightAndReduceDelegate()
@@ -173,14 +210,27 @@ class HcuCTMaskedExperts(_Experts):
         e,t,n,k,_=self.moe_problem_size(hidden_states,w1,w2,topk_ids)
         if t!=self.max_num_tokens*self.num_dispatchers: raise ValueError('LL input exceeds expert workspace contract')
         counts=expert_tokens_meta.expert_num_tokens
+        hint = t
+        if self._small_batch_hint and (e, global_num_experts, topk_ids.shape[1]) in (
+                (48, 384, 6), (16, 128, 3)):
+            from .ct_w4a8_hints import expected_m
+            hint = expected_m(int(topk_ids.shape[0]), self.num_dispatchers, int(topk_ids.shape[1]),
+                              global_num_experts, t)
+            # E16 native replays cover16/32/48 and full2048-row expert skew.
+            # Larger initialization-only shapes retain their native schedule.
+            if e == 16 and hint not in (16, 32, 48):
+                hint = t
         gateup=_resize_cache(workspace13,(e,t,n))
-        self.ops.gemm_masked((hidden_states,a1q_scale),(self.weights[0],self.w1_scale),gateup,counts,t)
+        self.ops.gemm_masked((hidden_states,a1q_scale),(self.weights[0],self.w1_scale),gateup,counts,hint)
         limit=self.quant_config.gemm1_clamp_limit
-        if limit is not None and limit>0:
-            mid,ms=self.ops.clamp_quant_ep(gateup,limit=limit,mask_m=counts,expect_m=t)
+        if self._live_row_activation:
+            from .clamped_int8_triton import clamped_int8_2304
+            mid,ms=clamped_int8_2304(gateup,counts,masked=True,expected_m=hint)
+        elif limit is not None and limit>0:
+            mid,ms=self.ops.clamp_quant_ep(gateup,limit=limit,mask_m=counts,expect_m=hint)
         else:
             mid,ms=self.ops.silu_quant_ep(gateup,tokens_per_expert=counts)
-        self.ops.gemm_masked((mid,ms),(self.weights[1],self.w2_scale),output,counts,t)
+        self.ops.gemm_masked((mid,ms),(self.weights[1],self.w2_scale),output,counts,hint)
 
 
 def make_experts(moe,quant,weights,ops,prepare):

@@ -1,0 +1,51 @@
+# SPDX-License-Identifier: Apache-2.0
+"""Default to the admitted W4A8 draft LL path, with an explicit AG/RS opt-out."""
+
+KEY = "hcu_dsv41_dspark_draft_backend"
+
+
+def native_draft_ll_requested(config):
+    extra = getattr(config, "additional_config", None)
+    if extra is None:
+        extra = {}
+    if not isinstance(extra, dict):
+        raise ValueError("DSpark additional_config must be a dict")
+    explicit = KEY in extra
+    backend = extra.get(KEY, "deepep_low_latency")
+    if backend == "allgather_reducescatter":
+        return False
+    if backend != "deepep_low_latency":
+        raise ValueError("Unsupported HCU DSpark draft backend: " + str(backend))
+    if not explicit:
+        # Other models and deployment geometries retain the native AG/RS
+        # policy. Explicit requests keep the strict diagnostic error path.
+        try:
+            return _validate(config)
+        except (AttributeError, ValueError):
+            return False
+    return _validate(config)
+
+
+def _validate(config):
+    from .dspark_agrs import _owned_quant_kind, draft_config, is_owned_draft
+    from .dspark_graph import native_decode_dspark
+
+    if (_owned_quant_kind(config) != "ct_w4a8"
+            or not native_decode_dspark(config) or is_owned_draft(config)):
+        raise ValueError("W4A8 draft LL requires the native CT DP8/EP8 target")
+    scheduler, spec = config.scheduler_config, config.speculative_config
+    if (scheduler.max_num_batched_tokens, scheduler.max_num_seqs,
+            spec.num_speculative_tokens) != (256, 32, 5):
+        raise ValueError("W4A8 draft LL requires the fixed 256/32/5 token contract")
+    mc = config.model_config
+    hf = getattr(mc, "hf_text_config", None)
+    if hf is None:
+        hf = getattr(mc.hf_config, "text_config", mc.hf_config)
+    names = ("hidden_size", "n_routed_experts", "num_experts_per_tok",
+             "dspark_n_routed_experts", "dspark_num_experts_per_tok")
+    if tuple(getattr(hf, name, None) for name in names) != (5120, 384, 6, 128, 3):
+        raise ValueError("W4A8 draft LL requires the fixed target/draft expert geometry")
+    # Reuse all default feature, topology and graph capacity checks without
+    # constructing any model, communicator or transport resource.
+    draft_config(config)
+    return True

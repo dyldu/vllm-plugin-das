@@ -139,7 +139,9 @@ def chain(monkeypatch):
         return out
     def decode(q, sf, cache, weights, lens, table, schedule, width, block, out, rows):
         calls.append(('decode', q, sf, cache, weights, lens.clone(), table, schedule, block, rows))
-        logits = torch.full((q.shape[0], width + 8), -float('inf'))[:, :width]
+        # clean_logits=False leaves the tail unwritten. Poison it to ensure
+        # the real reader masks invalid columns before top-k, including n=0.
+        logits = torch.full((q.shape[0], width + 8), 1e20)[:, :width]
         for row, n in enumerate(lens.tolist()):
             logits[row, :n] = torch.arange(n).float()
         return logits

@@ -251,6 +251,16 @@ def stage_decode_pages(cache, block_table, row_ends, max_context_len, gather):
         raise ValueError('FP4 staging row/table count mismatch')
     if block_table.shape[1] < (width + page_records - 1) // page_records:
         raise ValueError('FP4 staging block table is too narrow for requested context')
+    # Native provider identity keeps injected gather collaborators observable.
+    # CPU/unsupported hardware retains the original gather and repack path.
+    if cache.is_cuda and _providers is not None and gather is _providers.gather:
+        from hcu_adapter.kernels.fp4_staging_triton import stage_decode_pages as stage
+        pages = _staging_target(cache, requests, pages_per_row)
+        table = torch.empty((requests, pages_per_row), dtype=torch.int32, device=cache.device)
+        if stage(cache, block_table, row_ends, pages, table):
+            flat_pool = pages.reshape(requests * pages_per_row, STAGING_PAGE_BYTES)
+            pool = flat_pool.as_strided((flat_pool.shape[0], 64, 68), (4352, 68, 1))
+            return pool, table
     offsets = torch.arange(width, device=cache.device, dtype=torch.int64)
     valid = offsets[None, :] < row_ends.reshape(-1, 1)
     logical_pages = torch.div(offsets, page_records, rounding_mode='floor')
@@ -369,6 +379,9 @@ def execute(layer, hidden, query, weights):
     from .v41_indexer import _select
     cache = cache_view(layer.k_cache.kv_cache)
     meta = context.attn_metadata[layer.k_cache.prefix]
+    if (getattr(getattr(context, 'cudagraph_runtime_mode', None), 'name', None) == 'FULL'
+            and (meta.num_prefill_tokens or meta.prefill is not None)):
+        raise ValueError('FP4 FULL Graph requires decode-only metadata')
     _validate(layer, meta, hidden, cache, query, weights)
     p = providers()
     width = (layer.max_model_len + 3) // 4 * 4
@@ -412,6 +425,11 @@ def execute(layer, hidden, query, weights):
                           decode_cache.unsqueeze(2), weights[:n].contiguous(),
                           lengths, decode_table.contiguous(),
                           None, width, 64, None, 1)
+        # The native clean_logits=False ABI leaves columns beyond each device
+        # length unwritten. Graph-private allocations can retain arbitrary
+        # scores there, so mask them before top-k (including padded rows).
+        columns = torch.arange(logits.shape[1], device=logits.device)
+        logits.masked_fill_(columns[None, :] >= lengths[:, None], -float('inf'))
         _select(logits, torch.zeros_like(lengths), lengths, out[:n],
                 None if layer.candidate_blocks is None else layer.candidate_blocks[:n],
                 layer.candidate_block_size, layer.candidate_write)

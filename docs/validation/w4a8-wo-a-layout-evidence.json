@@ -1,0 +1,440 @@
+{
+  "registered_contract": "WO_A_SERVICE_EXPERIMENT.json",
+  "sources": {
+    "plugin": {
+      "path": "/duyl/vllm-hcu033-wt-w4a8-wo-a-token-major-20261119",
+      "commit": "55fca625cb31f2d6c2e1583a66be823b124d22b2",
+      "tracked_dirty": false
+    },
+    "adapter": {
+      "path": "/duyl/adapter-das-wt-w4a8-mhc-post-launch-20261119",
+      "commit": "18c695303a0548b134a39a1a34c4f0ce4b472391",
+      "tracked_dirty": false
+    }
+  },
+  "full_accuracy": {
+    "passed": 159,
+    "total": 164,
+    "first32_passed": 32,
+    "errors": 0,
+    "missing_outputs": 0,
+    "truncated": 0
+  },
+  "comparison": {
+    "sla_passed": true,
+    "speedup_claim_passed": false,
+    "control_mean_ms": 19.75580607724237,
+    "candidate_mean_ms": 19.6381556420169,
+    "mean_improvement": 0.005955233350918299,
+    "repeats": [
+      {
+        "control_median_ms": 19.923698870230496,
+        "candidate_median_ms": 19.932703355209917,
+        "control_p99_ms": 23.46298953562271,
+        "candidate_p99_ms": 23.7057523294462,
+        "improvement": -0.00045194845786777904,
+        "median_pass": true,
+        "p99_pass": true,
+        "speedup_claim_pass": false
+      },
+      {
+        "control_median_ms": 19.58791328425424,
+        "candidate_median_ms": 19.343607928823886,
+        "control_p99_ms": 24.505891630492044,
+        "candidate_p99_ms": 24.118971284662234,
+        "improvement": 0.012472250202717472,
+        "median_pass": true,
+        "p99_pass": true,
+        "speedup_claim_pass": false
+      }
+    ]
+  },
+  "all8_actual_dispatch_passed": true,
+  "source_runtime_equivalence": "Publication runtime and tests equal measured55fca62; paired Adapter868f35b equals18c6953.",
+  "unit": {
+    "directory": "nmz18/wo_a_owned_probe_20261119_v2",
+    "eager": 288,
+    "changed_graph": 240,
+    "owned_serving_class": true,
+    "byte_exact_fields": [
+      "BF16 WO_A output",
+      "INT8 codes",
+      "FP32 scales",
+      "BF16 native WO_B output"
+    ],
+    "checkpoint_layers": [
+      0,
+      20,
+      39
+    ],
+    "nk_nn_weight_layouts": true,
+    "padded_heads_nan": true
+  },
+  "cpu": {
+    "new_and_attention_contracts": 56,
+    "additional_activation_regressions": 139
+  },
+  "trace_step": {
+    "target_ms": 73.34663699999999,
+    "draft_ms": 6.401201,
+    "stage_sum_ms": 79.79900799999999,
+    "target_to_draft_end_ms": 79.81268725585937,
+    "between_stages_ms": 0.013839080078127154,
+    "all_target_median_ms": 73.34663699999999,
+    "all_draft_median_ms": 6.401201,
+    "samples": 10,
+    "unpaired_edge_targets": 0,
+    "trace": "run/dsv4.1/033/w4a8_reverify_20261119/nmz18/wo_a_owned_service_20261119_v2/performance/20261119_235712_prof_w4_6eKQT0/torch_profiler/dp0_pp0_tp0_dcp0_ep0_rank0.1795104375067946706.pt.trace.json.gz",
+    "sha256": "ffa66dde9bb6ac8faad709aeaece508a76be53adf253a714c0b91dfb72edf5b7"
+  },
+  "reference_step_ms": 65.09827392578126,
+  "limitations": "DP0 profiled step and separate unprofiled TPOT. SGLang hardware, batch, context and provider differences: stage reference only. Default precision/capacity/synthetic workload unchanged. No >=2% incremental end-to-end claim.",
+  "traces": [
+    {
+      "name": "dp0_pp0_tp0_dcp0_ep0_rank0.1795104375067946706.pt.trace.json.gz",
+      "sha256": "ffa66dde9bb6ac8faad709aeaece508a76be53adf253a714c0b91dfb72edf5b7",
+      "full": true,
+      "target_steps": 10,
+      "before_copies": [
+        40,
+        40,
+        40,
+        40,
+        40,
+        40,
+        40,
+        40,
+        40,
+        40
+      ],
+      "after_copies": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "bmm_calls": [
+        40,
+        40,
+        40,
+        40,
+        40,
+        40,
+        40,
+        40,
+        40,
+        40
+      ]
+    },
+    {
+      "name": "dp1_pp0_tp0_dcp0_ep1_rank0.1795104375068564335.pt.trace.json.gz",
+      "sha256": "3038fd1a133500b8b2ff599dfafd43e86f4e0e10694a88d207dc70199e828a47",
+      "full": true,
+      "target_steps": 10,
+      "before_copies": [
+        40,
+        40,
+        40,
+        40,
+        40,
+        40,
+        40,
+        40,
+        40,
+        40
+      ],
+      "after_copies": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "bmm_calls": [
+        40,
+        40,
+        40,
+        40,
+        40,
+        40,
+        40,
+        40,
+        40,
+        40
+      ]
+    },
+    {
+      "name": "dp2_pp0_tp0_dcp0_ep2_rank0.1795104381133087887.pt.trace.json.gz",
+      "sha256": "1610e48021226a19423d34c9942b52cd74cc84c6ff0a5917d1294d715bfecf7b",
+      "full": true,
+      "target_steps": 10,
+      "before_copies": [
+        40,
+        40,
+        40,
+        40,
+        40,
+        40,
+        40,
+        40,
+        40,
+        40
+      ],
+      "after_copies": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "bmm_calls": [
+        40,
+        40,
+        40,
+        40,
+        40,
+        40,
+        40,
+        40,
+        40,
+        40
+      ]
+    },
+    {
+      "name": "dp3_pp0_tp0_dcp0_ep3_rank0.1795104380797218296.pt.trace.json.gz",
+      "sha256": "5f07038dddf1d684616efe684d99c9e7831d21ca74dc60675176b518be3388f6",
+      "full": true,
+      "target_steps": 10,
+      "before_copies": [
+        40,
+        40,
+        40,
+        40,
+        40,
+        40,
+        40,
+        40,
+        40,
+        40
+      ],
+      "after_copies": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "bmm_calls": [
+        40,
+        40,
+        40,
+        40,
+        40,
+        40,
+        40,
+        40,
+        40,
+        40
+      ]
+    },
+    {
+      "name": "dp4_pp0_tp0_dcp0_ep4_rank0.1795104381120465627.pt.trace.json.gz",
+      "sha256": "466e7e211bb683871d2732acfa26e986a6052f7fffdcef73e407f263ba550b08",
+      "full": true,
+      "target_steps": 10,
+      "before_copies": [
+        40,
+        40,
+        40,
+        40,
+        40,
+        40,
+        40,
+        40,
+        40,
+        40
+      ],
+      "after_copies": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "bmm_calls": [
+        40,
+        40,
+        40,
+        40,
+        40,
+        40,
+        40,
+        40,
+        40,
+        40
+      ]
+    },
+    {
+      "name": "dp5_pp0_tp0_dcp0_ep5_rank0.1795104381050519017.pt.trace.json.gz",
+      "sha256": "1dcfc7a5bc2797041ace4bbe0e5bd8b9d9fb7393d7690a09222dc7a73ddf33e4",
+      "full": true,
+      "target_steps": 10,
+      "before_copies": [
+        40,
+        40,
+        40,
+        40,
+        40,
+        40,
+        40,
+        40,
+        40,
+        40
+      ],
+      "after_copies": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "bmm_calls": [
+        40,
+        40,
+        40,
+        40,
+        40,
+        40,
+        40,
+        40,
+        40,
+        40
+      ]
+    },
+    {
+      "name": "dp6_pp0_tp0_dcp0_ep6_rank0.1795104380865822411.pt.trace.json.gz",
+      "sha256": "9564555d9fe50edbc17314c73c0a863e213a9f8b2a971143c43f1511122c8bbf",
+      "full": true,
+      "target_steps": 10,
+      "before_copies": [
+        40,
+        40,
+        40,
+        40,
+        40,
+        40,
+        40,
+        40,
+        40,
+        40
+      ],
+      "after_copies": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "bmm_calls": [
+        40,
+        40,
+        40,
+        40,
+        40,
+        40,
+        40,
+        40,
+        40,
+        40
+      ]
+    },
+    {
+      "name": "dp7_pp0_tp0_dcp0_ep7_rank0.1795104375212964655.pt.trace.json.gz",
+      "sha256": "8ce0beabb3d44a5e9c5b328f5b19217c92472a7dcc0fca91bd435372018e71ec",
+      "full": true,
+      "target_steps": 10,
+      "before_copies": [
+        40,
+        40,
+        40,
+        40,
+        40,
+        40,
+        40,
+        40,
+        40,
+        40
+      ],
+      "after_copies": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "bmm_calls": [
+        40,
+        40,
+        40,
+        40,
+        40,
+        40,
+        40,
+        40,
+        40,
+        40
+      ]
+    }
+  ],
+  "artifact_sha256": {
+    "nmz18/wo_a_owned_service_20261119_v2/acceptance.json": "aefe04c29294eff99f9916c36dc610c857d3e8eea4963838c45081ed520e86df",
+    "nmz18/wo_a_owned_service_20261119_v2/he164.gate.json": "a55864f1fb72ca3115019329a29fcbe8ef6b5ab6ca4e0e24f38bca56a05fd9fd",
+    "nmz18/wo_a_owned_probe_20261119_v2/probe.json": "2affae6e5ea6c0f784bf82be740f3b38e9b4c71fc2337fe2fc2996584544c611",
+    "nmz18/wo_a_activation_regression_v2.xml": "6a39126459ef4d2af5188ddd201665adbc049f70d791a51993e8414e94a059e9",
+    "nmz18/wo_a_integration_cpu_v4.xml": "ad97bb1b939be277d67c684684c414a559805d4d9cb3bfb449ac3c19411dfc2b",
+    "experiments/audit_wo_a_owned.py": "cfab5f903d667d569603c80d18d18679e1982a26a4b4449ec22ee484115b1c0b",
+    "nmz18/wo_a_owned_service_20261119_v2/performance/20261119_235712_prof_w4_6eKQT0/formal_1_result.json": "e1c33cfcb89d3a497077a0c5dffef15d14d89a7f2a4a76d3cabb960ab862bc57",
+    "nmz18/wo_a_owned_service_20261119_v2/performance/20261119_235712_prof_w4_6eKQT0/formal_2_result.json": "232aab788d6795d109e463b2d6943edf94c85536681b6895cba9c1ff343c6294"
+  }
+}
