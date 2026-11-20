@@ -1,0 +1,5073 @@
+{
+  "problem": "FP4 provider output width used model capacity while Core query chunks budgeted actual KV extent",
+  "sources": {
+    "plugin": {
+      "path": "/duyl/vllm-hcu033-wt-prefill-budget-20261120",
+      "commit": "42e29f33dd84fd00c4db16943d6b6e8bb78272f7",
+      "tracked_dirty": false
+    },
+    "adapter": {
+      "path": "/duyl/adapter-das-wt-context-ci-20261120",
+      "commit": "7b7b1dd34997419b2580d04dd49bebe145895d42",
+      "tracked_dirty": false
+    }
+  },
+  "package_versions": {
+    "vllm": "0.33.0+dtk2610.torch2130.2611101131.g7364da",
+    "torch": "2.13.0+dtk2610.2611091606.ge8aa84",
+    "sgl-kernel": "0.0.0+hcu.2611112156.gbb7fae",
+    "hcu-vllm-das-plugin": "0.33.0",
+    "evalscope": "1.9.1"
+  },
+  "native_core_python_manifest_sha256": "5564704ee8a2b7b9f2edb9d368bd21243920208b4c49cc160a24a3da2c9a0f3e",
+  "source_provenance_path": "/public2/home/duyunlong/run/dsv4.1/033/prefill_budget_fix_20261120/accuracy/he164/20261120_183843/source_provenance.json",
+  "source_provenance_sha256": "c2feb01ba337c754ab3ed4d663c2dbecee37d587c5a21e1102c5d57c7863eb09",
+  "gpu": {
+    "passed": true,
+    "device": "BW1101",
+    "rows": 2048,
+    "request_kv_extents": [
+      131073,
+      65539
+    ],
+    "max_model_len": 1048576,
+    "old_logits_bytes": 8589934592,
+    "old_operation_peak": {
+      "initial_allocated_bytes": 35461120,
+      "peak_allocated_bytes": 8704525312,
+      "incremental_peak_bytes": 8669064192,
+      "peak_reserved_bytes": 8728346624
+    },
+    "candidate_measurements": [
+      {
+        "logits_budget_bytes": 67108864,
+        "calls": [
+          {
+            "shape": [
+              64,
+              262144
+            ],
+            "logits_bytes": 67108864
+          },
+          {
+            "shape": [
+              64,
+              262144
+            ],
+            "logits_bytes": 67108864
+          },
+          {
+            "shape": [
+              64,
+              262144
+            ],
+            "logits_bytes": 67108864
+          },
+          {
+            "shape": [
+              64,
+              262144
+            ],
+            "logits_bytes": 67108864
+          },
+          {
+            "shape": [
+              64,
+              262144
+            ],
+            "logits_bytes": 67108864
+          },
+          {
+            "shape": [
+              64,
+              262144
+            ],
+            "logits_bytes": 67108864
+          },
+          {
+            "shape": [
+              64,
+              262144
+            ],
+            "logits_bytes": 67108864
+          },
+          {
+            "shape": [
+              64,
+              262144
+            ],
+            "logits_bytes": 67108864
+          },
+          {
+            "shape": [
+              64,
+              262144
+            ],
+            "logits_bytes": 67108864
+          },
+          {
+            "shape": [
+              64,
+              262144
+            ],
+            "logits_bytes": 67108864
+          },
+          {
+            "shape": [
+              64,
+              262144
+            ],
+            "logits_bytes": 67108864
+          },
+          {
+            "shape": [
+              64,
+              262144
+            ],
+            "logits_bytes": 67108864
+          },
+          {
+            "shape": [
+              64,
+              262144
+            ],
+            "logits_bytes": 67108864
+          },
+          {
+            "shape": [
+              64,
+              262144
+            ],
+            "logits_bytes": 67108864
+          },
+          {
+            "shape": [
+              64,
+              262144
+            ],
+            "logits_bytes": 67108864
+          },
+          {
+            "shape": [
+              64,
+              262144
+            ],
+            "logits_bytes": 67108864
+          },
+          {
+            "shape": [
+              64,
+              262144
+            ],
+            "logits_bytes": 67108864
+          },
+          {
+            "shape": [
+              64,
+              262144
+            ],
+            "logits_bytes": 67108864
+          },
+          {
+            "shape": [
+              64,
+              262144
+            ],
+            "logits_bytes": 67108864
+          },
+          {
+            "shape": [
+              64,
+              262144
+            ],
+            "logits_bytes": 67108864
+          },
+          {
+            "shape": [
+              64,
+              262144
+            ],
+            "logits_bytes": 67108864
+          },
+          {
+            "shape": [
+              64,
+              262144
+            ],
+            "logits_bytes": 67108864
+          },
+          {
+            "shape": [
+              64,
+              262144
+            ],
+            "logits_bytes": 67108864
+          },
+          {
+            "shape": [
+              64,
+              262144
+            ],
+            "logits_bytes": 67108864
+          },
+          {
+            "shape": [
+              64,
+              262144
+            ],
+            "logits_bytes": 67108864
+          },
+          {
+            "shape": [
+              64,
+              262144
+            ],
+            "logits_bytes": 67108864
+          },
+          {
+            "shape": [
+              64,
+              262144
+            ],
+            "logits_bytes": 67108864
+          },
+          {
+            "shape": [
+              64,
+              262144
+            ],
+            "logits_bytes": 67108864
+          },
+          {
+            "shape": [
+              64,
+              262144
+            ],
+            "logits_bytes": 67108864
+          },
+          {
+            "shape": [
+              64,
+              262144
+            ],
+            "logits_bytes": 67108864
+          },
+          {
+            "shape": [
+              64,
+              262144
+            ],
+            "logits_bytes": 67108864
+          },
+          {
+            "shape": [
+              64,
+              262144
+            ],
+            "logits_bytes": 67108864
+          }
+        ],
+        "valid_logits_bytes_exact": true,
+        "selected_score_ranks_exact": true,
+        "padding_unique_ids_short_order_exact": true,
+        "initial_allocated_bytes": 2192381952,
+        "peak_allocated_bytes": 2273623552,
+        "incremental_peak_bytes": 81241600,
+        "peak_reserved_bytes": 2292187136
+      },
+      {
+        "logits_budget_bytes": 536870912,
+        "calls": [
+          {
+            "shape": [
+              512,
+              262144
+            ],
+            "logits_bytes": 536870912
+          },
+          {
+            "shape": [
+              512,
+              262144
+            ],
+            "logits_bytes": 536870912
+          },
+          {
+            "shape": [
+              512,
+              262144
+            ],
+            "logits_bytes": 536870912
+          },
+          {
+            "shape": [
+              512,
+              262144
+            ],
+            "logits_bytes": 536870912
+          }
+        ],
+        "valid_logits_bytes_exact": true,
+        "selected_score_ranks_exact": true,
+        "padding_unique_ids_short_order_exact": true,
+        "initial_allocated_bytes": 2192381952,
+        "peak_allocated_bytes": 2749757440,
+        "incremental_peak_bytes": 557375488,
+        "peak_reserved_bytes": 2764046336
+      }
+    ],
+    "reader_sha256": "20d3a8c5edd9ccf3dc113e601b93f0be392fb71db924011d9bfdb52b7a7ceba4",
+    "measurement": "PyTorch allocator peak; persistent inputs and oracle excluded from incremental peak; not whole-device peak"
+  },
+  "whole_device_samples": {
+    "sample_interval_seconds": 0.1,
+    "samples": 7602,
+    "per_phase_device_peak_bytes": {
+      "probe": {
+        "card1": 11188273152,
+        "card3": 2301952,
+        "card4": 2301952,
+        "card5": 2301952,
+        "card6": 2301952,
+        "card7": 2301952,
+        "card8": 2301952,
+        "card9": 2301952
+      },
+      "service_startup": {
+        "card1": 95726440448,
+        "card3": 96089251840,
+        "card4": 95751610368,
+        "card5": 96263319552,
+        "card6": 96263315456,
+        "card7": 96263331840,
+        "card8": 96263319552,
+        "card9": 95453822976
+      },
+      "humaneval": {
+        "card1": 95616651264,
+        "card3": 96157569024,
+        "card4": 96157372416,
+        "card5": 96157364224,
+        "card6": 96161464320,
+        "card7": 96149196800,
+        "card8": 96161755136,
+        "card9": 95352274944
+      },
+      "real_prefill_128k": {
+        "card1": 95616573440,
+        "card3": 96157720576,
+        "card4": 96157294592,
+        "card5": 96157286400,
+        "card6": 96161386496,
+        "card7": 96149118976,
+        "card8": 96161677312,
+        "card9": 95352197120
+      }
+    },
+    "limitation": "Sampled whole-device peaks; sub-100-ms transients can be missed. Native probe also records PyTorch allocator peak."
+  },
+  "installed_core_and_provider_contract": "env /usr/local/lib/python3.12/site-packages/vllm/envs.py\n59:     VLLM_CPU_INT4_W4A8: bool = True\n60:     VLLM_XLA_CACHE_PATH: str = os.path.join(VLLM_CACHE_ROOT, \"xla_cache\")\n61:     VLLM_XLA_CHECK_RECOMPILATION: bool = False\n62:     VLLM_SPARSE_INDEXER_MAX_LOGITS_MB: int = 512\n63:     VLLM_ADAPTIVE_VERIFICATION_PROFILE_CONTEXT_LEN: int = 8192\n64:     VLLM_XPU_PP_MICROBATCH: bool = True\n65:     VLLM_DISTRIBUTED_USE_SPLIT_GROUP: bool = False\n66:     VLLM_XLA_USE_SPMD: bool = False\n67:     VLLM_WORKER_MULTIPROC_METHOD: Literal[\"fork\", \"spawn\"] = \"fork\"\n68:     VLLM_ASSETS_CACHE: str = os.path.join(VLLM_CACHE_ROOT, \"assets\")\n69:     VLLM_ASSETS_CACHE_MODEL_CLEAN: bool = False\n70:     VLLM_IMAGE_FETCH_TIMEOUT: int = 5\n71:     VLLM_VIDEO_FETCH_TIMEOUT: int = 30\n72:     VLLM_AUDIO_FETCH_TIMEOUT: int = 10\n73:     VLLM_MEDIA_CACHE: str = \"\"\n1092:     # Maximum size (in MB) for logits tensor in sparse MLA indexer prefill chunks.\n1093:     # Bounds the [M, N] float32 logits tensor to prevent CUDA OOM.\n1094:     # Default: 512 MB\n1095:     \"VLLM_SPARSE_INDEXER_MAX_LOGITS_MB\": lambda: int(\n1096:         os.getenv(\"VLLM_SPARSE_INDEXER_MAX_LOGITS_MB\", \"512\")\n1097:     ),\n1098:     # KV context length each adaptive-verification profiling request pretends to\n1099:     # carry, so the profiled step reads a realistic amount of cache.\n1100:     # Raise it for long-context deployments, where step cost is dominated by\n1101:     # attention over a much larger KV cache than the default assumes.\n1102:     # Clamped to max_model_len - query_len. Default: 8192 tokens\n1103:     \"VLLM_ADAPTIVE_VERIFICATION_PROFILE_CONTEXT_LEN\": lambda: int(\n1104:         os.getenv(\"VLLM_ADAPTIVE_VERIFICATION_PROFILE_CONTEXT_LEN\", \"8192\")\n1105:     ),\n1106:     # If set, the OpenAI API server will stay alive even after the underlying\n1093:     # Bounds the [M, N] float32 logits tensor to prevent CUDA OOM.\n1094:     # Default: 512 MB\n1095:     \"VLLM_SPARSE_INDEXER_MAX_LOGITS_MB\": lambda: int(\n1096:         os.getenv(\"VLLM_SPARSE_INDEXER_MAX_LOGITS_MB\", \"512\")\n1097:     ),\n1098:     # KV context length each adaptive-verification profiling request pretends to\n1099:     # carry, so the profiled step reads a realistic amount of cache.\n1100:     # Raise it for long-context deployments, where step cost is dominated by\n1101:     # attention over a much larger KV cache than the default assumes.\n1102:     # Clamped to max_model_len - query_len. Default: 8192 tokens\n1103:     \"VLLM_ADAPTIVE_VERIFICATION_PROFILE_CONTEXT_LEN\": lambda: int(\n1104:         os.getenv(\"VLLM_ADAPTIVE_VERIFICATION_PROFILE_CONTEXT_LEN\", \"8192\")\n1105:     ),\n1106:     # If set, the OpenAI API server will stay alive even after the underlying\n1107:     # AsyncLLMEngine errors and stops serving requests\ncore_indexer /usr/local/lib/python3.12/site-packages/vllm/v1/attention/backends/mla/indexer.py\n1313:         row_req_idx: np.ndarray,\n1314:         row_shard_rows: np.ndarray,\n1315:         row_query_lens_cpu: torch.Tensor,\n1316:         max_logits_bytes: int,\n1317:         request_offset: int,\n1318:     ) -> list[tuple[slice, slice]]:\n1319:         \"\"\"Chunk by request rather than by row, so a split prefill's two rows\n1320:         charge their shared context once, then widen each chunk back to rows.\n1321: \n1322:         ``row_shard_rows`` holds the whole request's largest DCP shard on\n1323:         every row, so the plan is identical on every PCP rank.\n1324:         \"\"\"\n1325:         row_bounds = request_row_bounds(row_req_idx)\n1326:         first_rows = row_bounds[:-1]\n1327:         # Each request's context, padded to whole DCP shards.\n1337:             torch.from_numpy(seq_lens.astype(np.int32)),\n1338:             torch.from_numpy(query_lens.astype(np.int32)),\n1339:             self.max_prefill_buffer_size,\n1340:             max_logits_bytes,\n1341:         )\n1342:         return [\n1343:             (\n1344:                 slice(\n1345:                     request_offset + int(row_bounds[request_slice.start]),\n1346:                     request_offset + int(row_bounds[request_slice.stop]),\n1347:                 ),\n1348:                 query_slice,\n1349:             )\n1350:             for request_slice, query_slice in chunk_specs\n1351:         ]\n1360:         compressed_seq_lens_cpu: torch.Tensor,\n1361:         prefill_query_lens_cpu: torch.Tensor,\n1362:         workspace_size: int,\n1363:         max_logits_bytes: int,\n1364:         request_offset: int = 0,\n1365:     ) -> list[tuple[slice, slice]]:\n1366:         \"\"\"Split this step's prefill requests into chunks, respecting:\n1367:         - N constraint: total_seq_lens <= workspace_size (existing O(N)\n1368:           workspace)\n1369:         - Logits constraint: M * N * 4 <= max_logits_bytes\n1370: \n1371:         When a single request-level chunk still exceeds the logits budget,\n1372:         sub-chunks on the query dimension (M) to bound peak memory.\n1373: \n1374:         Returns list of (req_slice, query_slice) tuples.\n1366:         \"\"\"Split this step's prefill requests into chunks, respecting:\n1367:         - N constraint: total_seq_lens <= workspace_size (existing O(N)\n1368:           workspace)\n1369:         - Logits constraint: M * N * 4 <= max_logits_bytes\n1370: \n1371:         When a single request-level chunk still exceeds the logits budget,\n1372:         sub-chunks on the query dimension (M) to bound peak memory.\n1373: \n1374:         Returns list of (req_slice, query_slice) tuples.\n1375:         \"\"\"\n1376:         chunks: list[tuple[slice, slice]] = []\n1377:         n = len(compressed_seq_lens_cpu)\n1378:         max_logits_elems = max_logits_bytes // 4\n1379:         end = 0\n1380: \n1375:         \"\"\"\n1376:         chunks: list[tuple[slice, slice]] = []\n1377:         n = len(compressed_seq_lens_cpu)\n1378:         max_logits_elems = max_logits_bytes // 4\n1379:         end = 0\n1380: \n1381:         while end < n:\n1382:             start, chunk_m, chunk_n = end, 0, 0\n1383: \n1384:             while end < n:\n1385:                 q, s = (\n1386:                     prefill_query_lens_cpu[end].item(),\n1387:                     compressed_seq_lens_cpu[end].item(),\n1388:                 )\n1389:                 new_m, new_n = chunk_m + q, chunk_n + s\n1387:                     compressed_seq_lens_cpu[end].item(),\n1388:                 )\n1389:                 new_m, new_n = chunk_m + q, chunk_n + s\n1390:                 if new_n <= workspace_size and new_m * new_n <= max_logits_elems:\n1391:                     chunk_m, chunk_n = new_m, new_n\n1392:                     end += 1\n1393:                 else:\n1394:                     break\n1395: \n1396:             # A single request can exceed the budget, requiring sub-chunking\n1397:             # on the query dimension.\n1398:             if end == start:\n1399:                 chunk_m, chunk_n = (\n1400:                     prefill_query_lens_cpu[end].item(),\n1401:                     compressed_seq_lens_cpu[end].item(),\n1404: \n1405:             req_slice = slice(start + request_offset, end + request_offset)\n1406:             max_q = (\n1407:                 max(1, max_logits_elems // chunk_n) if chunk_n > 0 else max(1, chunk_m)\n1408:             )\n1409:             for q_off in range(0, chunk_m, max_q):\n1410:                 sub_m = min(max_q, chunk_m - q_off)\n1411:                 chunks.append((req_slice, slice(q_off, q_off + sub_m)))\n1412: \n1413:         return chunks\n1414: \n1415:     def build(\n1416:         self,\n1417:         common_prefix_len: int,\n1418:         common_attn_metadata: CommonAttentionMetadata,\n1503:             prefill_query_lens_cpu = torch.diff(\n1504:                 query_start_loc_cpu[num_decodes : num_decodes + num_prefills + 1]\n1505:             )\n1506:             max_logits_bytes = envs.VLLM_SPARSE_INDEXER_MAX_LOGITS_MB * 1024 * 1024\n1507:             # Upper bound is exact for prefill rows (the `[num_decodes:]`\n1508:             # slice below).\n1509:             assert common_attn_metadata.seq_lens_cpu_upper_bound is not None\n1510:             seq_lens_cpu = common_attn_metadata.seq_lens_cpu_upper_bound\n1511:             req_idx = None\n1512:             shard_rows = None\n1513:             if self.use_pcp and self.dcp_world_size > 1:\n1514:                 # The gathered KV must be packed identically on every PCP rank:\n1515:                 # chunk by request from its DCP shard rows, which every rank\n1516:                 # holds. A dummy batch bypasses the PCP manager and has one\n1517:                 # row per request, so its own extent is the request's.\n1531:                     req_idx[num_decodes:],\n1532:                     shard_rows[num_decodes:],\n1533:                     prefill_query_lens_cpu,\n1534:                     max_logits_bytes,\n1535:                     request_offset=num_decodes,\n1536:                 )\n1537:             else:\n1538:                 chunk_specs = self._split_indexer_prefill_chunks(\n1539:                     self._prefill_split_seq_lens(compressed_seq_lens_cpu[num_decodes:]),\n1540:                     prefill_query_lens_cpu,\n1541:                     self.max_prefill_buffer_size,\n1542:                     max_logits_bytes,\n1543:                     request_offset=num_decodes,\n1544:                 )\n1545: \n1539:                     self._prefill_split_seq_lens(compressed_seq_lens_cpu[num_decodes:]),\n1540:                     prefill_query_lens_cpu,\n1541:                     self.max_prefill_buffer_size,\n1542:                     max_logits_bytes,\n1543:                     request_offset=num_decodes,\n1544:                 )\n1545: \n1546:             chunks = []\n1547:             for req_slice, query_slice in chunk_specs:\n1548:                 pcp_plan = None\n1549:                 if req_idx is not None:\n1550:                     assert shard_rows is not None\n1551:                     pcp_plan = build_pcp_global_chunk_plan(\n1552:                         req_idx[req_slice],\n1553:                         shard_rows[req_slice],\n1959:         cu_seq_lens=cu_seq_lens,\n1960:         token_to_seq=token_to_seq,\n1961:         total_seq_lens=total_seq_lens,\n1962:         max_seqlen_k=int(compressed_seq_lens_cpu[start_idx:end_idx].max()),\n1963:         block_table=block_table[start_idx:end_idx],\n1964:         token_start=token_start,\n1965:         token_end=token_end,\n1966:         num_reqs=num_reqs,\n1967:         skip_kv_gather=skip_kv_gather,\n1968:         local_cu_seq_lens=local_cu_seq_lens,\n1969:         local_total_seq_lens=local_total_seq_lens,\n1970:         max_local_total_seq_lens=max_local_total_seq_lens,\n1971:     )\n1972: \n1973: \nnative_fp4 /usr/local/lib/python3.12/site-packages/lightop/gemmopt.py\n780:     return op.dsv41_gather_index_k_fp4(cache, slots, page_size)\n781: \n782: \n783: def fp8_fp4_mqa_logits(\n784:     q: tuple[torch.Tensor, Optional[torch.Tensor]],\n785:     kv: tuple[torch.Tensor, torch.Tensor],\n786:     weights: torch.Tensor,\n787:     cu_seq_len_k_start: torch.Tensor,\n788:     cu_seq_len_k_end: torch.Tensor,\n789:     clean_logits: bool,\n790:     max_seqlen_k: int,\n791:     candidate_blocks: Optional[list[torch.Tensor]] = None,\n792:     candidate_query_lens: Optional[list[int]] = None,\n793: ) -> torch.Tensor:\n794:     \"\"\"Return FP32 window-local logits with shape ``[T, max_seqlen_k]``.\n",
+  "exact_pitch_cold_jit_observation": {
+    "real_long_prefill_started_at": 1795170557.885297,
+    "observed_at": 1795170970.3457189,
+    "new_compilations": 215,
+    "counts": {
+      "_topk_native_scores.json": 107,
+      "_topk_native_output.json": 108
+    },
+    "reason": "Exact extent pitch specializes prefill TopK at every changed width; terminate this owned trial to fix cold latency",
+    "files": [
+      {
+        "name": "_topk_native_output.json",
+        "at": 1795170658.8356059,
+        "path": "/root/.triton/cache/KLKY6D54IDN2PB7GEUQZROTDVYOJ4ILTIRD6QA2RWX37PITUDD2Q/_topk_native_output.json"
+      },
+      {
+        "name": "_topk_native_output.json",
+        "at": 1795170836.2258272,
+        "path": "/root/.triton/cache/LEE5I2UXX33WBORMBSVPZD3ESTNRW2B3RUQPE5VBHG2V23MLRKRQ/_topk_native_output.json"
+      },
+      {
+        "name": "_topk_native_scores.json",
+        "at": 1795170697.0310812,
+        "path": "/root/.triton/cache/GD6G54JAEZLGKO7GB6W6UZKC33AZVIV3PJZ253JPZCLRFDRUC7ZQ/_topk_native_scores.json"
+      },
+      {
+        "name": "_topk_native_output.json",
+        "at": 1795170583.7576716,
+        "path": "/root/.triton/cache/I5UULLSTPC24INM63RQAVDLVUCSZPEBMTFLG4YUKFOCBYBEJU3VA/_topk_native_output.json"
+      },
+      {
+        "name": "_topk_native_output.json",
+        "at": 1795170902.2766569,
+        "path": "/root/.triton/cache/726YLYE7FFJ2XXTEMQPAWISMJOQLV4IDX5BAEUPIB4UKBA5WXMZQ/_topk_native_output.json"
+      },
+      {
+        "name": "_topk_native_output.json",
+        "at": 1795170925.3859472,
+        "path": "/root/.triton/cache/2OMY2PS6FJSFTXO4RC5HTK2SKA5SDUF4BF23H45MWQVHM4BQB6FA/_topk_native_output.json"
+      },
+      {
+        "name": "_topk_native_scores.json",
+        "at": 1795170577.20059,
+        "path": "/root/.triton/cache/DF7A456TWNIDFJSKPXD2HJEYIS6NPXOZZ62NQFRZSOKD4YHNO32Q/_topk_native_scores.json"
+      },
+      {
+        "name": "_topk_native_scores.json",
+        "at": 1795170673.64079,
+        "path": "/root/.triton/cache/A37SQS7YPLKWIFB6TYQNMJ6CNVXOICLNBKSUVVBB346KFT7P5CRQ/_topk_native_scores.json"
+      },
+      {
+        "name": "_topk_native_output.json",
+        "at": 1795170870.9632635,
+        "path": "/root/.triton/cache/PQ524JJZO4ELFAMYPITUSEGAJKSJA2WOVWLWN7TCZPFL6Z3AFCJQ/_topk_native_output.json"
+      },
+      {
+        "name": "_topk_native_scores.json",
+        "at": 1795170969.056496,
+        "path": "/root/.triton/cache/PPR74FI3VN6ATUYKWMRYCHGI3E2EGARJWRXFEOVBE7MEKB4FS4NA/_topk_native_scores.json"
+      },
+      {
+        "name": "_topk_native_scores.json",
+        "at": 1795170641.7193928,
+        "path": "/root/.triton/cache/Z67F34W2E4K5FE3KMERRQRYKG4VUEPW6FLUKP4EO327M6ANWHJNA/_topk_native_scores.json"
+      },
+      {
+        "name": "_topk_native_output.json",
+        "at": 1795170726.9604545,
+        "path": "/root/.triton/cache/6C72Y5GJKEJFN2FU34ERB32HFOT7OWHED5RL5Y5RANUWYMVCO5HQ/_topk_native_output.json"
+      },
+      {
+        "name": "_topk_native_output.json",
+        "at": 1795170964.7154412,
+        "path": "/root/.triton/cache/OHQZWDMBEDCYETFVPMBAVLZRYG6RJ6CQ5WP3G7JACN2U3E44VDOQ/_topk_native_output.json"
+      },
+      {
+        "name": "_topk_native_scores.json",
+        "at": 1795170616.6700811,
+        "path": "/root/.triton/cache/PN33OCGOYRBPN6BMZDYVW5FUPPGR5H5D7USXKLOGO75Z7I6FSQHQ/_topk_native_scores.json"
+      },
+      {
+        "name": "_topk_native_scores.json",
+        "at": 1795170786.1111975,
+        "path": "/root/.triton/cache/VSVOJF3GJAMV45IDB6OFFX6XPA3NX6IQDBH267VEDHOX3Q7UQAHA/_topk_native_scores.json"
+      },
+      {
+        "name": "_topk_native_output.json",
+        "at": 1795170769.7609923,
+        "path": "/root/.triton/cache/A43NND6LJD654ZHFJLT2KQ746ZWKQDVVENYW5ONQOAEXO7BSBRTA/_topk_native_output.json"
+      },
+      {
+        "name": "_topk_native_scores.json",
+        "at": 1795170666.4907012,
+        "path": "/root/.triton/cache/TC7KMAWIX6GM6NXG7QTWQ2SBPLTAWISIN3OE4VFIEMXQRTYXFWVA/_topk_native_scores.json"
+      },
+      {
+        "name": "_topk_native_scores.json",
+        "at": 1795170663.0916588,
+        "path": "/root/.triton/cache/U5CACUSVZ64MVMYP6BIZ4AQWWUFGVN2MA2YLH3ZEM7P3Y3NXB4RA/_topk_native_scores.json"
+      },
+      {
+        "name": "_topk_native_scores.json",
+        "at": 1795170602.3149025,
+        "path": "/root/.triton/cache/DCE22ZJU2B2P26STQLIYOPRYICKE3IT54TYQ64B3I2VJOLH2ESXA/_topk_native_scores.json"
+      },
+      {
+        "name": "_topk_native_scores.json",
+        "at": 1795170655.8535688,
+        "path": "/root/.triton/cache/63GAIAGUGZM7TU3MEOHJ2K4FX5GXHKVEG4XQBP7QSTWSCXKGUNPA/_topk_native_scores.json"
+      },
+      {
+        "name": "_topk_native_scores.json",
+        "at": 1795170735.3395598,
+        "path": "/root/.triton/cache/ZXEJHIOLAFI4KFN4Q4MQ4GKHRLJVAIRS46DYWRS3PVSKAAMZYICA/_topk_native_scores.json"
+      },
+      {
+        "name": "_topk_native_output.json",
+        "at": 1795170913.6407998,
+        "path": "/root/.triton/cache/4T2UAS4TKYTOROWRTGMEGITI5Q55IQXT26CALHQOMPCSUG35ONYQ/_topk_native_output.json"
+      },
+      {
+        "name": "_topk_native_output.json",
+        "at": 1795170587.5247185,
+        "path": "/root/.triton/cache/5AD7FLLN6A2DGBDMK3XMCDKRFF6AGSRQCLXANAYQR62OJALC4OLA/_topk_native_output.json"
+      },
+      {
+        "name": "_topk_native_scores.json",
+        "at": 1795170813.4205406,
+        "path": "/root/.triton/cache/D45CQ7EBLTQ2WRSG6C533RW3BR3ILF27W4B54V655MS64BUCXHAQ/_topk_native_scores.json"
+      },
+      {
+        "name": "_topk_native_scores.json",
+        "at": 1795170945.6292014,
+        "path": "/root/.triton/cache/RNEPXYT6OTEZCHYZHZ5GRHUJ4SZDMVQNF2TFBCPH4LAFWOF3UM4A/_topk_native_scores.json"
+      },
+      {
+        "name": "_topk_native_scores.json",
+        "at": 1795170580.731634,
+        "path": "/root/.triton/cache/AQNXWGXLXLMS3GEQNZLDTQFBVHM4SL4IDVE6AAKBA2ETOW2HJ6LQ/_topk_native_scores.json"
+      },
+      {
+        "name": "_topk_native_output.json",
+        "at": 1795170832.1367757,
+        "path": "/root/.triton/cache/KWLZX4FVSTZ6GUFPUKCHWWCQ6YWUPUNX2WZMHYKQ6MYDELJRGDHA/_topk_native_output.json"
+      },
+      {
+        "name": "_topk_native_output.json",
+        "at": 1795170655.3755627,
+        "path": "/root/.triton/cache/PBRS6BFRQN375BRUV5EZRFV6XOSXPI6GS4RBLFZDWMVHH4QO4QOA/_topk_native_output.json"
+      },
+      {
+        "name": "_topk_native_output.json",
+        "at": 1795170623.1971624,
+        "path": "/root/.triton/cache/XFSDJ725CQBJ3DOVAQHY6EYNLTZ6SHMMEO56WE53A3QJKTF6HN5Q/_topk_native_output.json"
+      },
+      {
+        "name": "_topk_native_scores.json",
+        "at": 1795170727.8054652,
+        "path": "/root/.triton/cache/4OGF73LNUBBKWFLNTVEU4XNNHZPJKZ45ZUGBXSDGOBO72GCNCIKQ/_topk_native_scores.json"
+      },
+      {
+        "name": "_topk_native_output.json",
+        "at": 1795170591.0877628,
+        "path": "/root/.triton/cache/QYRWAQNVR6EAGINBYHICEPZY7HRD2EO5KC4GIYBL6PKB6AEZR4OQ/_topk_native_output.json"
+      },
+      {
+        "name": "_topk_native_scores.json",
+        "at": 1795170895.118567,
+        "path": "/root/.triton/cache/ZW7XJGC2O3T2NB443C6A2WLOTZKWLU3FHMSCE7SI7HKQZWTR5NPQ/_topk_native_scores.json"
+      },
+      {
+        "name": "_topk_native_scores.json",
+        "at": 1795170961.4033997,
+        "path": "/root/.triton/cache/TDMN2TUU6CKZ6ZHQNR55JTR43ALNKUG2VOEHQEYJAOW2P2PMEFLQ/_topk_native_scores.json"
+      },
+      {
+        "name": "_topk_native_scores.json",
+        "at": 1795170860.003126,
+        "path": "/root/.triton/cache/ZBO7CMUDZCUFNYDOGTILTVHTJYOMYLS2ZURS6XYA4LNM26BKQLJA/_topk_native_scores.json"
+      },
+      {
+        "name": "_topk_native_scores.json",
+        "at": 1795170910.3697586,
+        "path": "/root/.triton/cache/HHD6DAPOLWF63AI3TULAPLKTOWFJXMUDLRCCVCJOV67GWP3AC7CQ/_topk_native_scores.json"
+      },
+      {
+        "name": "_topk_native_scores.json",
+        "at": 1795170817.0575864,
+        "path": "/root/.triton/cache/ZDFJPYPTY5ULMSQRLJ3O3B45L4A2FNGKABDWJ45LYBZVCERAW3JA/_topk_native_scores.json"
+      },
+      {
+        "name": "_topk_native_output.json",
+        "at": 1795170754.1797965,
+        "path": "/root/.triton/cache/5RIEO5W6LMC3OODOUYJDKU7ECZLDFYBIT357TOH33A4V6CFOXHGQ/_topk_native_output.json"
+      },
+      {
+        "name": "_topk_native_output.json",
+        "at": 1795170890.427508,
+        "path": "/root/.triton/cache/WIPOJSSRR6UT6KXFJU77A4BKQPOL5DP2IPK6OIFPYZGUPKLYVCDA/_topk_native_output.json"
+      },
+      {
+        "name": "_topk_native_scores.json",
+        "at": 1795170863.8101737,
+        "path": "/root/.triton/cache/CWRK27XSAWP5VLOR4UN4D6GIIQA42CXHAX4PAJSITZS3NN67SUHA/_topk_native_scores.json"
+      },
+      {
+        "name": "_topk_native_output.json",
+        "at": 1795170565.6154459,
+        "path": "/root/.triton/cache/FURYOVLCCZ7Y7BIO43ZALAAKWUGXW4LUWV6LEYZDEOEIDWWT7C3Q/_topk_native_output.json"
+      },
+      {
+        "name": "_topk_native_scores.json",
+        "at": 1795170627.3992147,
+        "path": "/root/.triton/cache/NUC24T3X5Y476KFBYR43VZEKZWUNWPGRDERCRFDI7H7LFHAWQAGQ/_topk_native_scores.json"
+      },
+      {
+        "name": "_topk_native_output.json",
+        "at": 1795170761.8038921,
+        "path": "/root/.triton/cache/BXDNDYA6B5FFCQRODDRQVZT7B5CPAVG5WHQVNYBX2OQSAZXMMQKA/_topk_native_output.json"
+      },
+      {
+        "name": "_topk_native_scores.json",
+        "at": 1795170836.839835,
+        "path": "/root/.triton/cache/LFC2Z4XG4WY34WRWY5ATW7P5HNDENXCRZMR6VQZMTFDJ5OX3TO5A/_topk_native_scores.json"
+      },
+      {
+        "name": "_topk_native_output.json",
+        "at": 1795170793.1392858,
+        "path": "/root/.triton/cache/V2S2W6MQFG2VZZD3RYKB3MZQAWB4ZFNUHCSLGEEVBFGCP5RXDTYA/_topk_native_output.json"
+      },
+      {
+        "name": "_topk_native_scores.json",
+        "at": 1795170891.2035177,
+        "path": "/root/.triton/cache/NOIER3APQ756AQIBMX4MKQ3OPQEMWSNUX2VPECLLCH3YYEEZSSOA/_topk_native_scores.json"
+      },
+      {
+        "name": "_topk_native_scores.json",
+        "at": 1795170723.802415,
+        "path": "/root/.triton/cache/SEDWC7DNQDLFWZWT2TPX65PBL2PK5J6NHKW45E5ML67MLICW6RGA/_topk_native_scores.json"
+      },
+      {
+        "name": "_topk_native_scores.json",
+        "at": 1795170766.5399518,
+        "path": "/root/.triton/cache/5K6XEBNM2DQSLOLCYZ3CNFLKEJUX4L23UBRT6WFU5ZPA57HAUFDA/_topk_native_scores.json"
+      },
+      {
+        "name": "_topk_native_output.json",
+        "at": 1795170641.171386,
+        "path": "/root/.triton/cache/5TJ3253N6JBXWSTI2AMHSYMYB4JERXRLZBHNVQ5Q6PQKI6CNKEDQ/_topk_native_output.json"
+      },
+      {
+        "name": "_topk_native_scores.json",
+        "at": 1795170634.4703026,
+        "path": "/root/.triton/cache/T2I456ZMPUE6UIFIMY3SRKLUADYVKJZ6JJ3CAQMKZ7P4ZJGJ3J7A/_topk_native_scores.json"
+      },
+      {
+        "name": "_topk_native_scores.json",
+        "at": 1795170782.1261475,
+        "path": "/root/.triton/cache/OP2O22Z2YHLTHZVEIWKPLNDTW7BSVMMT77CW3SSVOLD7XXKEL4PQ/_topk_native_scores.json"
+      },
+      {
+        "name": "_topk_native_output.json",
+        "at": 1795170601.8428967,
+        "path": "/root/.triton/cache/GDY5Q5JR7G6I5N3JMRCTAFBDYDPRQCSNXEBRRTNHEIIENKGFRZGQ/_topk_native_output.json"
+      },
+      {
+        "name": "_topk_native_output.json",
+        "at": 1795170612.5000293,
+        "path": "/root/.triton/cache/TEWXRFGV5EEO2XTGEVTTYXXH36KQX44G56DCAOGI6Z7CKPPPJY2Q/_topk_native_output.json"
+      },
+      {
+        "name": "_topk_native_scores.json",
+        "at": 1795170638.1713486,
+        "path": "/root/.triton/cache/2FMLO3XJLFF646RVOETX623V3OKJVLVWYXCRRWVGVOQA5TR6BTMQ/_topk_native_scores.json"
+      },
+      {
+        "name": "_topk_native_scores.json",
+        "at": 1795170883.257418,
+        "path": "/root/.triton/cache/F7YGMDZN7SHYOIDMIZT5V6KJUOGNL7UCTXKFGW22VXCP2PTU47BQ/_topk_native_scores.json"
+      },
+      {
+        "name": "_topk_native_output.json",
+        "at": 1795170562.2254035,
+        "path": "/root/.triton/cache/RSTWTN5USPNNGQNBQTR67OQHWB73ZNZFBNVXQZKE3GX3QDHGQ7FQ/_topk_native_output.json"
+      },
+      {
+        "name": "_topk_native_scores.json",
+        "at": 1795170681.5628886,
+        "path": "/root/.triton/cache/T2ZGSN2O6DS372HHMM4VUVSYDQWFOZVDEQ2NZDXS2EKH246SKGYQ/_topk_native_scores.json"
+      },
+      {
+        "name": "_topk_native_output.json",
+        "at": 1795170633.9712963,
+        "path": "/root/.triton/cache/TVWM5XR3PBZCEHONKD4L5HJDTMB5Q6OMNFVTXQNZWM4G455GVGLA/_topk_native_output.json"
+      },
+      {
+        "name": "_topk_native_output.json",
+        "at": 1795170742.6506517,
+        "path": "/root/.triton/cache/K2CACC6X67WRN52QA7FJ3AXNRL33MO7U6L4T5ESUPCWAK66TEIJQ/_topk_native_output.json"
+      },
+      {
+        "name": "_topk_native_scores.json",
+        "at": 1795170887.0494657,
+        "path": "/root/.triton/cache/3AQOB4NP6IHS3WSOEYVI4WHXJW2XBBFGMU2I526NGI3HT4KAC6KQ/_topk_native_scores.json"
+      },
+      {
+        "name": "_topk_native_scores.json",
+        "at": 1795170591.5837688,
+        "path": "/root/.triton/cache/ZMKIW7N44EEBIHMZMOULKVCHFGEBES5YEEZLURYXVY2NWCWJAIJQ/_topk_native_scores.json"
+      },
+      {
+        "name": "_topk_native_output.json",
+        "at": 1795170765.8989437,
+        "path": "/root/.triton/cache/N3XHWDZPN5SA3UZA7RNF3WKIEDLGM6LHL3CNLZXCRH2Y3HPITJKA/_topk_native_output.json"
+      },
+      {
+        "name": "_topk_native_scores.json",
+        "at": 1795170689.0799823,
+        "path": "/root/.triton/cache/3PZT23BDZBVEIX5W6PBA6PSHZYK7G2IJ3UVN4JUK5SVHYKAYFNHA/_topk_native_scores.json"
+      },
+      {
+        "name": "_topk_native_scores.json",
+        "at": 1795170612.976035,
+        "path": "/root/.triton/cache/V3J3DKRHCMHG6SRHWM6NVEIFP2GPZ2MA7W7TDNF6YVX27AEUKAKQ/_topk_native_scores.json"
+      },
+      {
+        "name": "_topk_native_scores.json",
+        "at": 1795170828.894735,
+        "path": "/root/.triton/cache/5GZ6HANPV6XYT3EC3IF4XRNCC4GH447AYO3RCFOO5YMX5JKSFQBQ/_topk_native_scores.json"
+      },
+      {
+        "name": "_topk_native_output.json",
+        "at": 1795170905.8927023,
+        "path": "/root/.triton/cache/W3HAGI24YKXUV4I5T42GBUFUYAYEYT245P3EUXLA55S6ZLEQKPJQ/_topk_native_output.json"
+      },
+      {
+        "name": "_topk_native_output.json",
+        "at": 1795170828.3677285,
+        "path": "/root/.triton/cache/B6EZCXMCCVJBVL2WD6NRBBGJL35B65EG3R22QMTLPI7WXCUZBWGA/_topk_native_output.json"
+      },
+      {
+        "name": "_topk_native_scores.json",
+        "at": 1795170747.0947075,
+        "path": "/root/.triton/cache/UET4XEXN3NBBREBKXHCRGHM7FWIKPVYHF7VGRVTJEVPSEH7APOXQ/_topk_native_scores.json"
+      },
+      {
+        "name": "_topk_native_scores.json",
+        "at": 1795170569.889499,
+        "path": "/root/.triton/cache/PNW77K275ZDDHH4INIDY2EPTQX7EEOUS7JSMMPVK6P46XXWNBG2A/_topk_native_scores.json"
+      },
+      {
+        "name": "_topk_native_scores.json",
+        "at": 1795170922.0439053,
+        "path": "/root/.triton/cache/5FYRXZBDALWXNZMY5VQRZ74TWAYQZZQ2ZSW6KJUNACSBVB4ORE4A/_topk_native_scores.json"
+      },
+      {
+        "name": "_topk_native_scores.json",
+        "at": 1795170598.8428593,
+        "path": "/root/.triton/cache/EVW7ST66WRI4ICCE2FWUAAI3DAHMGY5JFJCOLYPOSOZB36NQWTPA/_topk_native_scores.json"
+      },
+      {
+        "name": "_topk_native_scores.json",
+        "at": 1795170879.359369,
+        "path": "/root/.triton/cache/5GHWHW2IBZJ3UHRQ2FRAZF2JDNFNLOPDB2LYD7QTQWPFR7XJST6Q/_topk_native_scores.json"
+      },
+      {
+        "name": "_topk_native_output.json",
+        "at": 1795170843.7149212,
+        "path": "/root/.triton/cache/7LDSE4FB6J4UZMOM4VZO4URFBQ67PDXB5QJGIBQ34MIEFG6JDMGQ/_topk_native_output.json"
+      },
+      {
+        "name": "_topk_native_scores.json",
+        "at": 1795170595.288815,
+        "path": "/root/.triton/cache/MLGL3QRP2TIV6UTPWCI5NZRYRSYZSGUOU65Y74OIK3OQ5MUDLX5A/_topk_native_scores.json"
+      },
+      {
+        "name": "_topk_native_output.json",
+        "at": 1795170859.4121184,
+        "path": "/root/.triton/cache/IC33FMGLVGNBEWKUDWTZP4CEQ7Z77JNT4NNQPP5YDBIWH3VQOBJA/_topk_native_output.json"
+      },
+      {
+        "name": "_topk_native_scores.json",
+        "at": 1795170821.175638,
+        "path": "/root/.triton/cache/SJJ4LLQVCPF52VJ6L3FY3YZNJHN3SDXNTBK4EXT4TUDQYAYT7JBA/_topk_native_scores.json"
+      },
+      {
+        "name": "_topk_native_scores.json",
+        "at": 1795170620.199125,
+        "path": "/root/.triton/cache/H53JVYX2URLHQ4VX6LDLOMVXFFZWGPPHCSQWCAVEI2ZZCJOEXM5Q/_topk_native_scores.json"
+      },
+      {
+        "name": "_topk_native_scores.json",
+        "at": 1795170712.2582705,
+        "path": "/root/.triton/cache/T7YQS7D5BB673NFLMNEU6VTLRNX2VXSDXSPSJMN3OG2KVS5H5EIQ/_topk_native_scores.json"
+      },
+      {
+        "name": "_topk_native_output.json",
+        "at": 1795170933.252046,
+        "path": "/root/.triton/cache/HGV254W3BESOP5A5ZV7GZTE235WMSPGG4LROFZOAJLF3QL2RB7JQ/_topk_native_output.json"
+      },
+      {
+        "name": "_topk_native_output.json",
+        "at": 1795170703.941167,
+        "path": "/root/.triton/cache/43Q4Y323B3UO3ZRVIO7QKVQT65IK7MXZVW6ODQOVVFO2TIFJUNUQ/_topk_native_output.json"
+      },
+      {
+        "name": "_topk_native_output.json",
+        "at": 1795170785.3721883,
+        "path": "/root/.triton/cache/VAOSXNIF7P5VR2UIK5X5EUREO4AT27YZK2QWM2AWQC3OL6WMKUNQ/_topk_native_output.json"
+      },
+      {
+        "name": "_topk_native_output.json",
+        "at": 1795170594.5908062,
+        "path": "/root/.triton/cache/R7T2U2D7TBTIPK5OP6YGZO5Z5Y2PD3OPLGIFMLNX3BO2MIHYVEEA/_topk_native_output.json"
+      },
+      {
+        "name": "_topk_native_scores.json",
+        "at": 1795170914.4318097,
+        "path": "/root/.triton/cache/YM5IZFOKXLRP6SDUJB4QQL2UT56AL7RH2BHCONH62O5NXCUCULBQ/_topk_native_scores.json"
+      },
+      {
+        "name": "_topk_native_scores.json",
+        "at": 1795170630.9362586,
+        "path": "/root/.triton/cache/LI5OG7ZEUDAKHEDNT42SPO3RF3S44ZXWJX6SFFNHXFRQSDGI4WKQ/_topk_native_scores.json"
+      },
+      {
+        "name": "_topk_native_output.json",
+        "at": 1795170941.1771455,
+        "path": "/root/.triton/cache/MV5JIWXPBAQQ4I2H5VU5X3TDOQEAHLYJOPLAV4VN6ANB2SCOXLXQ/_topk_native_output.json"
+      },
+      {
+        "name": "_topk_native_output.json",
+        "at": 1795170800.9653842,
+        "path": "/root/.triton/cache/3M5CQYHYDT3OWX3XH2U5DVZ6RRJ43PERCSD2IESWKSB2PXOYSPNA/_topk_native_output.json"
+      },
+      {
+        "name": "_topk_native_output.json",
+        "at": 1795170882.6664104,
+        "path": "/root/.triton/cache/B62I6APDMS2IHZDF2QWBBULSCHEMLDZBZLZYC7HHHXCERG3ON2FQ/_topk_native_output.json"
+      },
+      {
+        "name": "_topk_native_output.json",
+        "at": 1795170917.7508514,
+        "path": "/root/.triton/cache/JX56NV3X7ZMWSXPVNBKLSVI2QPCDDF36IJXOP7KW3XHBLDJWWGVQ/_topk_native_output.json"
+      },
+      {
+        "name": "_topk_native_scores.json",
+        "at": 1795170770.2829988,
+        "path": "/root/.triton/cache/PDMBVFXS7E6SP6TBELXQ7I4B2FJPEBUOWZOZZA2WDI5SYSAUWSTA/_topk_native_scores.json"
+      },
+      {
+        "name": "_topk_native_scores.json",
+        "at": 1795170949.6802523,
+        "path": "/root/.triton/cache/4TXTJTHGVJS7Y3NTV2Z2QRDUPZBUHW3LSBADWOSXEBLOX4UGH5SQ/_topk_native_scores.json"
+      },
+      {
+        "name": "_topk_native_scores.json",
+        "at": 1795170609.5319922,
+        "path": "/root/.triton/cache/73D4VHW2TRI7GMO3B4NJF2FBU4H2R3Y3MFFVPLQ7YLX5VD5SETRA/_topk_native_scores.json"
+      },
+      {
+        "name": "_topk_native_scores.json",
+        "at": 1795170965.3084488,
+        "path": "/root/.triton/cache/MPGXSTMIO437TCTMHPBBAZBU4IRIGSSJOFROBKQCJ4YLX5OGAAYQ/_topk_native_scores.json"
+      },
+      {
+        "name": "_topk_native_output.json",
+        "at": 1795170921.5088985,
+        "path": "/root/.triton/cache/ETSQ7DTSC2LJIASJ3IORRAFHJUW46SIAKO3AKQ7SBHGHXIATR3ZA/_topk_native_output.json"
+      },
+      {
+        "name": "_topk_native_output.json",
+        "at": 1795170644.6784296,
+        "path": "/root/.triton/cache/YMVBANTOV5F3O3O3X4HQ2ASPAJG6X6MI6Y2EGUJ6LEJOHCXEDNBA/_topk_native_output.json"
+      },
+      {
+        "name": "_topk_native_output.json",
+        "at": 1795170758.0858455,
+        "path": "/root/.triton/cache/F7KFBN6E5GQNUCBMV3JMYLCV2ALQLLUTT2PGC7OAP2OZV2ANSBTQ/_topk_native_output.json"
+      },
+      {
+        "name": "_topk_native_scores.json",
+        "at": 1795170937.8751042,
+        "path": "/root/.triton/cache/HPK5E3F6XVP4LL2SOTZWNZHJDSOE4QUOCLG2BCQUIYSBONRAKRSA/_topk_native_scores.json"
+      },
+      {
+        "name": "_topk_native_output.json",
+        "at": 1795170580.2216275,
+        "path": "/root/.triton/cache/7SDAZCLQFHBHJICZ3GUU4GXMNFEYXNGRH6KOH2FKGB7BKPYVVZYA/_topk_native_output.json"
+      },
+      {
+        "name": "_topk_native_scores.json",
+        "at": 1795170774.3850503,
+        "path": "/root/.triton/cache/R7DWSRIUIBV4SJR5OPCLPFVE3JJYIHDOPEHZZJXXMDTFVQC6NRTQ/_topk_native_scores.json"
+      },
+      {
+        "name": "_topk_native_output.json",
+        "at": 1795170960.6133897,
+        "path": "/root/.triton/cache/6RSEOMBUAGU3AYOQWUVB4SSI6JUS5LTUT5ELGZNX2TGEEZUEPPEA/_topk_native_output.json"
+      },
+      {
+        "name": "_topk_native_scores.json",
+        "at": 1795170566.1524525,
+        "path": "/root/.triton/cache/RYDWXQRENRJJJ75PCGMTHOLTQWRIWYWBG2MDMHBFSTFLHGVDDL2Q/_topk_native_scores.json"
+      },
+      {
+        "name": "_topk_native_output.json",
+        "at": 1795170750.2997477,
+        "path": "/root/.triton/cache/HKPMCII5NW36M4QOU2RJ54N4RLCBD26EHHGW322GZVQWGO66OZWA/_topk_native_output.json"
+      },
+      {
+        "name": "_topk_native_scores.json",
+        "at": 1795170941.7601528,
+        "path": "/root/.triton/cache/UF6G4EHLVY76VXBAETVWAOMHAN557BJ7L2D55FNWYV5MSJCXHJOA/_topk_native_scores.json"
+      },
+      {
+        "name": "_topk_native_output.json",
+        "at": 1795170781.619141,
+        "path": "/root/.triton/cache/BYBCATXXEUMRAQCFBWWNWQ4YLHZNZGVPYQILY66EO4SKV7GFIIVA/_topk_native_output.json"
+      },
+      {
+        "name": "_topk_native_scores.json",
+        "at": 1795170899.0056157,
+        "path": "/root/.triton/cache/6FTGDTGD6IGHSEPCUANLD76UPWPY6HKYBDVH5RNGMAUZNTKQXYEQ/_topk_native_scores.json"
+      },
+      {
+        "name": "_topk_native_output.json",
+        "at": 1795170937.1250947,
+        "path": "/root/.triton/cache/KBVDRQT5CRRA52LX6ZZ3LXEVXEXQ4FPFA2YUZ6RQIPEIPLTBRVSA/_topk_native_output.json"
+      },
+      {
+        "name": "_topk_native_output.json",
+        "at": 1795170824.431679,
+        "path": "/root/.triton/cache/35MOVRA5BDPGK2SLM7QLREMUDX2AVCF32FUUDOG2N2KJMHJOXY6Q/_topk_native_output.json"
+      },
+      {
+        "name": "_topk_native_output.json",
+        "at": 1795170878.5963595,
+        "path": "/root/.triton/cache/HSZPXHCXMOWSQFQQZAZAFIIVFQQ32RQV5YTREJFXEPCQOVONPHTQ/_topk_native_output.json"
+      },
+      {
+        "name": "_topk_native_output.json",
+        "at": 1795170909.849752,
+        "path": "/root/.triton/cache/V5AMTMQ4BP7ZQNZFGLSPJRTXMN7R42AB5QAQTEA7PGQGCTEE76GA/_topk_native_output.json"
+      },
+      {
+        "name": "_topk_native_scores.json",
+        "at": 1795170805.3454392,
+        "path": "/root/.triton/cache/DBX5TV33A6NNSBU42YKPXFSYK7Q6XHX7FPH6OYR5IQ2UWQG7GWNQ/_topk_native_scores.json"
+      },
+      {
+        "name": "_topk_native_scores.json",
+        "at": 1795170584.5006807,
+        "path": "/root/.triton/cache/4ORH3QGTZMOYH5N6PJYXJSEFJQTCYVP6BPZDA6CJ55YEYOXYTPAA/_topk_native_scores.json"
+      },
+      {
+        "name": "_topk_native_scores.json",
+        "at": 1795170953.6083016,
+        "path": "/root/.triton/cache/DD4OMYNRVFXCVE4DSBTNZJ6RC2W5PBIQ2Q2OTD43AQ3FH5MJYVBQ/_topk_native_scores.json"
+      },
+      {
+        "name": "_topk_native_scores.json",
+        "at": 1795170871.5712712,
+        "path": "/root/.triton/cache/DPUZSSH6E4W6VAZJRCRJXRZF7J5U5BJ6PRWQDGA5OD5FEA6N22GQ/_topk_native_scores.json"
+      },
+      {
+        "name": "_topk_native_output.json",
+        "at": 1795170572.8935363,
+        "path": "/root/.triton/cache/QW26PO5UWBUWZZZ2675O65RJXKAVSTO2BFLFCXVG3RKAHS5PBG6Q/_topk_native_output.json"
+      },
+      {
+        "name": "_topk_native_scores.json",
+        "at": 1795170801.5373914,
+        "path": "/root/.triton/cache/2B32ZE7PZ4URMFNJUDOJZOW6JPF5B5UD2CETBR6Y3AZTYD4TESFQ/_topk_native_scores.json"
+      },
+      {
+        "name": "_topk_native_output.json",
+        "at": 1795170789.2262368,
+        "path": "/root/.triton/cache/T37BIJXEX7HEDMFQWCK5MMJIGK7RLY2TI7R4J6JUVGKBKTDUQ7KA/_topk_native_output.json"
+      },
+      {
+        "name": "_topk_native_output.json",
+        "at": 1795170731.0935063,
+        "path": "/root/.triton/cache/2VRIFNYHCJVBFZFEUWYDUKQZHKLFYXNTLORCP752AYOAHKMWI55A/_topk_native_output.json"
+      },
+      {
+        "name": "_topk_native_output.json",
+        "at": 1795170804.8174326,
+        "path": "/root/.triton/cache/5CS4P5AR3RZ4XWPCZTZCTWX5VHLPRNSLK2GUMJKZWJY5QLJKHVBA/_topk_native_output.json"
+      },
+      {
+        "name": "_topk_native_scores.json",
+        "at": 1795170716.1983197,
+        "path": "/root/.triton/cache/TW7ICWY3HIODHOWD5D2SDNSLKWK6NVTJEMN75BLZP2PL6SY2Q3MA/_topk_native_scores.json"
+      },
+      {
+        "name": "_topk_native_scores.json",
+        "at": 1795170832.8787851,
+        "path": "/root/.triton/cache/T3BBNXJR434NMYIE6GCAEDAQQZEO5PNBRGX3PDVWLXXNO7DDN3WA/_topk_native_scores.json"
+      },
+      {
+        "name": "_topk_native_scores.json",
+        "at": 1795170700.6211257,
+        "path": "/root/.triton/cache/G4ENSFQGRC3NATPG5XCIISIHUMX25NJYGB3WKMI3NEKJ2BLFQNEA/_topk_native_scores.json"
+      },
+      {
+        "name": "_topk_native_scores.json",
+        "at": 1795170852.132027,
+        "path": "/root/.triton/cache/FEAQUQEEZXIKTD23WOMZ4IPKTXGNVKMFRK7YHFB4NWJSMAP3VNSA/_topk_native_scores.json"
+      },
+      {
+        "name": "_topk_native_output.json",
+        "at": 1795170684.814929,
+        "path": "/root/.triton/cache/H4FP7V3SXRESCMYPG7XIRNO3H2JOQMMUK4656QL4YUBVYLSBVIDQ/_topk_native_output.json"
+      },
+      {
+        "name": "_topk_native_output.json",
+        "at": 1795170692.4680243,
+        "path": "/root/.triton/cache/7I6SISTKI67GRBZX2GWKIG6PYABFXRK5ZSLXH5HN2IFDO4DXQICA/_topk_native_output.json"
+      },
+      {
+        "name": "_topk_native_output.json",
+        "at": 1795170707.8932164,
+        "path": "/root/.triton/cache/OVM3DD5DECDW5JQYFJ52OXIZXIKDXWDAJGP3UKTP6KZAT5YOIL3A/_topk_native_output.json"
+      },
+      {
+        "name": "_topk_native_scores.json",
+        "at": 1795170605.971948,
+        "path": "/root/.triton/cache/UZ7ZGXYO7U2XEIURXDP46C4LMOPAUS64LFHDAPKVS7AN2WSMYB2Q/_topk_native_scores.json"
+      },
+      {
+        "name": "_topk_native_scores.json",
+        "at": 1795170693.2490342,
+        "path": "/root/.triton/cache/7UDYBLIMI6PJMTOLQX2KCIA3RCWAU5CROE6UCWQA2L4V5HQMF4OA/_topk_native_scores.json"
+      },
+      {
+        "name": "_topk_native_output.json",
+        "at": 1795170669.447738,
+        "path": "/root/.triton/cache/MBFP3VGK3TLHKBVM2EJAX5ROXY3GVYZ6MLG2UGDMDDL4SK72EEBQ/_topk_native_output.json"
+      },
+      {
+        "name": "_topk_native_output.json",
+        "at": 1795170569.1544898,
+        "path": "/root/.triton/cache/WTKKICUNCCGAIJLMX2MUN5IP4SM6R2U7D2VJK56GIUBZILR673NA/_topk_native_output.json"
+      },
+      {
+        "name": "_topk_native_scores.json",
+        "at": 1795170685.372936,
+        "path": "/root/.triton/cache/SO7EPNYHOPT7STHXHJFZH62JTMJNDQIDMVPOWDGKBPOHHDVL4PLQ/_topk_native_scores.json"
+      },
+      {
+        "name": "_topk_native_scores.json",
+        "at": 1795170797.6283422,
+        "path": "/root/.triton/cache/DLJLJKV2IISXZQ6ABK3FZXVN5ORY3QZFPJSS7QPJM4OBVTPLALVQ/_topk_native_scores.json"
+      },
+      {
+        "name": "_topk_native_output.json",
+        "at": 1795170863.282167,
+        "path": "/root/.triton/cache/6THQXDBCA6UOO4KHJUTLVPIGAD7LIXLKVW6OO3WLVMFDNZPGF6QQ/_topk_native_output.json"
+      },
+      {
+        "name": "_topk_native_output.json",
+        "at": 1795170867.0732148,
+        "path": "/root/.triton/cache/UYSKT3FSRBXHNF7X534FHHPULYS3I35C7EV4BVSFI46H763BLBVA/_topk_native_output.json"
+      },
+      {
+        "name": "_topk_native_output.json",
+        "at": 1795170723.2954085,
+        "path": "/root/.triton/cache/EZDAY3G35CWKHQBDGMSHUGW4WR4OFEEBLUXNWUZLTRSJS2GCEVKQ/_topk_native_output.json"
+      },
+      {
+        "name": "_topk_native_output.json",
+        "at": 1795170851.6090205,
+        "path": "/root/.triton/cache/TXWE5DKXKCZAUDVZEEB6MPTSBNIY5QXIB5EWPZFDM2B7H7C5J37A/_topk_native_output.json"
+      },
+      {
+        "name": "_topk_native_output.json",
+        "at": 1795170734.8265533,
+        "path": "/root/.triton/cache/WSWZMACEUFKIYA6BA5ZW5W3R6YOMTGAWXANW6WSCAUGB3QXF22CQ/_topk_native_output.json"
+      },
+      {
+        "name": "_topk_native_output.json",
+        "at": 1795170608.9759853,
+        "path": "/root/.triton/cache/CXIANJW32JF3C35POTV5GTJ2ALSDMUYFBCXIJ4ZRKUXR7V7UCR2A/_topk_native_output.json"
+      },
+      {
+        "name": "_topk_native_scores.json",
+        "at": 1795170720.1153686,
+        "path": "/root/.triton/cache/KB5FQ5FRQOSI2KYXQV6572Z7ZIQR3MKPGIMH24LUADZVKBUGBTUQ/_topk_native_scores.json"
+      },
+      {
+        "name": "_topk_native_scores.json",
+        "at": 1795170659.5416145,
+        "path": "/root/.triton/cache/TTCU3TYDBCPYRMGXEXFSMPEJZGSVPBF7I4DXQ2U3ZUPGPZXHEJTQ/_topk_native_scores.json"
+      },
+      {
+        "name": "_topk_native_scores.json",
+        "at": 1795170758.609852,
+        "path": "/root/.triton/cache/MHFWNLWXKNH7UL5WFHSKCGWP7VO35HDXSRTAKRQYU7KYFGWB6WAQ/_topk_native_scores.json"
+      },
+      {
+        "name": "_topk_native_output.json",
+        "at": 1795170773.5980403,
+        "path": "/root/.triton/cache/EHY47YQ3NXS7Z52ZK2L3WWTTMQMBXGWCQVE5AZAZEEUATII6XEHQ/_topk_native_output.json"
+      },
+      {
+        "name": "_topk_native_output.json",
+        "at": 1795170820.4096284,
+        "path": "/root/.triton/cache/H27WOVXLYEV5UIDD4STTVP5THKJ6ZT5PT6I4QN4GWIXSRUZK6KEQ/_topk_native_output.json"
+      },
+      {
+        "name": "_topk_native_output.json",
+        "at": 1795170711.7602644,
+        "path": "/root/.triton/cache/3AOA46A4AJ7FZXKTNTK6X7RFBUMJGTLIZVERTFMIC25RVNNJPDPQ/_topk_native_output.json"
+      },
+      {
+        "name": "_topk_native_output.json",
+        "at": 1795170956.9033432,
+        "path": "/root/.triton/cache/XALDPKNCYPPWY6NO22UAAXSTRAYGAVRLVOGXYJ7KU36REGEDMZEQ/_topk_native_output.json"
+      },
+      {
+        "name": "_topk_native_output.json",
+        "at": 1795170615.9790726,
+        "path": "/root/.triton/cache/CXO7QR6YV7N6YMDJLTH3AHWXHOKH3XVAY2EGKJHLJBXNOBARUQ5A/_topk_native_output.json"
+      },
+      {
+        "name": "_topk_native_output.json",
+        "at": 1795170948.927243,
+        "path": "/root/.triton/cache/LSDWWYAFBDC4HKKCHWLJMCX3LUXS7TVRS6DEBWHKRTATBUGGBQ2A/_topk_native_output.json"
+      },
+      {
+        "name": "_topk_native_scores.json",
+        "at": 1795170670.1407466,
+        "path": "/root/.triton/cache/SVUZSDAUY6KELAQGOCM4M27S7SWNCFVRLRXUWXGZEHOVVLNI6FJQ/_topk_native_scores.json"
+      },
+      {
+        "name": "_topk_native_scores.json",
+        "at": 1795170754.8258045,
+        "path": "/root/.triton/cache/ZNY4GPX4EUSHTEJ2IHFPESJZ5KEPEHRTW6GM7KZRKTILTIILJJEQ/_topk_native_scores.json"
+      },
+      {
+        "name": "_topk_native_scores.json",
+        "at": 1795170926.1639569,
+        "path": "/root/.triton/cache/2H4TYUZQMGCY4CA4QDKNGALGI6GDE6NQ4R4W5CEWXN3JOT3DP3JA/_topk_native_scores.json"
+      },
+      {
+        "name": "_topk_native_scores.json",
+        "at": 1795170875.385319,
+        "path": "/root/.triton/cache/RUOE7SBBMO25KL3KMHYNTED2MGPWZG3CTZACMPDDCCJZ3MNUYE3Q/_topk_native_scores.json"
+      },
+      {
+        "name": "_topk_native_output.json",
+        "at": 1795170696.4740741,
+        "path": "/root/.triton/cache/EV5LNAGM4ZLXNWDUHB3KTRNCGWYRMZ55JEJMXYQKRLKZINYQQXBA/_topk_native_output.json"
+      },
+      {
+        "name": "_topk_native_output.json",
+        "at": 1795170945.1281953,
+        "path": "/root/.triton/cache/X67ZSSDAE5VMU4NSUPMBQZJQIOJM2M6WZE37AWDPJHL3VKNXUZQQ/_topk_native_output.json"
+      },
+      {
+        "name": "_topk_native_output.json",
+        "at": 1795170808.658481,
+        "path": "/root/.triton/cache/O5F6UM4NURAC3S2CWQR7FIU4ACECN35W3ECPGLMM33GPXB7XIMTQ/_topk_native_output.json"
+      },
+      {
+        "name": "_topk_native_output.json",
+        "at": 1795170894.5105593,
+        "path": "/root/.triton/cache/73PKEJCRW4R23F5X5OAQUNYIZSP3ZDN46L6QMNPNBJFCWGYFPX4A/_topk_native_output.json"
+      },
+      {
+        "name": "_topk_native_output.json",
+        "at": 1795170680.8358796,
+        "path": "/root/.triton/cache/ZQ4LLTTGLQWN3NPA5A6UD7LDDW33SVFHQAXLRJBMW5JXAUMZB2LA/_topk_native_output.json"
+      },
+      {
+        "name": "_topk_native_output.json",
+        "at": 1795170738.6566014,
+        "path": "/root/.triton/cache/33LRM6DIYT3GBUIDG25VWOPLOAV3UOJYCVA7JZOQDI527IZDLUBQ/_topk_native_output.json"
+      },
+      {
+        "name": "_topk_native_scores.json",
+        "at": 1795170933.7520523,
+        "path": "/root/.triton/cache/LG4AU4I3FG77MXZQYHM4UMRFU7BVO7RUPNKYDKSNHVFCA4PUARJQ/_topk_native_scores.json"
+      },
+      {
+        "name": "_topk_native_output.json",
+        "at": 1795170874.8613124,
+        "path": "/root/.triton/cache/PBFKU7HUBMJ2FPOBF4WUSFK53NDQBMYGYBUMT44AZQ2RDLYHGSZA/_topk_native_output.json"
+      },
+      {
+        "name": "_topk_native_scores.json",
+        "at": 1795170867.8362243,
+        "path": "/root/.triton/cache/7FFHZVSJGTN4XCA5EE5FQRH6DSCJL6IKG5JP52SK2JJMSM4EQTLQ/_topk_native_scores.json"
+      },
+      {
+        "name": "_topk_native_output.json",
+        "at": 1795170666.0226953,
+        "path": "/root/.triton/cache/DPXGNOWEBCH6KHPQEU3SBK7YBPUEAMLDXLIXPLE3EB6Q5PDOBJGA/_topk_native_output.json"
+      },
+      {
+        "name": "_topk_native_output.json",
+        "at": 1795170929.3929975,
+        "path": "/root/.triton/cache/FRNKKIGO3M7YLWJAOJV42LT2J3WYTFIUVOA6IKW2YED42DD3LJ6Q/_topk_native_output.json"
+      },
+      {
+        "name": "_topk_native_scores.json",
+        "at": 1795170731.6795137,
+        "path": "/root/.triton/cache/FSL5Z5PCKETXGJ2MIQLI5SDN2PNPYFLY7JZEOFAPGLV7DSAP5F3A/_topk_native_scores.json"
+      },
+      {
+        "name": "_topk_native_scores.json",
+        "at": 1795170906.4727097,
+        "path": "/root/.triton/cache/CIXY5J7W7MRHR62IILGUWMPOXQOQKYQO7RNBK3MHXTJKOJ5HHEIA/_topk_native_scores.json"
+      },
+      {
+        "name": "_topk_native_scores.json",
+        "at": 1795170708.4532232,
+        "path": "/root/.triton/cache/ELMEQSSRDQAZUCEDPIJ4YLFHHAH6CQM4PP2VVISDY2LIJ26VMS5Q/_topk_native_scores.json"
+      },
+      {
+        "name": "_topk_native_scores.json",
+        "at": 1795170918.3428588,
+        "path": "/root/.triton/cache/X3GAWWXBHR6WWEHAYDRAII6M72OM5GSAFJYLP5DW764GO6FVXBAA/_topk_native_scores.json"
+      },
+      {
+        "name": "_topk_native_scores.json",
+        "at": 1795170793.6392922,
+        "path": "/root/.triton/cache/XKMMUOK2HAOQC74N2SIAGU4L3O3ZZ27ELWTQTL5VBHW7XCSZ5TQQ/_topk_native_scores.json"
+      },
+      {
+        "name": "_topk_native_scores.json",
+        "at": 1795170559.195366,
+        "path": "/root/.triton/cache/5BRQAMK6NSIRN23FCSBWYJB5S5LRMXVHOSHPLHZB4QMF67A4V57A/_topk_native_scores.json"
+      },
+      {
+        "name": "_topk_native_scores.json",
+        "at": 1795170652.3835256,
+        "path": "/root/.triton/cache/S3WVUS4HS4NPCIJWU72WVKS5AS3LJCVSIG7SQDCUQYQPKY57NYYA/_topk_native_scores.json"
+      },
+      {
+        "name": "_topk_native_scores.json",
+        "at": 1795170957.4323497,
+        "path": "/root/.triton/cache/NRQYCMRFIQRRC5IZLFQOLNBEGPGZ5LJG63K4BGUANKB4NKTXQGEA/_topk_native_scores.json"
+      },
+      {
+        "name": "_topk_native_output.json",
+        "at": 1795170812.8295333,
+        "path": "/root/.triton/cache/TLTA3O3U4LVPBTEJDQFXHQSXW2GZ3IL2IQ4XX7KD7QA6RVNHJ2GQ/_topk_native_output.json"
+      },
+      {
+        "name": "_topk_native_output.json",
+        "at": 1795170715.4613104,
+        "path": "/root/.triton/cache/FPTD6NPLLRMZIFYRNVIDKHTDAIIQOLJIMKMQRBR6DXLVE3TEF6CQ/_topk_native_output.json"
+      },
+      {
+        "name": "_topk_native_scores.json",
+        "at": 1795170739.421611,
+        "path": "/root/.triton/cache/PFRHXLJG6CXU5G5T2YBMZCOGYSSEL3OSGJIBZ2WWGD4FVV2AZCFA/_topk_native_scores.json"
+      },
+      {
+        "name": "_topk_native_scores.json",
+        "at": 1795170856.196078,
+        "path": "/root/.triton/cache/K5Z44PRYZG75QYQTHQWNZXT6DDGU2AQ57MNFEGELNGK7YAH3GWAA/_topk_native_scores.json"
+      },
+      {
+        "name": "_topk_native_output.json",
+        "at": 1795170648.1394727,
+        "path": "/root/.triton/cache/HTLSKI3WG7SH7A6JY6MVVU2XYVY3NY7UCQKQKNQ6DBIZZH7GBJSA/_topk_native_output.json"
+      },
+      {
+        "name": "_topk_native_output.json",
+        "at": 1795170855.4320683,
+        "path": "/root/.triton/cache/4HM6H7GGZY4WQWUYWL6DYAMM5PGCOWDWV6V3XGYPUM3R4ZPDUXYA/_topk_native_output.json"
+      },
+      {
+        "name": "_topk_native_output.json",
+        "at": 1795170700.1301198,
+        "path": "/root/.triton/cache/IGBIOMKDCWFGHHNOC6JROCUTA6NYIDZBWQM5I3CJBACE7DVROZMQ/_topk_native_output.json"
+      },
+      {
+        "name": "_topk_native_scores.json",
+        "at": 1795170704.6811764,
+        "path": "/root/.triton/cache/KTBYSMA5L7ZD3FLUTFCKVXIVIGJUOIV7A37IENN6XXCRJ23TOMBA/_topk_native_scores.json"
+      },
+      {
+        "name": "_topk_native_output.json",
+        "at": 1795170816.55058,
+        "path": "/root/.triton/cache/YI4IWYPKAR37H3DDCEGFOANNHH5EBCVUPEBQWX6MRN6PEQWILZPQ/_topk_native_output.json"
+      },
+      {
+        "name": "_topk_native_scores.json",
+        "at": 1795170840.593882,
+        "path": "/root/.triton/cache/3UUFBO37ROBZD2TVGUH5QRYFBTJXRXJLD2CFPCDABBPFCHRNU5VA/_topk_native_scores.json"
+      },
+      {
+        "name": "_topk_native_output.json",
+        "at": 1795170746.5637007,
+        "path": "/root/.triton/cache/SNM3VYOPEAIVHBNKDLGEMFSHI5KQPDOM46WM7QUYDDFS6VEGKJUQ/_topk_native_output.json"
+      },
+      {
+        "name": "_topk_native_output.json",
+        "at": 1795170626.695206,
+        "path": "/root/.triton/cache/EUOREQWO6D6AICE247CFI4CNJDDAUJ7SNU6D5WDTDSV2ZR4UGMNQ/_topk_native_output.json"
+      },
+      {
+        "name": "_topk_native_scores.json",
+        "at": 1795170825.0266864,
+        "path": "/root/.triton/cache/2O6XKBQYNGBJPLJD3WA2OOZAQYQEYM6JDF7K2JEUBQLL36SQLRVQ/_topk_native_scores.json"
+      },
+      {
+        "name": "_topk_native_output.json",
+        "at": 1795170777.6560915,
+        "path": "/root/.triton/cache/PL34YXWHJ5VYBPEILDLMFW2UR67VCWMD7NXLCMTPQHYGEFOTHKPA/_topk_native_output.json"
+      },
+      {
+        "name": "_topk_native_output.json",
+        "at": 1795170651.8335187,
+        "path": "/root/.triton/cache/GD4PLNHVQX6BW5E7J7WAH4P7DWGULYCECGBVY4P4J3CP3KIKHSVA/_topk_native_output.json"
+      },
+      {
+        "name": "_topk_native_output.json",
+        "at": 1795170605.254939,
+        "path": "/root/.triton/cache/N26LQ6KRLWTQJJ4XGNIRSJS3UKFC66GIYASZMDUQ657M5VNTOU7A/_topk_native_output.json"
+      },
+      {
+        "name": "_topk_native_scores.json",
+        "at": 1795170930.1210067,
+        "path": "/root/.triton/cache/BKOOPAMGBS3XWQ3GKEKMB4B5S4UI45SJPOHTNBDBGHU7HHWMMEJQ/_topk_native_scores.json"
+      },
+      {
+        "name": "_topk_native_scores.json",
+        "at": 1795170645.1564355,
+        "path": "/root/.triton/cache/BHPFO6XLUMMBVPU4CIIBGXE6ILJA3PN3KBGK74E4VFLEURBQ5OFA/_topk_native_scores.json"
+      },
+      {
+        "name": "_topk_native_output.json",
+        "at": 1795170677.0948331,
+        "path": "/root/.triton/cache/OLWOEVW4NHKVXTHDECSQMQF7YM3QWULHGJCSKGT2XFIQNQSPOCNQ/_topk_native_output.json"
+      },
+      {
+        "name": "_topk_native_scores.json",
+        "at": 1795170573.595545,
+        "path": "/root/.triton/cache/UN2WYK45GM3ZCDH4IBJS5JJGYRTRRM4ZZZ7MIMUYBAZUC2DIUVOQ/_topk_native_scores.json"
+      },
+      {
+        "name": "_topk_native_scores.json",
+        "at": 1795170677.5918393,
+        "path": "/root/.triton/cache/MIC6GQCQM65UH5NJSZZ4WFAJTRA7UIX7BIEAZM2UJRZ5CX5WCBZQ/_topk_native_scores.json"
+      },
+      {
+        "name": "_topk_native_output.json",
+        "at": 1795170662.551652,
+        "path": "/root/.triton/cache/XD7XB5XQ56QP7VOBFXIWJADCHAVXWDNORGFAJCU4BKNAFPIZDIBA/_topk_native_output.json"
+      },
+      {
+        "name": "_topk_native_scores.json",
+        "at": 1795170762.5649018,
+        "path": "/root/.triton/cache/UR4SK7PXIIGIGCWQV5LAGWSWJUZOWQPJGJXDI4SPERH2JSJDNUAQ/_topk_native_scores.json"
+      },
+      {
+        "name": "_topk_native_scores.json",
+        "at": 1795170778.2460988,
+        "path": "/root/.triton/cache/TUEGSPGQ2IMBTQXO2XC3XKMEGAXB32I3FR4DAET4HPK6TO2O63FQ/_topk_native_scores.json"
+      },
+      {
+        "name": "_topk_native_output.json",
+        "at": 1795170796.8503325,
+        "path": "/root/.triton/cache/UZ76AI24W5AHR6YXGCRLVU6A7TJTL2ABNFWXVLMDPRS54ORU6GWQ/_topk_native_output.json"
+      },
+      {
+        "name": "_topk_native_output.json",
+        "at": 1795170953.0262945,
+        "path": "/root/.triton/cache/JCRRBCNFC5A3LURD2QMZOWF6HM4GSFBL34GURZWDS4EFBPOLGNOA/_topk_native_output.json"
+      },
+      {
+        "name": "_topk_native_output.json",
+        "at": 1795170968.5424893,
+        "path": "/root/.triton/cache/ZHOVZWQNS3HAWJNCTXB7FIGSXRGSOX5UAGSLPX42UKM2WK2QHENA/_topk_native_output.json"
+      },
+      {
+        "name": "_topk_native_output.json",
+        "at": 1795170886.526459,
+        "path": "/root/.triton/cache/5MAYTC3FDKE6MKNI53MJF646S6XRE75HXFZOUHYUQMBX5JGQHBDQ/_topk_native_output.json"
+      },
+      {
+        "name": "_topk_native_scores.json",
+        "at": 1795170588.0887256,
+        "path": "/root/.triton/cache/LURWUBQFYFXCI32WDWGRFAODZJZGVZ64N4KLIAAPMDKY3J3MWACA/_topk_native_scores.json"
+      },
+      {
+        "name": "_topk_native_output.json",
+        "at": 1795170840.0708754,
+        "path": "/root/.triton/cache/72DOGACKI2HAWCK5G5LTA27KS7P2TN4XGND63MMBRZ4WEEBSYHQQ/_topk_native_output.json"
+      },
+      {
+        "name": "_topk_native_output.json",
+        "at": 1795170673.0997834,
+        "path": "/root/.triton/cache/GFVXP7VDUVQNVOCWOJ6C6QMLU4HEG2J7CF6L547FE2RC54FYDXWA/_topk_native_output.json"
+      },
+      {
+        "name": "_topk_native_scores.json",
+        "at": 1795170848.38498,
+        "path": "/root/.triton/cache/MFDAHT27FT6QX5IBRFFLI2XSVFCI3CK3AHQZVPOWWS2DCK2P7MBA/_topk_native_scores.json"
+      },
+      {
+        "name": "_topk_native_scores.json",
+        "at": 1795170648.8394814,
+        "path": "/root/.triton/cache/NNTA5IYCVNKKILPCXBINZGY4EYRGYT4TSKZZJQL4U6A4TV4QM6FA/_topk_native_scores.json"
+      },
+      {
+        "name": "_topk_native_scores.json",
+        "at": 1795170809.623493,
+        "path": "/root/.triton/cache/PUNASIBRUBVI3UXMF25B25UZXH72NMCFVAODOODYAWFHDOUSOVEQ/_topk_native_scores.json"
+      },
+      {
+        "name": "_topk_native_output.json",
+        "at": 1795170619.6601183,
+        "path": "/root/.triton/cache/GUADHHKMFJMOWUYBDKJRZJY2ZW3WGLUSAH2NTXDLUVCC6A27S2PQ/_topk_native_output.json"
+      },
+      {
+        "name": "_topk_native_scores.json",
+        "at": 1795170623.6841683,
+        "path": "/root/.triton/cache/U4ALLIIRMW7BDVGGNXIK5UJT76AM2DNBGUGZUNJNOWGWU5YYAOMA/_topk_native_scores.json"
+      },
+      {
+        "name": "_topk_native_scores.json",
+        "at": 1795170751.0537572,
+        "path": "/root/.triton/cache/UG5GU37WXW7GK2D3GKOPXHZ7XEWII6IFZZK7ECKY22F5ICWCKZWQ/_topk_native_scores.json"
+      },
+      {
+        "name": "_topk_native_scores.json",
+        "at": 1795170844.5119312,
+        "path": "/root/.triton/cache/KDKHHO7Y4V65TWHPOOUMGRBVO6GZITAYPK5GK3T26M7YX2CWXKIA/_topk_native_scores.json"
+      },
+      {
+        "name": "_topk_native_output.json",
+        "at": 1795170719.5273612,
+        "path": "/root/.triton/cache/QFQTRVWNQGEDM252R2QMZMRHHDKBYORZFAPLAJT2YB2UVG2WAYTQ/_topk_native_output.json"
+      },
+      {
+        "name": "_topk_native_output.json",
+        "at": 1795170688.581976,
+        "path": "/root/.triton/cache/7PA4PUVC3EXNBTJUCWSCD5FLWH45L5ZZ5UGQ5AYBTZJQPJCFMZUA/_topk_native_output.json"
+      },
+      {
+        "name": "_topk_native_output.json",
+        "at": 1795170576.628583,
+        "path": "/root/.triton/cache/W6QCKYKS7GXI2YAZK7QDOIKTWWXH7XXQRS4Y53BKPGMH5VXAPZRA/_topk_native_output.json"
+      },
+      {
+        "name": "_topk_native_output.json",
+        "at": 1795170598.3028526,
+        "path": "/root/.triton/cache/YV4FG2ELBEVHY43FY2BVKAEOBFJJWLUV3RNORHDQOJ32JXMIQBWA/_topk_native_output.json"
+      },
+      {
+        "name": "_topk_native_output.json",
+        "at": 1795170637.47034,
+        "path": "/root/.triton/cache/4JDLY5U3KQTESNQ64GPXFRULOIUYLLQXM5TZAILWUNANMGVQ42YQ/_topk_native_output.json"
+      },
+      {
+        "name": "_topk_native_output.json",
+        "at": 1795170630.3942518,
+        "path": "/root/.triton/cache/DAHRHAXG7QJGRFGAWPW24E2K2VLOANZXCOC7RV5V3OY5NEJD24WA/_topk_native_output.json"
+      },
+      {
+        "name": "_topk_native_scores.json",
+        "at": 1795170789.7942438,
+        "path": "/root/.triton/cache/EFXJUPLT64Z5ZOSJCNFLX2ITDJZTCW2IP3BJIQJ4TZSIRXJBYEUA/_topk_native_scores.json"
+      },
+      {
+        "name": "_topk_native_scores.json",
+        "at": 1795170743.240659,
+        "path": "/root/.triton/cache/HVLIFP7SQFQLAJ24SBLJBJ5NR7PXHRE2ZBR34YH6QPQNV7ZRVBTQ/_topk_native_scores.json"
+      },
+      {
+        "name": "_topk_native_output.json",
+        "at": 1795170847.7899723,
+        "path": "/root/.triton/cache/QWNQKV442V5JMZTIGDZKRJRZVDSUWXRDGLKZQWLRENA5HA7MKOLA/_topk_native_output.json"
+      },
+      {
+        "name": "_topk_native_output.json",
+        "at": 1795170898.460609,
+        "path": "/root/.triton/cache/BOBPKRMO234QVANBHTJPJ5Y5YNITF7JK3UMRYJKLK5T5ISQDIZRQ/_topk_native_output.json"
+      }
+    ]
+  },
+  "bucketed_pitch_jit_observation": {
+    "real_long_prefill_started_at": 1795171606.7452362,
+    "observed_at": 1795171861.9041085,
+    "request_completed": true,
+    "new_compilations": 0,
+    "counts": {},
+    "cache": "Existing shared cache reused; this is an observation, not a controlled cold-start latency comparison"
+  },
+  "accuracy": {
+    "directory": "/public2/home/duyunlong/run/dsv4.1/033/prefill_budget_fix_20261120/accuracy/he164/20261120_183843/20261120_184416",
+    "total": 164,
+    "passed": 159,
+    "pass_at_1": 0.9695121951219512,
+    "failed_tasks": [
+      "HumanEval/32",
+      "HumanEval/83",
+      "HumanEval/97",
+      "HumanEval/132",
+      "HumanEval/145"
+    ],
+    "errors": 0,
+    "execution_timeouts": 0,
+    "execution_timeout_tasks": [],
+    "truncated": 0,
+    "missing_outputs": 0,
+    "evaluation_complete": true,
+    "previous_he32_prompts_match": null,
+    "first32_passed": 32,
+    "first32_changed_outcomes": [],
+    "items": [
+      {
+        "index": 0,
+        "task_id": "HumanEval/0",
+        "prompt_sha256": "64552455948f71cd884942ed74f6d26289faafb1753a25c4b5e479b6da0b7fac",
+        "passed": true,
+        "execution": {
+          "task_id": "HumanEval/0",
+          "passed": true,
+          "result": "passed",
+          "completion_id": null
+        },
+        "error": null,
+        "missing_output": false,
+        "stop_reasons": [
+          "stop"
+        ],
+        "truncated": false,
+        "output_tokens": 169
+      },
+      {
+        "index": 1,
+        "task_id": "HumanEval/1",
+        "prompt_sha256": "fda7e5eb0ccc0011e11c1793fc938945871a4ddb7352ee0a1e75b6912cd64a00",
+        "passed": true,
+        "execution": {
+          "task_id": "HumanEval/1",
+          "passed": true,
+          "result": "passed",
+          "completion_id": null
+        },
+        "error": null,
+        "missing_output": false,
+        "stop_reasons": [
+          "stop"
+        ],
+        "truncated": false,
+        "output_tokens": 208
+      },
+      {
+        "index": 2,
+        "task_id": "HumanEval/2",
+        "prompt_sha256": "122c4b56d9b4c5a8b527a940e3057d9a70257d4d3785b74e4233e4cb4e067bf7",
+        "passed": true,
+        "execution": {
+          "task_id": "HumanEval/2",
+          "passed": true,
+          "result": "passed",
+          "completion_id": null
+        },
+        "error": null,
+        "missing_output": false,
+        "stop_reasons": [
+          "stop"
+        ],
+        "truncated": false,
+        "output_tokens": 19
+      },
+      {
+        "index": 3,
+        "task_id": "HumanEval/3",
+        "prompt_sha256": "80870cc9e889c59abf6c5a3bae12d0da45fa32c27247a7f4f6ff25e134e05a06",
+        "passed": true,
+        "execution": {
+          "task_id": "HumanEval/3",
+          "passed": true,
+          "result": "passed",
+          "completion_id": null
+        },
+        "error": null,
+        "missing_output": false,
+        "stop_reasons": [
+          "stop"
+        ],
+        "truncated": false,
+        "output_tokens": 54
+      },
+      {
+        "index": 4,
+        "task_id": "HumanEval/4",
+        "prompt_sha256": "5f764ca110bd5359dc097793103db0a53fd53f3147f5f4036d549517f927ee70",
+        "passed": true,
+        "execution": {
+          "task_id": "HumanEval/4",
+          "passed": true,
+          "result": "passed",
+          "completion_id": null
+        },
+        "error": null,
+        "missing_output": false,
+        "stop_reasons": [
+          "stop"
+        ],
+        "truncated": false,
+        "output_tokens": 155
+      },
+      {
+        "index": 5,
+        "task_id": "HumanEval/5",
+        "prompt_sha256": "c569c67896c0f831bb249904727dd9cd072264caa9f55e441e526bece40bf480",
+        "passed": true,
+        "execution": {
+          "task_id": "HumanEval/5",
+          "passed": true,
+          "result": "passed",
+          "completion_id": null
+        },
+        "error": null,
+        "missing_output": false,
+        "stop_reasons": [
+          "stop"
+        ],
+        "truncated": false,
+        "output_tokens": 131
+      },
+      {
+        "index": 6,
+        "task_id": "HumanEval/6",
+        "prompt_sha256": "a3ae362d533e72caab84f7be9a683125ca94ba093c2c4b31a7f9bf0f74f94123",
+        "passed": true,
+        "execution": {
+          "task_id": "HumanEval/6",
+          "passed": true,
+          "result": "passed",
+          "completion_id": null
+        },
+        "error": null,
+        "missing_output": false,
+        "stop_reasons": [
+          "stop"
+        ],
+        "truncated": false,
+        "output_tokens": 193
+      },
+      {
+        "index": 7,
+        "task_id": "HumanEval/7",
+        "prompt_sha256": "62ffe8f5ef700d26d4fb8376550e5ddc3b6353341b7c896fa1b16c7c9d59f784",
+        "passed": true,
+        "execution": {
+          "task_id": "HumanEval/7",
+          "passed": true,
+          "result": "passed",
+          "completion_id": null
+        },
+        "error": null,
+        "missing_output": false,
+        "stop_reasons": [
+          "stop"
+        ],
+        "truncated": false,
+        "output_tokens": 107
+      },
+      {
+        "index": 8,
+        "task_id": "HumanEval/8",
+        "prompt_sha256": "ce7b9fe401bf50169bdd759a20a5e4f13acb727be35b6a5ed813cbdf3e1ef54d",
+        "passed": true,
+        "execution": {
+          "task_id": "HumanEval/8",
+          "passed": true,
+          "result": "passed",
+          "completion_id": null
+        },
+        "error": null,
+        "missing_output": false,
+        "stop_reasons": [
+          "stop"
+        ],
+        "truncated": false,
+        "output_tokens": 151
+      },
+      {
+        "index": 9,
+        "task_id": "HumanEval/9",
+        "prompt_sha256": "8c3d5eb4c829657df2f550a386f6f0e61d55966fa6fd5003d700178779767275",
+        "passed": true,
+        "execution": {
+          "task_id": "HumanEval/9",
+          "passed": true,
+          "result": "passed",
+          "completion_id": null
+        },
+        "error": null,
+        "missing_output": false,
+        "stop_reasons": [
+          "stop"
+        ],
+        "truncated": false,
+        "output_tokens": 148
+      },
+      {
+        "index": 10,
+        "task_id": "HumanEval/10",
+        "prompt_sha256": "0b7eb439a48963928feea14a586a141fbc06f432fbe8890345721bc2295fb902",
+        "passed": true,
+        "execution": {
+          "task_id": "HumanEval/10",
+          "passed": true,
+          "result": "passed",
+          "completion_id": null
+        },
+        "error": null,
+        "missing_output": false,
+        "stop_reasons": [
+          "stop"
+        ],
+        "truncated": false,
+        "output_tokens": 166
+      },
+      {
+        "index": 11,
+        "task_id": "HumanEval/11",
+        "prompt_sha256": "e5328c6a825d6ed93b84af34599df6cafaea636e7dc8313a6aa42966c3f63075",
+        "passed": true,
+        "execution": {
+          "task_id": "HumanEval/11",
+          "passed": true,
+          "result": "passed",
+          "completion_id": null
+        },
+        "error": null,
+        "missing_output": false,
+        "stop_reasons": [
+          "stop"
+        ],
+        "truncated": false,
+        "output_tokens": 102
+      },
+      {
+        "index": 12,
+        "task_id": "HumanEval/12",
+        "prompt_sha256": "944b3be1774ed7042f1419f60d3dfb17c0cdfd1928f17cd4da0dfac94a3ff7f1",
+        "passed": true,
+        "execution": {
+          "task_id": "HumanEval/12",
+          "passed": true,
+          "result": "passed",
+          "completion_id": null
+        },
+        "error": null,
+        "missing_output": false,
+        "stop_reasons": [
+          "stop"
+        ],
+        "truncated": false,
+        "output_tokens": 121
+      },
+      {
+        "index": 13,
+        "task_id": "HumanEval/13",
+        "prompt_sha256": "96d9d8e70b2a4210b63ee6f3a24d87fadd1ec62677cc9cc98ba64b6f880f0d6c",
+        "passed": true,
+        "execution": {
+          "task_id": "HumanEval/13",
+          "passed": true,
+          "result": "passed",
+          "completion_id": null
+        },
+        "error": null,
+        "missing_output": false,
+        "stop_reasons": [
+          "stop"
+        ],
+        "truncated": false,
+        "output_tokens": 38
+      },
+      {
+        "index": 14,
+        "task_id": "HumanEval/14",
+        "prompt_sha256": "41826fbf8aa6325c9ecc72f627f18c8f3502c596dd1bd6891e167f82b9739c9f",
+        "passed": true,
+        "execution": {
+          "task_id": "HumanEval/14",
+          "passed": true,
+          "result": "passed",
+          "completion_id": null
+        },
+        "error": null,
+        "missing_output": false,
+        "stop_reasons": [
+          "stop"
+        ],
+        "truncated": false,
+        "output_tokens": 79
+      },
+      {
+        "index": 15,
+        "task_id": "HumanEval/15",
+        "prompt_sha256": "b6d0d4add82cd0aeeef096cc0e586ad92551f6d83f5453adaf26a816b0b570de",
+        "passed": true,
+        "execution": {
+          "task_id": "HumanEval/15",
+          "passed": true,
+          "result": "passed",
+          "completion_id": null
+        },
+        "error": null,
+        "missing_output": false,
+        "stop_reasons": [
+          "stop"
+        ],
+        "truncated": false,
+        "output_tokens": 29
+      },
+      {
+        "index": 16,
+        "task_id": "HumanEval/16",
+        "prompt_sha256": "ca5fa30c8e3b79666ce7d28e80db7f3932ee440ed717cc664c0ca626bbc233d3",
+        "passed": true,
+        "execution": {
+          "task_id": "HumanEval/16",
+          "passed": true,
+          "result": "passed",
+          "completion_id": null
+        },
+        "error": null,
+        "missing_output": false,
+        "stop_reasons": [
+          "stop"
+        ],
+        "truncated": false,
+        "output_tokens": 21
+      },
+      {
+        "index": 17,
+        "task_id": "HumanEval/17",
+        "prompt_sha256": "37c2bc22859108704cdc8f167386b48a037812eedd770f82c3ccf3853bbdb615",
+        "passed": true,
+        "execution": {
+          "task_id": "HumanEval/17",
+          "passed": true,
+          "result": "passed",
+          "completion_id": null
+        },
+        "error": null,
+        "missing_output": false,
+        "stop_reasons": [
+          "stop"
+        ],
+        "truncated": false,
+        "output_tokens": 320
+      },
+      {
+        "index": 18,
+        "task_id": "HumanEval/18",
+        "prompt_sha256": "73f56812b75b7f69cf697651aefde5727784e101943e831d367fcc1a6df1aff3",
+        "passed": true,
+        "execution": {
+          "task_id": "HumanEval/18",
+          "passed": true,
+          "result": "passed",
+          "completion_id": null
+        },
+        "error": null,
+        "missing_output": false,
+        "stop_reasons": [
+          "stop"
+        ],
+        "truncated": false,
+        "output_tokens": 86
+      },
+      {
+        "index": 19,
+        "task_id": "HumanEval/19",
+        "prompt_sha256": "0b8a7b3c2e36d3369bee0558b2e9d804b33b8f53c410a5887100c2d9c307fa42",
+        "passed": true,
+        "execution": {
+          "task_id": "HumanEval/19",
+          "passed": true,
+          "result": "passed",
+          "completion_id": null
+        },
+        "error": null,
+        "missing_output": false,
+        "stop_reasons": [
+          "stop"
+        ],
+        "truncated": false,
+        "output_tokens": 242
+      },
+      {
+        "index": 20,
+        "task_id": "HumanEval/20",
+        "prompt_sha256": "9356eb8f5d7dd49cdc6eb110540d5b5bb30b357010f1c01212747716ddf63d3f",
+        "passed": true,
+        "execution": {
+          "task_id": "HumanEval/20",
+          "passed": true,
+          "result": "passed",
+          "completion_id": null
+        },
+        "error": null,
+        "missing_output": false,
+        "stop_reasons": [
+          "stop"
+        ],
+        "truncated": false,
+        "output_tokens": 259
+      },
+      {
+        "index": 21,
+        "task_id": "HumanEval/21",
+        "prompt_sha256": "f90811fc84704ff74df95e2cf28f5b1c35172143721f9546336372e87d9c1e19",
+        "passed": true,
+        "execution": {
+          "task_id": "HumanEval/21",
+          "passed": true,
+          "result": "passed",
+          "completion_id": null
+        },
+        "error": null,
+        "missing_output": false,
+        "stop_reasons": [
+          "stop"
+        ],
+        "truncated": false,
+        "output_tokens": 159
+      },
+      {
+        "index": 22,
+        "task_id": "HumanEval/22",
+        "prompt_sha256": "6dff418515605d1e9f7fa5003c1bd45edff109bc72d5af1bd2111f6c0193da27",
+        "passed": true,
+        "execution": {
+          "task_id": "HumanEval/22",
+          "passed": true,
+          "result": "passed",
+          "completion_id": null
+        },
+        "error": null,
+        "missing_output": false,
+        "stop_reasons": [
+          "stop"
+        ],
+        "truncated": false,
+        "output_tokens": 115
+      },
+      {
+        "index": 23,
+        "task_id": "HumanEval/23",
+        "prompt_sha256": "da18403db0742804d3dea8a3418e052f440c882dc754300ec2e68465d2843035",
+        "passed": true,
+        "execution": {
+          "task_id": "HumanEval/23",
+          "passed": true,
+          "result": "passed",
+          "completion_id": null
+        },
+        "error": null,
+        "missing_output": false,
+        "stop_reasons": [
+          "stop"
+        ],
+        "truncated": false,
+        "output_tokens": 46
+      },
+      {
+        "index": 24,
+        "task_id": "HumanEval/24",
+        "prompt_sha256": "7ca86fdfa5dbef26e0c489b2bc4f62015fb91e11ffe6e44a165da72f861ad42d",
+        "passed": true,
+        "execution": {
+          "task_id": "HumanEval/24",
+          "passed": true,
+          "result": "passed",
+          "completion_id": null
+        },
+        "error": null,
+        "missing_output": false,
+        "stop_reasons": [
+          "stop"
+        ],
+        "truncated": false,
+        "output_tokens": 45
+      },
+      {
+        "index": 25,
+        "task_id": "HumanEval/25",
+        "prompt_sha256": "bcdb768ace29550141bbb556f592633c495483c931c2c19ee175213ffdeba839",
+        "passed": true,
+        "execution": {
+          "task_id": "HumanEval/25",
+          "passed": true,
+          "result": "passed",
+          "completion_id": null
+        },
+        "error": null,
+        "missing_output": false,
+        "stop_reasons": [
+          "stop"
+        ],
+        "truncated": false,
+        "output_tokens": 173
+      },
+      {
+        "index": 26,
+        "task_id": "HumanEval/26",
+        "prompt_sha256": "d122a58059b710e7f35e4d8bc0b16bc0a1e8759be66e679765808bd153a570f6",
+        "passed": true,
+        "execution": {
+          "task_id": "HumanEval/26",
+          "passed": true,
+          "result": "passed",
+          "completion_id": null
+        },
+        "error": null,
+        "missing_output": false,
+        "stop_reasons": [
+          "stop"
+        ],
+        "truncated": false,
+        "output_tokens": 129
+      },
+      {
+        "index": 27,
+        "task_id": "HumanEval/27",
+        "prompt_sha256": "ddef90bc2141a4ed2c7cccc1f30a38bbc54df87cf171de8d2ba333458abe43a0",
+        "passed": true,
+        "execution": {
+          "task_id": "HumanEval/27",
+          "passed": true,
+          "result": "passed",
+          "completion_id": null
+        },
+        "error": null,
+        "missing_output": false,
+        "stop_reasons": [
+          "stop"
+        ],
+        "truncated": false,
+        "output_tokens": 18
+      },
+      {
+        "index": 28,
+        "task_id": "HumanEval/28",
+        "prompt_sha256": "970b358b675e8139b187bfe453662485d98595bb58f2ef17e6b6ff784670a90a",
+        "passed": true,
+        "execution": {
+          "task_id": "HumanEval/28",
+          "passed": true,
+          "result": "passed",
+          "completion_id": null
+        },
+        "error": null,
+        "missing_output": false,
+        "stop_reasons": [
+          "stop"
+        ],
+        "truncated": false,
+        "output_tokens": 69
+      },
+      {
+        "index": 29,
+        "task_id": "HumanEval/29",
+        "prompt_sha256": "7f1d15833313dfdefa05dd70dc20bdf2b0a76a9d8c07b4dda6feb8aefbfc9707",
+        "passed": true,
+        "execution": {
+          "task_id": "HumanEval/29",
+          "passed": true,
+          "result": "passed",
+          "completion_id": null
+        },
+        "error": null,
+        "missing_output": false,
+        "stop_reasons": [
+          "stop"
+        ],
+        "truncated": false,
+        "output_tokens": 104
+      },
+      {
+        "index": 30,
+        "task_id": "HumanEval/30",
+        "prompt_sha256": "e3827fa2a663f61b39d79d046d7282ceb293a49348337420ed2e7fbdf50af085",
+        "passed": true,
+        "execution": {
+          "task_id": "HumanEval/30",
+          "passed": true,
+          "result": "passed",
+          "completion_id": null
+        },
+        "error": null,
+        "missing_output": false,
+        "stop_reasons": [
+          "stop"
+        ],
+        "truncated": false,
+        "output_tokens": 23
+      },
+      {
+        "index": 31,
+        "task_id": "HumanEval/31",
+        "prompt_sha256": "f75f9102be3df467fe6fda057c016db56f36c365a7a4dfe4fe9b9ba012424d5e",
+        "passed": true,
+        "execution": {
+          "task_id": "HumanEval/31",
+          "passed": true,
+          "result": "passed",
+          "completion_id": null
+        },
+        "error": null,
+        "missing_output": false,
+        "stop_reasons": [
+          "stop"
+        ],
+        "truncated": false,
+        "output_tokens": 186
+      },
+      {
+        "index": 32,
+        "task_id": "HumanEval/32",
+        "prompt_sha256": "5818a07d297855de9370ea2cd001623a681a7b4aefdaa81eb015247efb7f3db4",
+        "passed": false,
+        "execution": {
+          "task_id": "HumanEval/32",
+          "passed": false,
+          "result": "failed: ",
+          "completion_id": null
+        },
+        "error": null,
+        "missing_output": false,
+        "stop_reasons": [
+          "stop"
+        ],
+        "truncated": false,
+        "output_tokens": 411
+      },
+      {
+        "index": 33,
+        "task_id": "HumanEval/33",
+        "prompt_sha256": "d681e534b7f74de3ad24a724de8976e345aca525f5ec730714433a221e425ee1",
+        "passed": true,
+        "execution": {
+          "task_id": "HumanEval/33",
+          "passed": true,
+          "result": "passed",
+          "completion_id": null
+        },
+        "error": null,
+        "missing_output": false,
+        "stop_reasons": [
+          "stop"
+        ],
+        "truncated": false,
+        "output_tokens": 75
+      },
+      {
+        "index": 34,
+        "task_id": "HumanEval/34",
+        "prompt_sha256": "3ba6bba578d504a9d70f4c89bc6974267d96d2c77ee9df65e31725bdc06c7616",
+        "passed": true,
+        "execution": {
+          "task_id": "HumanEval/34",
+          "passed": true,
+          "result": "passed",
+          "completion_id": null
+        },
+        "error": null,
+        "missing_output": false,
+        "stop_reasons": [
+          "stop"
+        ],
+        "truncated": false,
+        "output_tokens": 74
+      },
+      {
+        "index": 35,
+        "task_id": "HumanEval/35",
+        "prompt_sha256": "3802c1232442adc18acd9a8d40e9d15f7c7163845887173114af4918f6bc9b1a",
+        "passed": true,
+        "execution": {
+          "task_id": "HumanEval/35",
+          "passed": true,
+          "result": "passed",
+          "completion_id": null
+        },
+        "error": null,
+        "missing_output": false,
+        "stop_reasons": [
+          "stop"
+        ],
+        "truncated": false,
+        "output_tokens": 84
+      },
+      {
+        "index": 36,
+        "task_id": "HumanEval/36",
+        "prompt_sha256": "676817629b8121f42706b7fef53f38b5d63e655981fcde53228d999218019423",
+        "passed": true,
+        "execution": {
+          "task_id": "HumanEval/36",
+          "passed": true,
+          "result": "passed",
+          "completion_id": null
+        },
+        "error": null,
+        "missing_output": false,
+        "stop_reasons": [
+          "stop"
+        ],
+        "truncated": false,
+        "output_tokens": 59
+      },
+      {
+        "index": 37,
+        "task_id": "HumanEval/37",
+        "prompt_sha256": "69834ec2862101948fcc51fd897d963144be240d3764247c96dd87c95a4f2588",
+        "passed": true,
+        "execution": {
+          "task_id": "HumanEval/37",
+          "passed": true,
+          "result": "passed",
+          "completion_id": null
+        },
+        "error": null,
+        "missing_output": false,
+        "stop_reasons": [
+          "stop"
+        ],
+        "truncated": false,
+        "output_tokens": 73
+      },
+      {
+        "index": 38,
+        "task_id": "HumanEval/38",
+        "prompt_sha256": "33f266fb11e8427ef035ea773e9a4591e9134283a0d9a5317bee14aadc72a50f",
+        "passed": true,
+        "execution": {
+          "task_id": "HumanEval/38",
+          "passed": true,
+          "result": "passed",
+          "completion_id": null
+        },
+        "error": null,
+        "missing_output": false,
+        "stop_reasons": [
+          "stop"
+        ],
+        "truncated": false,
+        "output_tokens": 107
+      },
+      {
+        "index": 39,
+        "task_id": "HumanEval/39",
+        "prompt_sha256": "aaec358363c2b424ed7b79e61d3c57f34873427d146c238c36059d8a199ea063",
+        "passed": true,
+        "execution": {
+          "task_id": "HumanEval/39",
+          "passed": true,
+          "result": "passed",
+          "completion_id": null
+        },
+        "error": null,
+        "missing_output": false,
+        "stop_reasons": [
+          "stop"
+        ],
+        "truncated": false,
+        "output_tokens": 146
+      },
+      {
+        "index": 40,
+        "task_id": "HumanEval/40",
+        "prompt_sha256": "a34668876d4a0b0ec106bb9b63608692021b5a08de12c2d7310e2b9126736fbd",
+        "passed": true,
+        "execution": {
+          "task_id": "HumanEval/40",
+          "passed": true,
+          "result": "passed",
+          "completion_id": null
+        },
+        "error": null,
+        "missing_output": false,
+        "stop_reasons": [
+          "stop"
+        ],
+        "truncated": false,
+        "output_tokens": 77
+      },
+      {
+        "index": 41,
+        "task_id": "HumanEval/41",
+        "prompt_sha256": "46e0ab92b01ff1753f8e48f8981a4075a935d8722823c25e0f26c32af96e1c3e",
+        "passed": true,
+        "execution": {
+          "task_id": "HumanEval/41",
+          "passed": true,
+          "result": "passed",
+          "completion_id": null
+        },
+        "error": null,
+        "missing_output": false,
+        "stop_reasons": [
+          "stop"
+        ],
+        "truncated": false,
+        "output_tokens": 22
+      },
+      {
+        "index": 42,
+        "task_id": "HumanEval/42",
+        "prompt_sha256": "805172803d1332b4671ac2087fc7131321dbe5fcac1572a1f541aae1728af515",
+        "passed": true,
+        "execution": {
+          "task_id": "HumanEval/42",
+          "passed": true,
+          "result": "passed",
+          "completion_id": null
+        },
+        "error": null,
+        "missing_output": false,
+        "stop_reasons": [
+          "stop"
+        ],
+        "truncated": false,
+        "output_tokens": 21
+      },
+      {
+        "index": 43,
+        "task_id": "HumanEval/43",
+        "prompt_sha256": "cca4300414fea6e66b3960770be74c02d5c60f8ffec5cc5d66848143fbd0ebe9",
+        "passed": true,
+        "execution": {
+          "task_id": "HumanEval/43",
+          "passed": true,
+          "result": "passed",
+          "completion_id": null
+        },
+        "error": null,
+        "missing_output": false,
+        "stop_reasons": [
+          "stop"
+        ],
+        "truncated": false,
+        "output_tokens": 43
+      },
+      {
+        "index": 44,
+        "task_id": "HumanEval/44",
+        "prompt_sha256": "5751d6ebd6b6cce83f9b4ea01261ceda4e66ea02ba84e4c9d53e8f02f95597f4",
+        "passed": true,
+        "execution": {
+          "task_id": "HumanEval/44",
+          "passed": true,
+          "result": "passed",
+          "completion_id": null
+        },
+        "error": null,
+        "missing_output": false,
+        "stop_reasons": [
+          "stop"
+        ],
+        "truncated": false,
+        "output_tokens": 136
+      },
+      {
+        "index": 45,
+        "task_id": "HumanEval/45",
+        "prompt_sha256": "a8e9390ed356fb9746a273c799de26931893bd7ddc3c03b63cc7fa8f2161d6e4",
+        "passed": true,
+        "execution": {
+          "task_id": "HumanEval/45",
+          "passed": true,
+          "result": "passed",
+          "completion_id": null
+        },
+        "error": null,
+        "missing_output": false,
+        "stop_reasons": [
+          "stop"
+        ],
+        "truncated": false,
+        "output_tokens": 16
+      },
+      {
+        "index": 46,
+        "task_id": "HumanEval/46",
+        "prompt_sha256": "04d5c80323f6e7778047a442452713c5394029612ab05c82c6805bbeeb5edbad",
+        "passed": true,
+        "execution": {
+          "task_id": "HumanEval/46",
+          "passed": true,
+          "result": "passed",
+          "completion_id": null
+        },
+        "error": null,
+        "missing_output": false,
+        "stop_reasons": [
+          "stop"
+        ],
+        "truncated": false,
+        "output_tokens": 91
+      },
+      {
+        "index": 47,
+        "task_id": "HumanEval/47",
+        "prompt_sha256": "d7b60dd238e496e7484dac983342b6d33c2d4392dc29ec7bd440ed15ccd0a6cf",
+        "passed": true,
+        "execution": {
+          "task_id": "HumanEval/47",
+          "passed": true,
+          "result": "passed",
+          "completion_id": null
+        },
+        "error": null,
+        "missing_output": false,
+        "stop_reasons": [
+          "stop"
+        ],
+        "truncated": false,
+        "output_tokens": 130
+      },
+      {
+        "index": 48,
+        "task_id": "HumanEval/48",
+        "prompt_sha256": "c71901dad970eaab82a764b9a62663d2473d06a67c2b0762a9d090c6130d0f78",
+        "passed": true,
+        "execution": {
+          "task_id": "HumanEval/48",
+          "passed": true,
+          "result": "passed",
+          "completion_id": null
+        },
+        "error": null,
+        "missing_output": false,
+        "stop_reasons": [
+          "stop"
+        ],
+        "truncated": false,
+        "output_tokens": 84
+      },
+      {
+        "index": 49,
+        "task_id": "HumanEval/49",
+        "prompt_sha256": "ab571c8ae108ff616053bb6ca1aca03b241c08f7a1211652aa845231945a1cf5",
+        "passed": true,
+        "execution": {
+          "task_id": "HumanEval/49",
+          "passed": true,
+          "result": "passed",
+          "completion_id": null
+        },
+        "error": null,
+        "missing_output": false,
+        "stop_reasons": [
+          "stop"
+        ],
+        "truncated": false,
+        "output_tokens": 160
+      },
+      {
+        "index": 50,
+        "task_id": "HumanEval/50",
+        "prompt_sha256": "77d488e7ae38535bd8c18fe99212dce4d727c8a3e585c1930360db303ff91bfc",
+        "passed": true,
+        "execution": {
+          "task_id": "HumanEval/50",
+          "passed": true,
+          "result": "passed",
+          "completion_id": null
+        },
+        "error": null,
+        "missing_output": false,
+        "stop_reasons": [
+          "stop"
+        ],
+        "truncated": false,
+        "output_tokens": 66
+      },
+      {
+        "index": 51,
+        "task_id": "HumanEval/51",
+        "prompt_sha256": "dfc64601bc8f6ef6105ed28cb5dd9f89197808809e60e63474dfed0a48bd9e8a",
+        "passed": true,
+        "execution": {
+          "task_id": "HumanEval/51",
+          "passed": true,
+          "result": "passed",
+          "completion_id": null
+        },
+        "error": null,
+        "missing_output": false,
+        "stop_reasons": [
+          "stop"
+        ],
+        "truncated": false,
+        "output_tokens": 33
+      },
+      {
+        "index": 52,
+        "task_id": "HumanEval/52",
+        "prompt_sha256": "f0727ca4a5e062e4f0c0b0fad548d7457e69d6a0486c422ae0b267dd8f62044d",
+        "passed": true,
+        "execution": {
+          "task_id": "HumanEval/52",
+          "passed": true,
+          "result": "passed",
+          "completion_id": null
+        },
+        "error": null,
+        "missing_output": false,
+        "stop_reasons": [
+          "stop"
+        ],
+        "truncated": false,
+        "output_tokens": 88
+      },
+      {
+        "index": 53,
+        "task_id": "HumanEval/53",
+        "prompt_sha256": "4b007eb1fb4de218c8a755326e3dc66af9641f8ca8ba4798e440e826e09e2452",
+        "passed": true,
+        "execution": {
+          "task_id": "HumanEval/53",
+          "passed": true,
+          "result": "passed",
+          "completion_id": null
+        },
+        "error": null,
+        "missing_output": false,
+        "stop_reasons": [
+          "stop"
+        ],
+        "truncated": false,
+        "output_tokens": 51
+      },
+      {
+        "index": 54,
+        "task_id": "HumanEval/54",
+        "prompt_sha256": "0704cb31b2df30c22b634c2d4c68a82985ae6f20ca70b5a07b421331b0adf1bd",
+        "passed": true,
+        "execution": {
+          "task_id": "HumanEval/54",
+          "passed": true,
+          "result": "passed",
+          "completion_id": null
+        },
+        "error": null,
+        "missing_output": false,
+        "stop_reasons": [
+          "stop"
+        ],
+        "truncated": false,
+        "output_tokens": 162
+      },
+      {
+        "index": 55,
+        "task_id": "HumanEval/55",
+        "prompt_sha256": "8f14999811df1e8f7ffd50da72ed14eeb2cae1a13dc110589a8a403685d293bd",
+        "passed": true,
+        "execution": {
+          "task_id": "HumanEval/55",
+          "passed": true,
+          "result": "passed",
+          "completion_id": null
+        },
+        "error": null,
+        "missing_output": false,
+        "stop_reasons": [
+          "stop"
+        ],
+        "truncated": false,
+        "output_tokens": 106
+      },
+      {
+        "index": 56,
+        "task_id": "HumanEval/56",
+        "prompt_sha256": "5109d9fe763608bbc76365eb1878374f7a97689c215c1c674470159bff840f59",
+        "passed": true,
+        "execution": {
+          "task_id": "HumanEval/56",
+          "passed": true,
+          "result": "passed",
+          "completion_id": null
+        },
+        "error": null,
+        "missing_output": false,
+        "stop_reasons": [
+          "stop"
+        ],
+        "truncated": false,
+        "output_tokens": 149
+      },
+      {
+        "index": 57,
+        "task_id": "HumanEval/57",
+        "prompt_sha256": "77c567d181ddeaf4eb348d6419f5984032fe9a2d00750ab14b6c059cda761fac",
+        "passed": true,
+        "execution": {
+          "task_id": "HumanEval/57",
+          "passed": true,
+          "result": "passed",
+          "completion_id": null
+        },
+        "error": null,
+        "missing_output": false,
+        "stop_reasons": [
+          "stop"
+        ],
+        "truncated": false,
+        "output_tokens": 156
+      },
+      {
+        "index": 58,
+        "task_id": "HumanEval/58",
+        "prompt_sha256": "78250f0869af001ddd4f4ab9e1c26ef1aaec8dca861837a1b6bc3f04918ed72d",
+        "passed": true,
+        "execution": {
+          "task_id": "HumanEval/58",
+          "passed": true,
+          "result": "passed",
+          "completion_id": null
+        },
+        "error": null,
+        "missing_output": false,
+        "stop_reasons": [
+          "stop"
+        ],
+        "truncated": false,
+        "output_tokens": 125
+      },
+      {
+        "index": 59,
+        "task_id": "HumanEval/59",
+        "prompt_sha256": "325ac9b0a9bc652f4d31ecb0f6d1d08d66b4776e702a51d748f4c0d319b9854d",
+        "passed": true,
+        "execution": {
+          "task_id": "HumanEval/59",
+          "passed": true,
+          "result": "passed",
+          "completion_id": null
+        },
+        "error": null,
+        "missing_output": false,
+        "stop_reasons": [
+          "stop"
+        ],
+        "truncated": false,
+        "output_tokens": 117
+      },
+      {
+        "index": 60,
+        "task_id": "HumanEval/60",
+        "prompt_sha256": "dc97f089adf20fe19941d36db48c07ebb049103bb06b9f0c4be469e74127dfcd",
+        "passed": true,
+        "execution": {
+          "task_id": "HumanEval/60",
+          "passed": true,
+          "result": "passed",
+          "completion_id": null
+        },
+        "error": null,
+        "missing_output": false,
+        "stop_reasons": [
+          "stop"
+        ],
+        "truncated": false,
+        "output_tokens": 97
+      },
+      {
+        "index": 61,
+        "task_id": "HumanEval/61",
+        "prompt_sha256": "caae3627e27000027467b3ee43402714280230ef0961f44145dccd64505c991b",
+        "passed": true,
+        "execution": {
+          "task_id": "HumanEval/61",
+          "passed": true,
+          "result": "passed",
+          "completion_id": null
+        },
+        "error": null,
+        "missing_output": false,
+        "stop_reasons": [
+          "stop"
+        ],
+        "truncated": false,
+        "output_tokens": 149
+      },
+      {
+        "index": 62,
+        "task_id": "HumanEval/62",
+        "prompt_sha256": "f4658f5362e8ede84797f968077c2302f942e9e8ef0aacbb477f2dd3ded2e687",
+        "passed": true,
+        "execution": {
+          "task_id": "HumanEval/62",
+          "passed": true,
+          "result": "passed",
+          "completion_id": null
+        },
+        "error": null,
+        "missing_output": false,
+        "stop_reasons": [
+          "stop"
+        ],
+        "truncated": false,
+        "output_tokens": 31
+      },
+      {
+        "index": 63,
+        "task_id": "HumanEval/63",
+        "prompt_sha256": "df62ba3e287c1ad26f7afc63aa053a0b8e2f5e8b57a7da699bf2a050325af505",
+        "passed": true,
+        "execution": {
+          "task_id": "HumanEval/63",
+          "passed": true,
+          "result": "passed",
+          "completion_id": null
+        },
+        "error": null,
+        "missing_output": false,
+        "stop_reasons": [
+          "stop"
+        ],
+        "truncated": false,
+        "output_tokens": 103
+      },
+      {
+        "index": 64,
+        "task_id": "HumanEval/64",
+        "prompt_sha256": "515824a9c8c273043276acbf3c9e05d749e7d8772b1b942abbbe4c200e409e9b",
+        "passed": true,
+        "execution": {
+          "task_id": "HumanEval/64",
+          "passed": true,
+          "result": "passed",
+          "completion_id": null
+        },
+        "error": null,
+        "missing_output": false,
+        "stop_reasons": [
+          "stop"
+        ],
+        "truncated": false,
+        "output_tokens": 163
+      },
+      {
+        "index": 65,
+        "task_id": "HumanEval/65",
+        "prompt_sha256": "7790a091f65a8fc9afc1ed0d152ab73fd81cfec764b02246d35dd0c4108bfe8b",
+        "passed": true,
+        "execution": {
+          "task_id": "HumanEval/65",
+          "passed": true,
+          "result": "passed",
+          "completion_id": null
+        },
+        "error": null,
+        "missing_output": false,
+        "stop_reasons": [
+          "stop"
+        ],
+        "truncated": false,
+        "output_tokens": 60
+      },
+      {
+        "index": 66,
+        "task_id": "HumanEval/66",
+        "prompt_sha256": "9b82450cb7f077163614a31ffbc4ec5086f8240ab4eb6ac904b7aaa484a69ea2",
+        "passed": true,
+        "execution": {
+          "task_id": "HumanEval/66",
+          "passed": true,
+          "result": "passed",
+          "completion_id": null
+        },
+        "error": null,
+        "missing_output": false,
+        "stop_reasons": [
+          "stop"
+        ],
+        "truncated": false,
+        "output_tokens": 26
+      },
+      {
+        "index": 67,
+        "task_id": "HumanEval/67",
+        "prompt_sha256": "52f154ff6300bf2efbc17662264fa1147fa86b6c27938358ec75a3f194ece1db",
+        "passed": true,
+        "execution": {
+          "task_id": "HumanEval/67",
+          "passed": true,
+          "result": "passed",
+          "completion_id": null
+        },
+        "error": null,
+        "missing_output": false,
+        "stop_reasons": [
+          "stop"
+        ],
+        "truncated": false,
+        "output_tokens": 54
+      },
+      {
+        "index": 68,
+        "task_id": "HumanEval/68",
+        "prompt_sha256": "f46f26e00b652d057500f0eb258c3e481558468f810c468cb33b3abecf736365",
+        "passed": true,
+        "execution": {
+          "task_id": "HumanEval/68",
+          "passed": true,
+          "result": "passed",
+          "completion_id": null
+        },
+        "error": null,
+        "missing_output": false,
+        "stop_reasons": [
+          "stop"
+        ],
+        "truncated": false,
+        "output_tokens": 91
+      },
+      {
+        "index": 69,
+        "task_id": "HumanEval/69",
+        "prompt_sha256": "ff7df0beb84d935392221d7d5af19c51316796fec53dd382592a5e19053ed74c",
+        "passed": true,
+        "execution": {
+          "task_id": "HumanEval/69",
+          "passed": true,
+          "result": "passed",
+          "completion_id": null
+        },
+        "error": null,
+        "missing_output": false,
+        "stop_reasons": [
+          "stop"
+        ],
+        "truncated": false,
+        "output_tokens": 62
+      },
+      {
+        "index": 70,
+        "task_id": "HumanEval/70",
+        "prompt_sha256": "a6fab25b0d02a8cd3a53e68fd054236a3b666cf94b83a7b27d5817e8106006ec",
+        "passed": true,
+        "execution": {
+          "task_id": "HumanEval/70",
+          "passed": true,
+          "result": "passed",
+          "completion_id": null
+        },
+        "error": null,
+        "missing_output": false,
+        "stop_reasons": [
+          "stop"
+        ],
+        "truncated": false,
+        "output_tokens": 49
+      },
+      {
+        "index": 71,
+        "task_id": "HumanEval/71",
+        "prompt_sha256": "c4a1d3dcdbc9e710daf384aed5549779c1228d33b79b59c6cdcb8b8ff14170b0",
+        "passed": true,
+        "execution": {
+          "task_id": "HumanEval/71",
+          "passed": true,
+          "result": "passed",
+          "completion_id": null
+        },
+        "error": null,
+        "missing_output": false,
+        "stop_reasons": [
+          "stop"
+        ],
+        "truncated": false,
+        "output_tokens": 91
+      },
+      {
+        "index": 72,
+        "task_id": "HumanEval/72",
+        "prompt_sha256": "280897c448e8016c8b2d5f8254edbc4ddb96fdce7a124c9509095a4c2039b043",
+        "passed": true,
+        "execution": {
+          "task_id": "HumanEval/72",
+          "passed": true,
+          "result": "passed",
+          "completion_id": null
+        },
+        "error": null,
+        "missing_output": false,
+        "stop_reasons": [
+          "stop"
+        ],
+        "truncated": false,
+        "output_tokens": 29
+      },
+      {
+        "index": 73,
+        "task_id": "HumanEval/73",
+        "prompt_sha256": "1e6fe6b48883f25e2b69d93fee5b8b86cbc6e6cc77e7fd181c716ffa8c59a753",
+        "passed": true,
+        "execution": {
+          "task_id": "HumanEval/73",
+          "passed": true,
+          "result": "passed",
+          "completion_id": null
+        },
+        "error": null,
+        "missing_output": false,
+        "stop_reasons": [
+          "stop"
+        ],
+        "truncated": false,
+        "output_tokens": 56
+      },
+      {
+        "index": 74,
+        "task_id": "HumanEval/74",
+        "prompt_sha256": "3764d2056e4dea5e1ae37b263aad8195ca8402a6dca789137bfbe2507febb22d",
+        "passed": true,
+        "execution": {
+          "task_id": "HumanEval/74",
+          "passed": true,
+          "result": "passed",
+          "completion_id": null
+        },
+        "error": null,
+        "missing_output": false,
+        "stop_reasons": [
+          "stop"
+        ],
+        "truncated": false,
+        "output_tokens": 60
+      },
+      {
+        "index": 75,
+        "task_id": "HumanEval/75",
+        "prompt_sha256": "fa7baf500e0acbb3c110f5be56574413ff658ad413b82f374eb8210ba21f9bbf",
+        "passed": true,
+        "execution": {
+          "task_id": "HumanEval/75",
+          "passed": true,
+          "result": "passed",
+          "completion_id": null
+        },
+        "error": null,
+        "missing_output": false,
+        "stop_reasons": [
+          "stop"
+        ],
+        "truncated": false,
+        "output_tokens": 157
+      },
+      {
+        "index": 76,
+        "task_id": "HumanEval/76",
+        "prompt_sha256": "4bccf874c1a3f4f666a25e0dd7fa991872cfe72a778ed1f0d5792fabb4c1e890",
+        "passed": true,
+        "execution": {
+          "task_id": "HumanEval/76",
+          "passed": true,
+          "result": "passed",
+          "completion_id": null
+        },
+        "error": null,
+        "missing_output": false,
+        "stop_reasons": [
+          "stop"
+        ],
+        "truncated": false,
+        "output_tokens": 63
+      },
+      {
+        "index": 77,
+        "task_id": "HumanEval/77",
+        "prompt_sha256": "a0d8ce81891c504b04ec92cd75ec5d5adc6de0f7e4a6fe8d3bac5771ffbce6e3",
+        "passed": true,
+        "execution": {
+          "task_id": "HumanEval/77",
+          "passed": true,
+          "result": "passed",
+          "completion_id": null
+        },
+        "error": null,
+        "missing_output": false,
+        "stop_reasons": [
+          "stop"
+        ],
+        "truncated": false,
+        "output_tokens": 38
+      },
+      {
+        "index": 78,
+        "task_id": "HumanEval/78",
+        "prompt_sha256": "abb313be966108c8b45bd15c709fdb02e6a9ed0bd0d77bfd4dcaa8977a5458b2",
+        "passed": true,
+        "execution": {
+          "task_id": "HumanEval/78",
+          "passed": true,
+          "result": "passed",
+          "completion_id": null
+        },
+        "error": null,
+        "missing_output": false,
+        "stop_reasons": [
+          "stop"
+        ],
+        "truncated": false,
+        "output_tokens": 41
+      },
+      {
+        "index": 79,
+        "task_id": "HumanEval/79",
+        "prompt_sha256": "091255b8d68138bcddcd04b64ff746bab619c25f76b79ef1f30010bda50041f9",
+        "passed": true,
+        "execution": {
+          "task_id": "HumanEval/79",
+          "passed": true,
+          "result": "passed",
+          "completion_id": null
+        },
+        "error": null,
+        "missing_output": false,
+        "stop_reasons": [
+          "stop"
+        ],
+        "truncated": false,
+        "output_tokens": 29
+      },
+      {
+        "index": 80,
+        "task_id": "HumanEval/80",
+        "prompt_sha256": "046894e4770cbd170c2f9d1323710e0366a1357f0569702d26d96c4c35bbc0b6",
+        "passed": true,
+        "execution": {
+          "task_id": "HumanEval/80",
+          "passed": true,
+          "result": "passed",
+          "completion_id": null
+        },
+        "error": null,
+        "missing_output": false,
+        "stop_reasons": [
+          "stop"
+        ],
+        "truncated": false,
+        "output_tokens": 81
+      },
+      {
+        "index": 81,
+        "task_id": "HumanEval/81",
+        "prompt_sha256": "ed8c910008039b1c801c21775eeebd4641e11ef47b9b07d6fe00cbb78fcf6a3c",
+        "passed": true,
+        "execution": {
+          "task_id": "HumanEval/81",
+          "passed": true,
+          "result": "passed",
+          "completion_id": null
+        },
+        "error": null,
+        "missing_output": false,
+        "stop_reasons": [
+          "stop"
+        ],
+        "truncated": false,
+        "output_tokens": 238
+      },
+      {
+        "index": 82,
+        "task_id": "HumanEval/82",
+        "prompt_sha256": "c909689dfb72b6ecae50155be7d6645485931b6f07340bfef2fd2addc4e38635",
+        "passed": true,
+        "execution": {
+          "task_id": "HumanEval/82",
+          "passed": true,
+          "result": "passed",
+          "completion_id": null
+        },
+        "error": null,
+        "missing_output": false,
+        "stop_reasons": [
+          "stop"
+        ],
+        "truncated": false,
+        "output_tokens": 64
+      },
+      {
+        "index": 83,
+        "task_id": "HumanEval/83",
+        "prompt_sha256": "9529f98b8dfc9c89aa9228593c21d5b5854cef1c729f876f95603c8c6b76c005",
+        "passed": false,
+        "execution": {
+          "task_id": "HumanEval/83",
+          "passed": false,
+          "result": "failed: ",
+          "completion_id": null
+        },
+        "error": null,
+        "missing_output": false,
+        "stop_reasons": [
+          "stop"
+        ],
+        "truncated": false,
+        "output_tokens": 44
+      },
+      {
+        "index": 84,
+        "task_id": "HumanEval/84",
+        "prompt_sha256": "70464366bf3201062a113b9480ad1132228038f99ef8ab64e8130d9cc5f33a1e",
+        "passed": true,
+        "execution": {
+          "task_id": "HumanEval/84",
+          "passed": true,
+          "result": "passed",
+          "completion_id": null
+        },
+        "error": null,
+        "missing_output": false,
+        "stop_reasons": [
+          "stop"
+        ],
+        "truncated": false,
+        "output_tokens": 32
+      },
+      {
+        "index": 85,
+        "task_id": "HumanEval/85",
+        "prompt_sha256": "fdc67256b3ad89b312c5d24df17c10bb5ac908b9846c2707573ae779df5a599e",
+        "passed": true,
+        "execution": {
+          "task_id": "HumanEval/85",
+          "passed": true,
+          "result": "passed",
+          "completion_id": null
+        },
+        "error": null,
+        "missing_output": false,
+        "stop_reasons": [
+          "stop"
+        ],
+        "truncated": false,
+        "output_tokens": 84
+      },
+      {
+        "index": 86,
+        "task_id": "HumanEval/86",
+        "prompt_sha256": "b245debbaf4f026e6b24ce346830d7cb773380e376c33cbee35db9c2720fd222",
+        "passed": true,
+        "execution": {
+          "task_id": "HumanEval/86",
+          "passed": true,
+          "result": "passed",
+          "completion_id": null
+        },
+        "error": null,
+        "missing_output": false,
+        "stop_reasons": [
+          "stop"
+        ],
+        "truncated": false,
+        "output_tokens": 30
+      },
+      {
+        "index": 87,
+        "task_id": "HumanEval/87",
+        "prompt_sha256": "3104463cad3a2a5e802169f0804374b1a45f4033a45070b6de896384474fcf8f",
+        "passed": true,
+        "execution": {
+          "task_id": "HumanEval/87",
+          "passed": true,
+          "result": "passed",
+          "completion_id": null
+        },
+        "error": null,
+        "missing_output": false,
+        "stop_reasons": [
+          "stop"
+        ],
+        "truncated": false,
+        "output_tokens": 69
+      },
+      {
+        "index": 88,
+        "task_id": "HumanEval/88",
+        "prompt_sha256": "db38eda674176bc90f009e1430091bff4f883f3edaa1b720c94e991183132e93",
+        "passed": true,
+        "execution": {
+          "task_id": "HumanEval/88",
+          "passed": true,
+          "result": "passed",
+          "completion_id": null
+        },
+        "error": null,
+        "missing_output": false,
+        "stop_reasons": [
+          "stop"
+        ],
+        "truncated": false,
+        "output_tokens": 45
+      },
+      {
+        "index": 89,
+        "task_id": "HumanEval/89",
+        "prompt_sha256": "0d80069a71259725f6520ec9cbf1df329a79187200d0cc652d3e35627166e3c6",
+        "passed": true,
+        "execution": {
+          "task_id": "HumanEval/89",
+          "passed": true,
+          "result": "passed",
+          "completion_id": null
+        },
+        "error": null,
+        "missing_output": false,
+        "stop_reasons": [
+          "stop"
+        ],
+        "truncated": false,
+        "output_tokens": 96
+      },
+      {
+        "index": 90,
+        "task_id": "HumanEval/90",
+        "prompt_sha256": "36b5554153dc7dbd2023cb7588a88b598e5e0966e9dacac37ac7bfb18e53b1cf",
+        "passed": true,
+        "execution": {
+          "task_id": "HumanEval/90",
+          "passed": true,
+          "result": "passed",
+          "completion_id": null
+        },
+        "error": null,
+        "missing_output": false,
+        "stop_reasons": [
+          "stop"
+        ],
+        "truncated": false,
+        "output_tokens": 36
+      },
+      {
+        "index": 91,
+        "task_id": "HumanEval/91",
+        "prompt_sha256": "ee921c839e8e71f6dd6661a07b7fa59a45fa1fe4527ab11ec3fb33a770179b4c",
+        "passed": true,
+        "execution": {
+          "task_id": "HumanEval/91",
+          "passed": true,
+          "result": "passed",
+          "completion_id": null
+        },
+        "error": null,
+        "missing_output": false,
+        "stop_reasons": [
+          "stop"
+        ],
+        "truncated": false,
+        "output_tokens": 69
+      },
+      {
+        "index": 92,
+        "task_id": "HumanEval/92",
+        "prompt_sha256": "76317a65cf6ec6761a6c7520fb578fda548fedc81ce65de2a02771f45d06cc92",
+        "passed": true,
+        "execution": {
+          "task_id": "HumanEval/92",
+          "passed": true,
+          "result": "passed",
+          "completion_id": null
+        },
+        "error": null,
+        "missing_output": false,
+        "stop_reasons": [
+          "stop"
+        ],
+        "truncated": false,
+        "output_tokens": 52
+      },
+      {
+        "index": 93,
+        "task_id": "HumanEval/93",
+        "prompt_sha256": "c3913f58056fb0dd33f0365326e18ce529d7b9c0ca33e9dcee3216618929e5d4",
+        "passed": true,
+        "execution": {
+          "task_id": "HumanEval/93",
+          "passed": true,
+          "result": "passed",
+          "completion_id": null
+        },
+        "error": null,
+        "missing_output": false,
+        "stop_reasons": [
+          "stop"
+        ],
+        "truncated": false,
+        "output_tokens": 122
+      },
+      {
+        "index": 94,
+        "task_id": "HumanEval/94",
+        "prompt_sha256": "18fa93641c71a61e8b77963eb07b3b656bf605ecc80848f1d38525a223db8ba0",
+        "passed": true,
+        "execution": {
+          "task_id": "HumanEval/94",
+          "passed": true,
+          "result": "passed",
+          "completion_id": null
+        },
+        "error": null,
+        "missing_output": false,
+        "stop_reasons": [
+          "stop"
+        ],
+        "truncated": false,
+        "output_tokens": 148
+      },
+      {
+        "index": 95,
+        "task_id": "HumanEval/95",
+        "prompt_sha256": "a7e4b770f38aa9147d777b4eb3c65ee5bc418909f9d06dd623f22687083e84f2",
+        "passed": true,
+        "execution": {
+          "task_id": "HumanEval/95",
+          "passed": true,
+          "result": "passed",
+          "completion_id": null
+        },
+        "error": null,
+        "missing_output": false,
+        "stop_reasons": [
+          "stop"
+        ],
+        "truncated": false,
+        "output_tokens": 79
+      },
+      {
+        "index": 96,
+        "task_id": "HumanEval/96",
+        "prompt_sha256": "dd99d006e782b7140e3b1f97eee623b6257f45b9708a531004a044859269c99f",
+        "passed": true,
+        "execution": {
+          "task_id": "HumanEval/96",
+          "passed": true,
+          "result": "passed",
+          "completion_id": null
+        },
+        "error": null,
+        "missing_output": false,
+        "stop_reasons": [
+          "stop"
+        ],
+        "truncated": false,
+        "output_tokens": 93
+      },
+      {
+        "index": 97,
+        "task_id": "HumanEval/97",
+        "prompt_sha256": "e6f0b436abd32389df1ab090cb13b200c97447927bf00bd08c6dbfb423fd6626",
+        "passed": false,
+        "execution": {
+          "task_id": "HumanEval/97",
+          "passed": false,
+          "result": "failed: First test error: 6",
+          "completion_id": null
+        },
+        "error": null,
+        "missing_output": false,
+        "stop_reasons": [
+          "stop"
+        ],
+        "truncated": false,
+        "output_tokens": 22
+      },
+      {
+        "index": 98,
+        "task_id": "HumanEval/98",
+        "prompt_sha256": "c16cbc6390fce8468da0722c91e935e54565e203b366a3ea13e6a2b935c38d92",
+        "passed": true,
+        "execution": {
+          "task_id": "HumanEval/98",
+          "passed": true,
+          "result": "passed",
+          "completion_id": null
+        },
+        "error": null,
+        "missing_output": false,
+        "stop_reasons": [
+          "stop"
+        ],
+        "truncated": false,
+        "output_tokens": 57
+      },
+      {
+        "index": 99,
+        "task_id": "HumanEval/99",
+        "prompt_sha256": "1e2c3b8fc73e119cae83bf2707635c7646c473be13b902b740a1960fbe1bf1a3",
+        "passed": true,
+        "execution": {
+          "task_id": "HumanEval/99",
+          "passed": true,
+          "result": "passed",
+          "completion_id": null
+        },
+        "error": null,
+        "missing_output": false,
+        "stop_reasons": [
+          "stop"
+        ],
+        "truncated": false,
+        "output_tokens": 53
+      },
+      {
+        "index": 100,
+        "task_id": "HumanEval/100",
+        "prompt_sha256": "9e45fa65f2c0488cbe4a098c3cfbe90b3088811ebafcd11f4954d6bb37168808",
+        "passed": true,
+        "execution": {
+          "task_id": "HumanEval/100",
+          "passed": true,
+          "result": "passed",
+          "completion_id": null
+        },
+        "error": null,
+        "missing_output": false,
+        "stop_reasons": [
+          "stop"
+        ],
+        "truncated": false,
+        "output_tokens": 27
+      },
+      {
+        "index": 101,
+        "task_id": "HumanEval/101",
+        "prompt_sha256": "2e3435f905501453eb82160932e9f8eb2bc6d5849395200a01e0508d7c418fc4",
+        "passed": true,
+        "execution": {
+          "task_id": "HumanEval/101",
+          "passed": true,
+          "result": "passed",
+          "completion_id": null
+        },
+        "error": null,
+        "missing_output": false,
+        "stop_reasons": [
+          "stop"
+        ],
+        "truncated": false,
+        "output_tokens": 21
+      },
+      {
+        "index": 102,
+        "task_id": "HumanEval/102",
+        "prompt_sha256": "010e1144708ada939eeca2d23e75d7ab74e62f3cbed5787b67d7d869a4204612",
+        "passed": true,
+        "execution": {
+          "task_id": "HumanEval/102",
+          "passed": true,
+          "result": "passed",
+          "completion_id": null
+        },
+        "error": null,
+        "missing_output": false,
+        "stop_reasons": [
+          "stop"
+        ],
+        "truncated": false,
+        "output_tokens": 139
+      },
+      {
+        "index": 103,
+        "task_id": "HumanEval/103",
+        "prompt_sha256": "260827d8513d8e202d01e7aee39115682092b9cbe0198273c086be4c1ce0ee4d",
+        "passed": true,
+        "execution": {
+          "task_id": "HumanEval/103",
+          "passed": true,
+          "result": "passed",
+          "completion_id": null
+        },
+        "error": null,
+        "missing_output": false,
+        "stop_reasons": [
+          "stop"
+        ],
+        "truncated": false,
+        "output_tokens": 60
+      },
+      {
+        "index": 104,
+        "task_id": "HumanEval/104",
+        "prompt_sha256": "b5cd01b0880532f38edfa111431818735945066650c677070f6feed691b4da26",
+        "passed": true,
+        "execution": {
+          "task_id": "HumanEval/104",
+          "passed": true,
+          "result": "passed",
+          "completion_id": null
+        },
+        "error": null,
+        "missing_output": false,
+        "stop_reasons": [
+          "stop"
+        ],
+        "truncated": false,
+        "output_tokens": 50
+      },
+      {
+        "index": 105,
+        "task_id": "HumanEval/105",
+        "prompt_sha256": "636eb8433f418f87f6f963361d9875bb973f76cb32c789c71947df562122d1e2",
+        "passed": true,
+        "execution": {
+          "task_id": "HumanEval/105",
+          "passed": true,
+          "result": "passed",
+          "completion_id": null
+        },
+        "error": null,
+        "missing_output": false,
+        "stop_reasons": [
+          "stop"
+        ],
+        "truncated": false,
+        "output_tokens": 76
+      },
+      {
+        "index": 106,
+        "task_id": "HumanEval/106",
+        "prompt_sha256": "c644c167f228a44db8ea96abfb2fa8fe8ce1981153a92bce52de40bad5d4846e",
+        "passed": true,
+        "execution": {
+          "task_id": "HumanEval/106",
+          "passed": true,
+          "result": "passed",
+          "completion_id": null
+        },
+        "error": null,
+        "missing_output": false,
+        "stop_reasons": [
+          "stop"
+        ],
+        "truncated": false,
+        "output_tokens": 97
+      },
+      {
+        "index": 107,
+        "task_id": "HumanEval/107",
+        "prompt_sha256": "4315975fe88635f9db396c40061186bc74b65ee41d2b06e7c5d58d4bcd670d42",
+        "passed": true,
+        "execution": {
+          "task_id": "HumanEval/107",
+          "passed": true,
+          "result": "passed",
+          "completion_id": null
+        },
+        "error": null,
+        "missing_output": false,
+        "stop_reasons": [
+          "stop"
+        ],
+        "truncated": false,
+        "output_tokens": 91
+      },
+      {
+        "index": 108,
+        "task_id": "HumanEval/108",
+        "prompt_sha256": "f4e48f55654e4296f988f1b62fcb7e36d110ebdce33d9a02275d87a46623873b",
+        "passed": true,
+        "execution": {
+          "task_id": "HumanEval/108",
+          "passed": true,
+          "result": "passed",
+          "completion_id": null
+        },
+        "error": null,
+        "missing_output": false,
+        "stop_reasons": [
+          "stop"
+        ],
+        "truncated": false,
+        "output_tokens": 92
+      },
+      {
+        "index": 109,
+        "task_id": "HumanEval/109",
+        "prompt_sha256": "8bdb8088bf6498152be2bbb91bbb24602b3cd0631e627d1b48f30d73bd9c533e",
+        "passed": true,
+        "execution": {
+          "task_id": "HumanEval/109",
+          "passed": true,
+          "result": "passed",
+          "completion_id": null
+        },
+        "error": null,
+        "missing_output": false,
+        "stop_reasons": [
+          "stop"
+        ],
+        "truncated": false,
+        "output_tokens": 69
+      },
+      {
+        "index": 110,
+        "task_id": "HumanEval/110",
+        "prompt_sha256": "c48cf5e7b6c4ee1db282f63ac1caf52213db07aea23dcac420cb2a95a24ff068",
+        "passed": true,
+        "execution": {
+          "task_id": "HumanEval/110",
+          "passed": true,
+          "result": "passed",
+          "completion_id": null
+        },
+        "error": null,
+        "missing_output": false,
+        "stop_reasons": [
+          "stop"
+        ],
+        "truncated": false,
+        "output_tokens": 70
+      },
+      {
+        "index": 111,
+        "task_id": "HumanEval/111",
+        "prompt_sha256": "6c0315c8eaee458224e625e26f6498e5c3bb0f43c2fa0b8a81069820ba13b89f",
+        "passed": true,
+        "execution": {
+          "task_id": "HumanEval/111",
+          "passed": true,
+          "result": "passed",
+          "completion_id": null
+        },
+        "error": null,
+        "missing_output": false,
+        "stop_reasons": [
+          "stop"
+        ],
+        "truncated": false,
+        "output_tokens": 81
+      },
+      {
+        "index": 112,
+        "task_id": "HumanEval/112",
+        "prompt_sha256": "e0b14d1378cddde80f7b75932d2f197807c79dfe545dc4235c373528af9df9a2",
+        "passed": true,
+        "execution": {
+          "task_id": "HumanEval/112",
+          "passed": true,
+          "result": "passed",
+          "completion_id": null
+        },
+        "error": null,
+        "missing_output": false,
+        "stop_reasons": [
+          "stop"
+        ],
+        "truncated": false,
+        "output_tokens": 39
+      },
+      {
+        "index": 113,
+        "task_id": "HumanEval/113",
+        "prompt_sha256": "424481a71bb1ec4cc6ad9575cdea7da96b4d6ca6284baf0364263457699894d0",
+        "passed": true,
+        "execution": {
+          "task_id": "HumanEval/113",
+          "passed": true,
+          "result": "passed",
+          "completion_id": null
+        },
+        "error": null,
+        "missing_output": false,
+        "stop_reasons": [
+          "stop"
+        ],
+        "truncated": false,
+        "output_tokens": 81
+      },
+      {
+        "index": 114,
+        "task_id": "HumanEval/114",
+        "prompt_sha256": "da6033cf2f7d2a1c47be31336b1ac9077ee9d2ea7cd39a9d900e8447cec00bd3",
+        "passed": true,
+        "execution": {
+          "task_id": "HumanEval/114",
+          "passed": true,
+          "result": "passed",
+          "completion_id": null
+        },
+        "error": null,
+        "missing_output": false,
+        "stop_reasons": [
+          "stop"
+        ],
+        "truncated": false,
+        "output_tokens": 142
+      },
+      {
+        "index": 115,
+        "task_id": "HumanEval/115",
+        "prompt_sha256": "58bb96d0fc30d815a24726f219ab7f6fed9a0228120aec2cddd9bb83d9cbb226",
+        "passed": true,
+        "execution": {
+          "task_id": "HumanEval/115",
+          "passed": true,
+          "result": "passed",
+          "completion_id": null
+        },
+        "error": null,
+        "missing_output": false,
+        "stop_reasons": [
+          "stop"
+        ],
+        "truncated": false,
+        "output_tokens": 57
+      },
+      {
+        "index": 116,
+        "task_id": "HumanEval/116",
+        "prompt_sha256": "2fb12725db8e8c44c636818f063cc086f3d9923a347345d00eefbf551c19a1a0",
+        "passed": true,
+        "execution": {
+          "task_id": "HumanEval/116",
+          "passed": true,
+          "result": "passed",
+          "completion_id": null
+        },
+        "error": null,
+        "missing_output": false,
+        "stop_reasons": [
+          "stop"
+        ],
+        "truncated": false,
+        "output_tokens": 29
+      },
+      {
+        "index": 117,
+        "task_id": "HumanEval/117",
+        "prompt_sha256": "f72992479a57cc9195267fd1695c8be04338663a144f9a4d9b9cbafb712a2e77",
+        "passed": true,
+        "execution": {
+          "task_id": "HumanEval/117",
+          "passed": true,
+          "result": "passed",
+          "completion_id": null
+        },
+        "error": null,
+        "missing_output": false,
+        "stop_reasons": [
+          "stop"
+        ],
+        "truncated": false,
+        "output_tokens": 78
+      },
+      {
+        "index": 118,
+        "task_id": "HumanEval/118",
+        "prompt_sha256": "c1e765de4ee022feff13dcc1e30c08d2c5569148c519236d76161519a03a654f",
+        "passed": true,
+        "execution": {
+          "task_id": "HumanEval/118",
+          "passed": true,
+          "result": "passed",
+          "completion_id": null
+        },
+        "error": null,
+        "missing_output": false,
+        "stop_reasons": [
+          "stop"
+        ],
+        "truncated": false,
+        "output_tokens": 77
+      },
+      {
+        "index": 119,
+        "task_id": "HumanEval/119",
+        "prompt_sha256": "098c43ec4bd349c1f1163fff4fc8bf3618f3bf2e59d904aa3dd9d62b1bdff221",
+        "passed": true,
+        "execution": {
+          "task_id": "HumanEval/119",
+          "passed": true,
+          "result": "passed",
+          "completion_id": null
+        },
+        "error": null,
+        "missing_output": false,
+        "stop_reasons": [
+          "stop"
+        ],
+        "truncated": false,
+        "output_tokens": 105
+      },
+      {
+        "index": 120,
+        "task_id": "HumanEval/120",
+        "prompt_sha256": "f505b052c626d88d370e398ba6016da3b89fbcc2e1a220d01628cafbf13331e5",
+        "passed": true,
+        "execution": {
+          "task_id": "HumanEval/120",
+          "passed": true,
+          "result": "passed",
+          "completion_id": null
+        },
+        "error": null,
+        "missing_output": false,
+        "stop_reasons": [
+          "stop"
+        ],
+        "truncated": false,
+        "output_tokens": 28
+      },
+      {
+        "index": 121,
+        "task_id": "HumanEval/121",
+        "prompt_sha256": "951fc42e58243bab83e1962a70326de10df5d81c80955d4239a15f12972cab26",
+        "passed": true,
+        "execution": {
+          "task_id": "HumanEval/121",
+          "passed": true,
+          "result": "passed",
+          "completion_id": null
+        },
+        "error": null,
+        "missing_output": false,
+        "stop_reasons": [
+          "stop"
+        ],
+        "truncated": false,
+        "output_tokens": 39
+      },
+      {
+        "index": 122,
+        "task_id": "HumanEval/122",
+        "prompt_sha256": "6c28a6b09f95f93b9f92bab455e485288d9058283536915a42ff129678b72a9e",
+        "passed": true,
+        "execution": {
+          "task_id": "HumanEval/122",
+          "passed": true,
+          "result": "passed",
+          "completion_id": null
+        },
+        "error": null,
+        "missing_output": false,
+        "stop_reasons": [
+          "stop"
+        ],
+        "truncated": false,
+        "output_tokens": 33
+      },
+      {
+        "index": 123,
+        "task_id": "HumanEval/123",
+        "prompt_sha256": "5d8694a1feab738fd533232b82e8c9be9a32ec00772f4eec5d6d2796c2b893df",
+        "passed": true,
+        "execution": {
+          "task_id": "HumanEval/123",
+          "passed": true,
+          "result": "passed",
+          "completion_id": null
+        },
+        "error": null,
+        "missing_output": false,
+        "stop_reasons": [
+          "stop"
+        ],
+        "truncated": false,
+        "output_tokens": 79
+      },
+      {
+        "index": 124,
+        "task_id": "HumanEval/124",
+        "prompt_sha256": "2ca856e221a57f0a3f9d4c6e3fae3280e9b75e49d2b16582daebb81c0df09a10",
+        "passed": true,
+        "execution": {
+          "task_id": "HumanEval/124",
+          "passed": true,
+          "result": "passed",
+          "completion_id": null
+        },
+        "error": null,
+        "missing_output": false,
+        "stop_reasons": [
+          "stop"
+        ],
+        "truncated": false,
+        "output_tokens": 232
+      },
+      {
+        "index": 125,
+        "task_id": "HumanEval/125",
+        "prompt_sha256": "964ffaba0da49d248144076f88e662cf5f4150c33410cbb17f10e654069c9d32",
+        "passed": true,
+        "execution": {
+          "task_id": "HumanEval/125",
+          "passed": true,
+          "result": "passed",
+          "completion_id": null
+        },
+        "error": null,
+        "missing_output": false,
+        "stop_reasons": [
+          "stop"
+        ],
+        "truncated": false,
+        "output_tokens": 69
+      },
+      {
+        "index": 126,
+        "task_id": "HumanEval/126",
+        "prompt_sha256": "87478d3f58854bc62746b2b6959b392e3e6955f1a74c56bc0560d8f7798b6cd6",
+        "passed": true,
+        "execution": {
+          "task_id": "HumanEval/126",
+          "passed": true,
+          "result": "passed",
+          "completion_id": null
+        },
+        "error": null,
+        "missing_output": false,
+        "stop_reasons": [
+          "stop"
+        ],
+        "truncated": false,
+        "output_tokens": 78
+      },
+      {
+        "index": 127,
+        "task_id": "HumanEval/127",
+        "prompt_sha256": "473b6bd111f1117543f0da0d4507acdffa2850f5fd2b4bd58895d9bc8eb372ea",
+        "passed": true,
+        "execution": {
+          "task_id": "HumanEval/127",
+          "passed": true,
+          "result": "passed",
+          "completion_id": null
+        },
+        "error": null,
+        "missing_output": false,
+        "stop_reasons": [
+          "stop"
+        ],
+        "truncated": false,
+        "output_tokens": 117
+      },
+      {
+        "index": 128,
+        "task_id": "HumanEval/128",
+        "prompt_sha256": "3dd7139da68ade8bc85e1eba076d875c44099e565e349e320d4342b9050c8933",
+        "passed": true,
+        "execution": {
+          "task_id": "HumanEval/128",
+          "passed": true,
+          "result": "passed",
+          "completion_id": null
+        },
+        "error": null,
+        "missing_output": false,
+        "stop_reasons": [
+          "stop"
+        ],
+        "truncated": false,
+        "output_tokens": 76
+      },
+      {
+        "index": 129,
+        "task_id": "HumanEval/129",
+        "prompt_sha256": "ea2e438747823f5a2796588642ca4c0ae3b78ea94de194c1d9006ba21361ad48",
+        "passed": true,
+        "execution": {
+          "task_id": "HumanEval/129",
+          "passed": true,
+          "result": "passed",
+          "completion_id": null
+        },
+        "error": null,
+        "missing_output": false,
+        "stop_reasons": [
+          "stop"
+        ],
+        "truncated": false,
+        "output_tokens": 294
+      },
+      {
+        "index": 130,
+        "task_id": "HumanEval/130",
+        "prompt_sha256": "6f6132b21a7981fefbde72da543a182b674f9c1adf1d8297c3c9ca8c2f8d4684",
+        "passed": true,
+        "execution": {
+          "task_id": "HumanEval/130",
+          "passed": true,
+          "result": "passed",
+          "completion_id": null
+        },
+        "error": null,
+        "missing_output": false,
+        "stop_reasons": [
+          "stop"
+        ],
+        "truncated": false,
+        "output_tokens": 101
+      },
+      {
+        "index": 131,
+        "task_id": "HumanEval/131",
+        "prompt_sha256": "8bc89d9c0366023ddfa4610cc2558f5b64d7ad2dce231c923d46a86b79ec5232",
+        "passed": true,
+        "execution": {
+          "task_id": "HumanEval/131",
+          "passed": true,
+          "result": "passed",
+          "completion_id": null
+        },
+        "error": null,
+        "missing_output": false,
+        "stop_reasons": [
+          "stop"
+        ],
+        "truncated": false,
+        "output_tokens": 129
+      },
+      {
+        "index": 132,
+        "task_id": "HumanEval/132",
+        "prompt_sha256": "b5d2b0de78a98480fd4380303fad3aa69808a1fe64285cc3a0f7a8cb7a3a5d68",
+        "passed": false,
+        "execution": {
+          "task_id": "HumanEval/132",
+          "passed": false,
+          "result": "failed: ",
+          "completion_id": null
+        },
+        "error": null,
+        "missing_output": false,
+        "stop_reasons": [
+          "stop"
+        ],
+        "truncated": false,
+        "output_tokens": 60
+      },
+      {
+        "index": 133,
+        "task_id": "HumanEval/133",
+        "prompt_sha256": "97802082d3924e6ebd1df4a39498661154990efd353258f3485d3703aab83d3d",
+        "passed": true,
+        "execution": {
+          "task_id": "HumanEval/133",
+          "passed": true,
+          "result": "passed",
+          "completion_id": null
+        },
+        "error": null,
+        "missing_output": false,
+        "stop_reasons": [
+          "stop"
+        ],
+        "truncated": false,
+        "output_tokens": 30
+      },
+      {
+        "index": 134,
+        "task_id": "HumanEval/134",
+        "prompt_sha256": "8db0752e1868a891d9e48c0a5fb498062db4498a01b308fe07144391da33caab",
+        "passed": true,
+        "execution": {
+          "task_id": "HumanEval/134",
+          "passed": true,
+          "result": "passed",
+          "completion_id": null
+        },
+        "error": null,
+        "missing_output": false,
+        "stop_reasons": [
+          "stop"
+        ],
+        "truncated": false,
+        "output_tokens": 69
+      },
+      {
+        "index": 135,
+        "task_id": "HumanEval/135",
+        "prompt_sha256": "32c195c387a8bd6f69e3c1116cacc6454e20dcdde4e9487792489c09475a2613",
+        "passed": true,
+        "execution": {
+          "task_id": "HumanEval/135",
+          "passed": true,
+          "result": "passed",
+          "completion_id": null
+        },
+        "error": null,
+        "missing_output": false,
+        "stop_reasons": [
+          "stop"
+        ],
+        "truncated": false,
+        "output_tokens": 50
+      },
+      {
+        "index": 136,
+        "task_id": "HumanEval/136",
+        "prompt_sha256": "53f35696deb9bd376e3b6596fa956aac64d2fc532a0d645d8a9ca3d488412586",
+        "passed": true,
+        "execution": {
+          "task_id": "HumanEval/136",
+          "passed": true,
+          "result": "passed",
+          "completion_id": null
+        },
+        "error": null,
+        "missing_output": false,
+        "stop_reasons": [
+          "stop"
+        ],
+        "truncated": false,
+        "output_tokens": 77
+      },
+      {
+        "index": 137,
+        "task_id": "HumanEval/137",
+        "prompt_sha256": "6c9164fe353afabbf2b52833fdbb02ddd0b0a8145b4049e7b93886c6cbc719b1",
+        "passed": true,
+        "execution": {
+          "task_id": "HumanEval/137",
+          "passed": true,
+          "result": "passed",
+          "completion_id": null
+        },
+        "error": null,
+        "missing_output": false,
+        "stop_reasons": [
+          "stop"
+        ],
+        "truncated": false,
+        "output_tokens": 77
+      },
+      {
+        "index": 138,
+        "task_id": "HumanEval/138",
+        "prompt_sha256": "5a4914d837ca4c71577974d555f95fdb8b2297a570e3f9e30ff0bcd9425b0f05",
+        "passed": true,
+        "execution": {
+          "task_id": "HumanEval/138",
+          "passed": true,
+          "result": "passed",
+          "completion_id": null
+        },
+        "error": null,
+        "missing_output": false,
+        "stop_reasons": [
+          "stop"
+        ],
+        "truncated": false,
+        "output_tokens": 95
+      },
+      {
+        "index": 139,
+        "task_id": "HumanEval/139",
+        "prompt_sha256": "4d9d594b6e40ce5273c4b6d7b3cafae7ea1ab2355bd21fefe1701dfe94ff321b",
+        "passed": true,
+        "execution": {
+          "task_id": "HumanEval/139",
+          "passed": true,
+          "result": "passed",
+          "completion_id": null
+        },
+        "error": null,
+        "missing_output": false,
+        "stop_reasons": [
+          "stop"
+        ],
+        "truncated": false,
+        "output_tokens": 50
+      },
+      {
+        "index": 140,
+        "task_id": "HumanEval/140",
+        "prompt_sha256": "a5a973905f87767532e8fc3f335eabb49a1b950660bd6436e359e18607146cea",
+        "passed": true,
+        "execution": {
+          "task_id": "HumanEval/140",
+          "passed": true,
+          "result": "passed",
+          "completion_id": null
+        },
+        "error": null,
+        "missing_output": false,
+        "stop_reasons": [
+          "stop"
+        ],
+        "truncated": false,
+        "output_tokens": 122
+      },
+      {
+        "index": 141,
+        "task_id": "HumanEval/141",
+        "prompt_sha256": "2b2fd9418a00c70b6f420cc2b84519b0276a43df1b9c0b6258b9069cecc2b97d",
+        "passed": true,
+        "execution": {
+          "task_id": "HumanEval/141",
+          "passed": true,
+          "result": "passed",
+          "completion_id": null
+        },
+        "error": null,
+        "missing_output": false,
+        "stop_reasons": [
+          "stop"
+        ],
+        "truncated": false,
+        "output_tokens": 123
+      },
+      {
+        "index": 142,
+        "task_id": "HumanEval/142",
+        "prompt_sha256": "508740d0d2bf3fe0eb23acf408c580f752613792b846bebf792e8b7f67e18c23",
+        "passed": true,
+        "execution": {
+          "task_id": "HumanEval/142",
+          "passed": true,
+          "result": "passed",
+          "completion_id": null
+        },
+        "error": null,
+        "missing_output": false,
+        "stop_reasons": [
+          "stop"
+        ],
+        "truncated": false,
+        "output_tokens": 74
+      },
+      {
+        "index": 143,
+        "task_id": "HumanEval/143",
+        "prompt_sha256": "eed51cd8abc462b4b53488696402f64703b905f6f6df41525477196b0e8a9710",
+        "passed": true,
+        "execution": {
+          "task_id": "HumanEval/143",
+          "passed": true,
+          "result": "passed",
+          "completion_id": null
+        },
+        "error": null,
+        "missing_output": false,
+        "stop_reasons": [
+          "stop"
+        ],
+        "truncated": false,
+        "output_tokens": 85
+      },
+      {
+        "index": 144,
+        "task_id": "HumanEval/144",
+        "prompt_sha256": "5d2ba68e36ba6af2fe627e15807c4d7d5da92ea509d1dcd94a139649a2e4f9b6",
+        "passed": true,
+        "execution": {
+          "task_id": "HumanEval/144",
+          "passed": true,
+          "result": "passed",
+          "completion_id": null
+        },
+        "error": null,
+        "missing_output": false,
+        "stop_reasons": [
+          "stop"
+        ],
+        "truncated": false,
+        "output_tokens": 76
+      },
+      {
+        "index": 145,
+        "task_id": "HumanEval/145",
+        "prompt_sha256": "b9ef3c1768ce62d3ab7da9cf87fcf29925320102a633b66f5bcd6cf9bc46cd35",
+        "passed": false,
+        "execution": {
+          "task_id": "HumanEval/145",
+          "passed": false,
+          "result": "failed: ",
+          "completion_id": null
+        },
+        "error": null,
+        "missing_output": false,
+        "stop_reasons": [
+          "stop"
+        ],
+        "truncated": false,
+        "output_tokens": 48
+      },
+      {
+        "index": 146,
+        "task_id": "HumanEval/146",
+        "prompt_sha256": "c4012d7390619dd5079701891f144320c1790bb5163276e0deaf26f4c6db651b",
+        "passed": true,
+        "execution": {
+          "task_id": "HumanEval/146",
+          "passed": true,
+          "result": "passed",
+          "completion_id": null
+        },
+        "error": null,
+        "missing_output": false,
+        "stop_reasons": [
+          "stop"
+        ],
+        "truncated": false,
+        "output_tokens": 80
+      },
+      {
+        "index": 147,
+        "task_id": "HumanEval/147",
+        "prompt_sha256": "68c99267f75864e7bbf3ac86a1c1a132adf365e7f4ebd761b448002c104d626a",
+        "passed": true,
+        "execution": {
+          "task_id": "HumanEval/147",
+          "passed": true,
+          "result": "passed",
+          "completion_id": null
+        },
+        "error": null,
+        "missing_output": false,
+        "stop_reasons": [
+          "stop"
+        ],
+        "truncated": false,
+        "output_tokens": 186
+      },
+      {
+        "index": 148,
+        "task_id": "HumanEval/148",
+        "prompt_sha256": "c3a6d90031a87899c3a266036daf14c9dd958b48a8f0473395348d5962ac38d7",
+        "passed": true,
+        "execution": {
+          "task_id": "HumanEval/148",
+          "passed": true,
+          "result": "passed",
+          "completion_id": null
+        },
+        "error": null,
+        "missing_output": false,
+        "stop_reasons": [
+          "stop"
+        ],
+        "truncated": false,
+        "output_tokens": 108
+      },
+      {
+        "index": 149,
+        "task_id": "HumanEval/149",
+        "prompt_sha256": "e006d2bbaa46623844b3419135023fe89c9bf74c3e8db819901c89f31cbdfc88",
+        "passed": true,
+        "execution": {
+          "task_id": "HumanEval/149",
+          "passed": true,
+          "result": "passed",
+          "completion_id": null
+        },
+        "error": null,
+        "missing_output": false,
+        "stop_reasons": [
+          "stop"
+        ],
+        "truncated": false,
+        "output_tokens": 47
+      },
+      {
+        "index": 150,
+        "task_id": "HumanEval/150",
+        "prompt_sha256": "608f5499f694942a9e2758f3e6d0735cf6f5aa03a710db1277df6718f092916b",
+        "passed": true,
+        "execution": {
+          "task_id": "HumanEval/150",
+          "passed": true,
+          "result": "passed",
+          "completion_id": null
+        },
+        "error": null,
+        "missing_output": false,
+        "stop_reasons": [
+          "stop"
+        ],
+        "truncated": false,
+        "output_tokens": 133
+      },
+      {
+        "index": 151,
+        "task_id": "HumanEval/151",
+        "prompt_sha256": "3b5cf588d145f7c6a5986b10961a33f4edaa75f63013e46ba7993d58249e0162",
+        "passed": true,
+        "execution": {
+          "task_id": "HumanEval/151",
+          "passed": true,
+          "result": "passed",
+          "completion_id": null
+        },
+        "error": null,
+        "missing_output": false,
+        "stop_reasons": [
+          "stop"
+        ],
+        "truncated": false,
+        "output_tokens": 64
+      },
+      {
+        "index": 152,
+        "task_id": "HumanEval/152",
+        "prompt_sha256": "c2e97e92db4eeee1c88b0961653ee74e4b3dcdfaf3e486938259eb278bbdf1e5",
+        "passed": true,
+        "execution": {
+          "task_id": "HumanEval/152",
+          "passed": true,
+          "result": "passed",
+          "completion_id": null
+        },
+        "error": null,
+        "missing_output": false,
+        "stop_reasons": [
+          "stop"
+        ],
+        "truncated": false,
+        "output_tokens": 29
+      },
+      {
+        "index": 153,
+        "task_id": "HumanEval/153",
+        "prompt_sha256": "bcd41083596660367bef617f82645227f167a4f0ff38ef860b1f162369a98d42",
+        "passed": true,
+        "execution": {
+          "task_id": "HumanEval/153",
+          "passed": true,
+          "result": "passed",
+          "completion_id": null
+        },
+        "error": null,
+        "missing_output": false,
+        "stop_reasons": [
+          "stop"
+        ],
+        "truncated": false,
+        "output_tokens": 111
+      },
+      {
+        "index": 154,
+        "task_id": "HumanEval/154",
+        "prompt_sha256": "b2606ecf25f52fccb85d5ebaae4027b827bb050cf0f35161c99a98f8c8a649e6",
+        "passed": true,
+        "execution": {
+          "task_id": "HumanEval/154",
+          "passed": true,
+          "result": "passed",
+          "completion_id": null
+        },
+        "error": null,
+        "missing_output": false,
+        "stop_reasons": [
+          "stop"
+        ],
+        "truncated": false,
+        "output_tokens": 60
+      },
+      {
+        "index": 155,
+        "task_id": "HumanEval/155",
+        "prompt_sha256": "010c009c1c4e4dfa376cbe150387f0e00d2931016366d1097880b13172e00098",
+        "passed": true,
+        "execution": {
+          "task_id": "HumanEval/155",
+          "passed": true,
+          "result": "passed",
+          "completion_id": null
+        },
+        "error": null,
+        "missing_output": false,
+        "stop_reasons": [
+          "stop"
+        ],
+        "truncated": false,
+        "output_tokens": 67
+      },
+      {
+        "index": 156,
+        "task_id": "HumanEval/156",
+        "prompt_sha256": "4f33b5d7c03aa71e829faf615d5d643fc266b46db976472b4bfe8b550a3e9cbc",
+        "passed": true,
+        "execution": {
+          "task_id": "HumanEval/156",
+          "passed": true,
+          "result": "passed",
+          "completion_id": null
+        },
+        "error": null,
+        "missing_output": false,
+        "stop_reasons": [
+          "stop"
+        ],
+        "truncated": false,
+        "output_tokens": 176
+      },
+      {
+        "index": 157,
+        "task_id": "HumanEval/157",
+        "prompt_sha256": "c3cb101b2163f22f684020b594222d537925b27e56bc7fa77d91029f03b0b3ab",
+        "passed": true,
+        "execution": {
+          "task_id": "HumanEval/157",
+          "passed": true,
+          "result": "passed",
+          "completion_id": null
+        },
+        "error": null,
+        "missing_output": false,
+        "stop_reasons": [
+          "stop"
+        ],
+        "truncated": false,
+        "output_tokens": 43
+      },
+      {
+        "index": 158,
+        "task_id": "HumanEval/158",
+        "prompt_sha256": "b627a9ca9096ffa342950f96d0d32b8f785d8841bd5b7fcb8b0cd32f880462b2",
+        "passed": true,
+        "execution": {
+          "task_id": "HumanEval/158",
+          "passed": true,
+          "result": "passed",
+          "completion_id": null
+        },
+        "error": null,
+        "missing_output": false,
+        "stop_reasons": [
+          "stop"
+        ],
+        "truncated": false,
+        "output_tokens": 86
+      },
+      {
+        "index": 159,
+        "task_id": "HumanEval/159",
+        "prompt_sha256": "4825cbc1afc8881474062c341e26f68d0b526ce6c3eab9e0389237f64bf4e723",
+        "passed": true,
+        "execution": {
+          "task_id": "HumanEval/159",
+          "passed": true,
+          "result": "passed",
+          "completion_id": null
+        },
+        "error": null,
+        "missing_output": false,
+        "stop_reasons": [
+          "stop"
+        ],
+        "truncated": false,
+        "output_tokens": 43
+      },
+      {
+        "index": 160,
+        "task_id": "HumanEval/160",
+        "prompt_sha256": "21a88b60733060b5c9958bd0df54865943d4e0a8f9a38c256a4b1318c648711e",
+        "passed": true,
+        "execution": {
+          "task_id": "HumanEval/160",
+          "passed": true,
+          "result": "passed",
+          "completion_id": null
+        },
+        "error": null,
+        "missing_output": false,
+        "stop_reasons": [
+          "stop"
+        ],
+        "truncated": false,
+        "output_tokens": 55
+      },
+      {
+        "index": 161,
+        "task_id": "HumanEval/161",
+        "prompt_sha256": "ce9eaebcaae094c97c9ddb7c676455e8864b2414cbf58a7e14accf4aa43c216a",
+        "passed": true,
+        "execution": {
+          "task_id": "HumanEval/161",
+          "passed": true,
+          "result": "passed",
+          "completion_id": null
+        },
+        "error": null,
+        "missing_output": false,
+        "stop_reasons": [
+          "stop"
+        ],
+        "truncated": false,
+        "output_tokens": 49
+      },
+      {
+        "index": 162,
+        "task_id": "HumanEval/162",
+        "prompt_sha256": "a1b0720dae203ada982778d6e529e918baa4479e8f528ccb95badba2dee8a8f9",
+        "passed": true,
+        "execution": {
+          "task_id": "HumanEval/162",
+          "passed": true,
+          "result": "passed",
+          "completion_id": null
+        },
+        "error": null,
+        "missing_output": false,
+        "stop_reasons": [
+          "stop"
+        ],
+        "truncated": false,
+        "output_tokens": 109
+      },
+      {
+        "index": 163,
+        "task_id": "HumanEval/163",
+        "prompt_sha256": "3265a190cbcce071870a9b9cb450d125160d5c61b97c009bb201b6b4093e6e44",
+        "passed": true,
+        "execution": {
+          "task_id": "HumanEval/163",
+          "passed": true,
+          "result": "passed",
+          "completion_id": null
+        },
+        "error": null,
+        "missing_output": false,
+        "stop_reasons": [
+          "stop"
+        ],
+        "truncated": false,
+        "output_tokens": 58
+      }
+    ],
+    "run": "/public2/home/duyunlong/run/dsv4.1/033/prefill_budget_fix_20261120/accuracy/he164/20261120_183843",
+    "required_correct": 156,
+    "required_total": 164,
+    "required_fraction": 0.95,
+    "gate_sha256": "70d69c8e0c03cff1732880dbb26a5c3cb815c8dace9ae611a1ac9467260f9142",
+    "meets_user_accuracy_gate": true
+  },
+  "previous_real_kv_accuracy": {
+    "path": "/public2/home/duyunlong/run/dsv4.1/033/context_memory_fix_20261120/live_accuracy/he164.gate.json",
+    "passed": 158,
+    "changed_outcomes": [
+      {
+        "task_id": "HumanEval/93",
+        "before": false,
+        "after": true
+      }
+    ],
+    "prompt_hashes_identical": true
+  },
+  "frozen_reference_accuracy": {
+    "path": "/public2/home/duyunlong/run/dsv4.1/033/w4a8_reverify_20261119/nmz18/rms_int8_owned_service_20261120/he164.gate.json",
+    "passed": 159,
+    "changed_outcomes": [],
+    "prompt_hashes_identical": true
+  },
+  "real_128k": [
+    {
+      "prompt_tokens": 131072,
+      "completion_tokens": 8,
+      "elapsed_seconds": 199.29591397801414,
+      "finish_reason": "length",
+      "passed": true
+    }
+  ],
+  "decode_comparison": {
+    "baseline_directory": "/public2/home/duyunlong/run/dsv4.1/033/context_128k_compare_20261120/baseline/performance/20261120_174013_prof_w4_SS6RKy",
+    "candidate_directory": "/public2/home/duyunlong/run/dsv4.1/033/context_128k_compare_20261120/candidate/performance/20261120_180122_prof_w4_pWnQfY",
+    "serving_arguments_equal_except_profiler_output": true,
+    "effective_env_differences": {
+      "HCU_ADAPTER_SRC": {
+        "before": "/duyl/adapter-das-wt-fp4-profile-memory-20261120",
+        "after": "/duyl/adapter-das-wt-context-work-bound-20261120"
+      },
+      "HCU_VLLM_DIR": {
+        "before": "/duyl/vllm-hcu033-wt-fp4-profile-memory-20261120",
+        "after": "/duyl/vllm-hcu033-wt-context-work-bound-20261120"
+      }
+    },
+    "native_core_identical": true,
+    "package_versions_identical": true,
+    "baseline_functional_sources": {
+      "plugin": {
+        "path": "/duyl/vllm-hcu033-wt-fp4-profile-memory-20261120",
+        "commit": "afc458876a4928cd4e994b6d1aa4e0f472ecb031",
+        "tracked_dirty": false
+      },
+      "adapter": {
+        "path": "/duyl/adapter-das-wt-fp4-profile-memory-20261120",
+        "commit": "e73343750e0c124e015cb11de1f5f4792d1081a3",
+        "tracked_dirty": false
+      }
+    },
+    "candidate_functional_sources": {
+      "plugin": {
+        "path": "/duyl/vllm-hcu033-wt-context-work-bound-20261120",
+        "commit": "bc7cf5fde58c69311420deb341da7fb0c4806dbc",
+        "tracked_dirty": false
+      },
+      "adapter": {
+        "path": "/duyl/adapter-das-wt-context-work-bound-20261120",
+        "commit": "a6823673f8563ec026724a6abd4757e0286e38c4",
+        "tracked_dirty": false
+      }
+    },
+    "input_tokens": 131072,
+    "output_tokens": 128,
+    "concurrency": 64,
+    "effective_max_model_len": 1048576,
+    "baseline_mean_median_tpot_ms": 27.5192275592016,
+    "candidate_mean_median_tpot_ms": 17.82374786093264,
+    "tpot_reduction_percent": 35.2316564024599,
+    "speedup": 1.543964141207372,
+    "baseline_mean_output_throughput": 838.6320596205744,
+    "candidate_mean_output_throughput": 970.3959618902755,
+    "formal_repeats": {
+      "baseline": {
+        "formal_1": {
+          "completed": 64,
+          "failed": 0,
+          "duration": 9.618824375793338,
+          "median_tpot_ms": 28.025411848550828,
+          "mean_tpot_ms": 27.24620834080957,
+          "p99_tpot_ms": 33.57112064950286,
+          "output_throughput": 851.663330148321,
+          "median_ttft_ms": 3690.947226015851,
+          "spec_decode_acceptance_rate": 57.49419953596288,
+          "spec_decode_acceptance_length": 3.874709976798144,
+          "spec_decode_per_position_acceptance_rates": [
+            0.5749419953596288,
+            0.5749419953596288,
+            0.5749419953596288,
+            0.5749419953596288,
+            0.5749419953596288
+          ]
+        },
+        "formal_2": {
+          "completed": 64,
+          "failed": 0,
+          "duration": 9.749217418953776,
+          "median_tpot_ms": 27.72850595509971,
+          "mean_tpot_ms": 27.052839008935884,
+          "p99_tpot_ms": 34.670898810351694,
+          "output_throughput": 840.2725724501396,
+          "median_ttft_ms": 3507.103458046913,
+          "spec_decode_acceptance_rate": 57.951356407857816,
+          "spec_decode_acceptance_length": 3.8975678203928905,
+          "spec_decode_per_position_acceptance_rates": [
+            0.5795135640785781,
+            0.5795135640785781,
+            0.5795135640785781,
+            0.5795135640785781,
+            0.5795135640785781
+          ]
+        },
+        "formal_3": {
+          "completed": 64,
+          "failed": 0,
+          "duration": 9.942226871848106,
+          "median_tpot_ms": 26.803764873954258,
+          "mean_tpot_ms": 26.87281888434581,
+          "p99_tpot_ms": 36.473915066540705,
+          "output_throughput": 823.9602762632627,
+          "median_ttft_ms": 3821.777537697926,
+          "spec_decode_acceptance_rate": 58.06451612903226,
+          "spec_decode_acceptance_length": 3.903225806451613,
+          "spec_decode_per_position_acceptance_rates": [
+            0.5806451612903226,
+            0.5806451612903226,
+            0.5806451612903226,
+            0.5806451612903226,
+            0.5806451612903226
+          ]
+        }
+      },
+      "candidate": {
+        "formal_1": {
+          "completed": 64,
+          "failed": 0,
+          "duration": 8.266391003970057,
+          "median_tpot_ms": 17.984652484759806,
+          "mean_tpot_ms": 17.729970179720485,
+          "p99_tpot_ms": 22.50103980973803,
+          "output_throughput": 991.0007881390646,
+          "median_ttft_ms": 3507.6094954274595,
+          "spec_decode_acceptance_rate": 58.43118835133866,
+          "spec_decode_acceptance_length": 3.921559417566933,
+          "spec_decode_per_position_acceptance_rates": [
+            0.5843118835133866,
+            0.5843118835133866,
+            0.5843118835133866,
+            0.5843118835133866,
+            0.5843118835133866
+          ]
+        },
+        "formal_2": {
+          "completed": 64,
+          "failed": 0,
+          "duration": 8.199853665195405,
+          "median_tpot_ms": 16.78992203788788,
+          "mean_tpot_ms": 16.772287392688135,
+          "p99_tpot_ms": 23.18064207086471,
+          "output_throughput": 999.0422188594973,
+          "median_ttft_ms": 3619.844552827999,
+          "spec_decode_acceptance_rate": 58.86524822695035,
+          "spec_decode_acceptance_length": 3.9432624113475176,
+          "spec_decode_per_position_acceptance_rates": [
+            0.5886524822695035,
+            0.5886524822695035,
+            0.5886524822695035,
+            0.5886524822695035,
+            0.5886524822695035
+          ]
+        },
+        "formal_3": {
+          "completed": 64,
+          "failed": 0,
+          "duration": 8.893280731048435,
+          "median_tpot_ms": 18.696669060150235,
+          "mean_tpot_ms": 19.034841847200383,
+          "p99_tpot_ms": 26.653150127445322,
+          "output_throughput": 921.1448786722647,
+          "median_ttft_ms": 3762.048698030412,
+          "spec_decode_acceptance_rate": 57.09006928406467,
+          "spec_decode_acceptance_length": 3.8545034642032334,
+          "spec_decode_per_position_acceptance_rates": [
+            0.5709006928406467,
+            0.5709006928406467,
+            0.5709006928406467,
+            0.5709006928406467,
+            0.5709006928406467
+          ]
+        }
+      }
+    },
+    "prior_4k": {
+      "baseline_ms": 27.597957759120273,
+      "candidate_ms": 17.7859305605791
+    },
+    "limitations": [
+      "Fake-KV decode with synthetic DSpark acceptance; excludes real prefill and accuracy.",
+      "Baseline includes only memory accounting/address fixes; it retains the older full-width decode work.",
+      "GPU traces are separate profiled passes, not used for unprofiled TPOT timing.",
+      "Kernel duration sums may overlap; five-second VRAM samples are not instantaneous peaks."
+    ],
+    "prof": {
+      "baseline_gpu_step_ms": 128.03014599609375,
+      "candidate_gpu_step_ms": 76.90925329589842,
+      "baseline_all_full_graph": true,
+      "candidate_all_full_graph": true
+    }
+  },
+  "decode_profile": {
+    "baseline": {
+      "staging": 6.1992739,
+      "native_fp4_logits": 6.3228361,
+      "torch_multiblock_topk": 23.46472940000002,
+      "live_score_map": 0,
+      "native_top512": 0,
+      "topk_output": 0,
+      "rank_median_complete_step_ms": 128.03014599609375,
+      "all_ranks_full_graph": true,
+      "target_shapes_by_rank": [
+        {
+          "execute_context_0(0)_generation_1(6)": 2,
+          "execute_context_1(6)_generation_1(6)": 1,
+          "execute_context_0(0)_generation_2(12)": 6,
+          "execute_context_6(36)_generation_2(12)": 1
+        },
+        {
+          "execute_context_0(0)_generation_3(18)": 10
+        },
+        {
+          "execute_context_1(6)_generation_1(6)": 1,
+          "execute_context_0(0)_generation_2(12)": 6,
+          "execute_context_1(6)_generation_2(12)": 1,
+          "execute_context_0(0)_generation_3(18)": 1,
+          "execute_context_5(30)_generation_3(18)": 1
+        },
+        {
+          "execute_context_0(0)_generation_4(24)": 1,
+          "execute_context_4(24)_generation_4(24)": 1,
+          "execute_context_0(0)_generation_8(48)": 8
+        },
+        {
+          "execute_context_0(0)_generation_1(6)": 2,
+          "execute_context_1(6)_generation_1(6)": 1,
+          "execute_context_0(0)_generation_2(12)": 5,
+          "execute_context_2(12)_generation_2(12)": 1,
+          "execute_context_0(0)_generation_4(24)": 1
+        },
+        {
+          "execute_context_0(0)_generation_1(6)": 4,
+          "execute_context_2(12)_generation_1(6)": 1,
+          "execute_context_0(0)_generation_3(18)": 4,
+          "execute_context_5(30)_generation_3(18)": 1
+        },
+        {
+          "execute_context_0(0)_generation_1(6)": 4,
+          "execute_context_1(6)_generation_1(6)": 1,
+          "execute_context_0(0)_generation_2(12)": 5
+        },
+        {
+          "execute_context_0(0)_generation_2(12)": 2,
+          "execute_context_1(6)_generation_2(12)": 1,
+          "execute_context_5(30)_generation_3(18)": 1,
+          "execute_context_0(0)_generation_8(48)": 6
+        }
+      ]
+    },
+    "candidate": {
+      "staging": 2.2185078000000003,
+      "native_fp4_logits": 1.133031,
+      "torch_multiblock_topk": 0.6553179000000001,
+      "live_score_map": 0.43276000000000003,
+      "native_top512": 0.5546475999999999,
+      "topk_output": 0.099208,
+      "rank_median_complete_step_ms": 76.90925329589842,
+      "all_ranks_full_graph": true,
+      "target_shapes_by_rank": [
+        {
+          "execute_context_0(0)_generation_1(6)": 8,
+          "execute_context_1(6)_generation_1(6)": 1,
+          "execute_context_0(0)_generation_2(12)": 1
+        },
+        {
+          "execute_context_0(0)_generation_1(6)": 10
+        },
+        {
+          "execute_context_0(0)_generation_1(6)": 10
+        },
+        {
+          "execute_context_0(0)_generation_1(6)": 8,
+          "execute_context_1(6)_generation_1(6)": 1,
+          "execute_context_6(36)_generation_2(12)": 1
+        },
+        {
+          "execute_context_0(0)_generation_1(6)": 5,
+          "execute_context_1(6)_generation_1(6)": 1,
+          "execute_context_0(0)_generation_2(12)": 4
+        },
+        {
+          "execute_context_0(0)_generation_3(18)": 1,
+          "execute_context_5(30)_generation_3(18)": 1,
+          "execute_context_0(0)_generation_8(48)": 8
+        },
+        {
+          "execute_context_0(0)_generation_3(18)": 10
+        },
+        {
+          "execute_context_4(24)_generation_4(24)": 1,
+          "execute_context_0(0)_generation_8(48)": 9
+        }
+      ]
+    },
+    "limitation": "Kernel duration sums can overlap and are not additive wall-time components. The benchmark uses dummy KV/synthetic acceptance; this isolates live-length FP4 changes from the runnable memory-only baseline."
+  },
+  "commands": {
+    "serve": [
+      "/usr/local/bin/python3",
+      "-m",
+      "vllm.entrypoints.cli.main",
+      "serve",
+      "/models/DeepSeek-V4.1-Flash-Channel-INT4-w4a8",
+      "--tensor-parallel-size",
+      "1",
+      "--data-parallel-size",
+      "8",
+      "--enable-expert-parallel",
+      "--moe-backend",
+      "deep_gemm",
+      "--all2all-backend",
+      "deepep_low_latency",
+      "--gpu-memory-utilization",
+      "0.85",
+      "--block-size",
+      "64",
+      "--max-num-seqs",
+      "64",
+      "--max-num-batched-tokens",
+      "256",
+      "--cudagraph-capture-sizes",
+      "1",
+      "4",
+      "8",
+      "16",
+      "32",
+      "40",
+      "48",
+      "64",
+      "-cc",
+      "{\"cudagraph_mode\":\"FULL_AND_PIECEWISE\"}",
+      "--attention-config",
+      "{\"indexer_kv_dtype\":\"mxfp4\"}",
+      "--speculative-config",
+      "{\"method\":\"dspark\",\"num_speculative_tokens\":5,\"moe_backend\":\"deep_gemm\"}",
+      "--engram-config",
+      "{\"cpu_offload\": true, \"dp_shared_memory\": false, \"embedding_across_dp\": true}",
+      "--no-enable-prefix-caching",
+      "--reasoning-parser",
+      "deepseek_v41",
+      "--skip-mm-profiling",
+      "--host",
+      "127.0.0.1",
+      "--port",
+      "6551",
+      "--served-model-name",
+      "dsv41-flash-dp8ep8"
+    ],
+    "eval": [
+      "evalscope",
+      "eval",
+      "--model",
+      "dsv41-flash-dp8ep8",
+      "--api-url",
+      "http://127.0.0.1:6551/v1",
+      "--api-key",
+      "EMPTY",
+      "--eval-type",
+      "openai_api",
+      "--generation-config",
+      "{\"timeout\":120000,\"max_tokens\":16384,\"temperature\":0,\"top_p\":0.95,\"extra_body\":{\"chat_template_kwargs\":{\"enable_thinking\":false}}}",
+      "--stream",
+      "--eval-batch-size",
+      "16",
+      "--timeout",
+      "600000",
+      "--work-dir",
+      "/duyl/run/dsv4.1/033/prefill_budget_fix_20261120/accuracy/he164/20261120_183843",
+      "--datasets",
+      "humaneval",
+      "--seed",
+      "42"
+    ],
+    "effective_env": [
+      "CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7",
+      "DEEPEP_ENABLE_LL_LAYERED_OPT=1",
+      "GLOO_SOCKET_IFNAME=ens61f0np0",
+      "GPU_MAX_HW_QUEUES=3",
+      "HCU_ADAPTER_HOST=vllm",
+      "HCU_ADAPTER_SRC=/duyl/adapter-das-wt-context-ci-20261120",
+      "HCU_VLLM_DIR=/duyl/vllm-hcu033-wt-prefill-budget-20261120",
+      "HCU_VLLM_MHC_MEGA=1",
+      "HIP_GRAPH_ACCUMULATE_DISPATCH=0",
+      "HIP_PATH=/opt/dtk/hip",
+      "HIP_VISIBLE_DEVICES=0,1,2,3,4,5,6,7",
+      "HSA_USERPTR_FOR_PAGED_MEM=0",
+      "NCCL_IB_HCA=mlx5_0,mlx5_4,mlx5_5,mlx5_2,mlx5_3,mlx5_8,mlx5_9,mlx5_6,mlx5_7",
+      "NCCL_SOCKET_IFNAME=enp113s0f0np0,ens61f0np0,ens61f1np1,ens66f0np0,ens66f1np1,ens72f0np0,ens72f1np1,ens82f0np0,ens82f1np1",
+      "ROCR_VISIBLE_DEVICES=0,1,2,3,4,5,6,7",
+      "ROCSHMEM_BOOTSTRAP_TIMEOUT=1200",
+      "ROCSHMEM_DISABLE_HDP_FLUSH=1",
+      "ROCSHMEM_MAX_NUM_CONTEXTS=48",
+      "VLLM_ENGINE_READY_TIMEOUT_S=3600",
+      "VLLM_HCU_DSV41_FP8_INDEXER_REFERENCE=0",
+      "VLLM_HCU_USE_CUSTOM_OPS=1",
+      "VLLM_HOST_IP=13.13.3.18",
+      "VLLM_PLUGINS=hcu_adapter",
+      "VLLM_USE_BREAKABLE_CUDAGRAPH=1",
+      "VLLM_USE_V2_MODEL_RUNNER=1"
+    ],
+    "gpu": {
+      "command": [
+        "docker",
+        "exec",
+        "-e",
+        "HCU_ADAPTER_HOST=none",
+        "-e",
+        "PYTHONPATH=/duyl/vllm-hcu033-wt-prefill-budget-20261120:/duyl/vllm-hcu033-wt-prefill-budget-20261120/adapter_extension/src:/duyl/adapter-das-wt-context-ci-20261120",
+        "-e",
+        "PYTHONDONTWRITEBYTECODE=1",
+        "-e",
+        "ROCR_VISIBLE_DEVICES=0",
+        "-e",
+        "HIP_VISIBLE_DEVICES=0",
+        "-e",
+        "CUDA_VISIBLE_DEVICES=0",
+        "duyl-033-w4a8-1119",
+        "python3",
+        "/duyl/vllm-hcu033-wt-prefill-budget-20261120/tests/vllm033/probe_fp4_prefill_budget.py",
+        "--output",
+        "/duyl/run/dsv4.1/033/prefill_budget_fix_20261120/gpu_probe.json"
+      ],
+      "sources": {
+        "plugin": "42e29f33dd84fd00c4db16943d6b6e8bb78272f7",
+        "adapter": "7b7b1dd34997419b2580d04dd49bebe145895d42"
+      }
+    }
+  },
+  "cpu_validation": {
+    "cases_passed": 93,
+    "log": "/public2/home/duyunlong/run/dsv4.1/033/prefill_budget_fix_20261120/bucket_cpu.log"
+  },
+  "limits": [
+    "Native probe measures allocator peak of the complete FP4 operation, excluding persistent inputs/oracle from the increment; the logits budget is per tensor.",
+    "Whole-device peaks are 100-ms samples and can miss shorter transients.",
+    "The 128K decode pair used published bc7cf5f/a682367 before this prefill-only change; it measures live-length decode with dummy KV and synthetic acceptance, not real prefill or long-context quality.",
+    "The real 128K request is an execution/OOM smoke using repeated token IDs, not a long-context quality evaluation.",
+    "The screenshot original 8.5GB OOM log and upstream PR 426 URL were not supplied; the native 8GiB logits allocation here is a separate reproduction."
+  ]
+}

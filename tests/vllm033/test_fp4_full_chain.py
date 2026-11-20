@@ -170,7 +170,7 @@ def metadata(chain, cache, decode_lens=(3, 5), prefill=False):
     if prefill:
         kw.update(num_decodes=0, num_decode_tokens=0, num_prefills=2,
                   num_prefill_tokens=2, decode=None)
-        chunk = NS(token_start=0, token_end=2, total_seq_lens=5,
+        chunk = NS(token_start=0, token_end=2, total_seq_lens=5, max_seqlen_k=3,
                    token_to_seq=torch.tensor([0, 0, 1, 1, 1], dtype=torch.int32),
                    cu_seq_lens=torch.tensor([0, 2, 5], dtype=torch.int32),
                    block_table=torch.tensor([[1], [0]], dtype=torch.int32),
