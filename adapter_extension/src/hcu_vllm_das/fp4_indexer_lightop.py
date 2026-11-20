@@ -32,6 +32,7 @@ class Providers:
     prefill: object
     decode: object
     native: object
+    plan: object = None
 
 
 _CONTRACTS = (
@@ -66,7 +67,11 @@ def load_providers():
             or decode.parameters['out'].default is not None
             or decode.parameters['rows_per_request'].default != 1):
         raise RuntimeError('FP4 provider defaults changed')
-    prepared = Providers(*calls, native)
+    planner = getattr(import_module('lightop.attention.mqa'),
+                      'get_paged_mqa_logits_fp4_metadata', None)
+    if not callable(planner):
+        raise RuntimeError('FP4 schedule planner unavailable')
+    prepared = Providers(*calls, native, planner)
     if _providers is not None and prepared != _providers:
         raise RuntimeError('FP4 provider ownership changed; start a new process')
     _providers = prepared
@@ -114,16 +119,19 @@ STAGING_PAGE_BYTES = 4352
 # would make the second layer's request a shape mismatch, which the workspace
 # manager rejects outright -- a startup failure, not a slow path.
 _reserved_pools: dict[int, object] = {}
+_reserved_fused: set[tuple[object, int]] = set()
 
 
 def decode_rows(cfg):
     """Decode rows one step can carry, including speculative tokens."""
     spec = cfg.speculative_config
     extra = spec.num_speculative_tokens if spec else 0
-    return cfg.scheduler_config.max_num_seqs * (1 + extra)
+    scheduler = cfg.scheduler_config
+    return min(scheduler.max_num_batched_tokens,
+               scheduler.max_num_seqs * (1 + extra))
 
 
-def staging_plan(cfg, max_model_len, compress_ratio):
+def staging_plan(cfg, max_model_len, compress_ratio, *, fused=False):
     """Shapes the decode staging needs at the configured maximum.
 
     Returns ``None`` when the allocator already uses 64-record pages, because
@@ -141,6 +149,12 @@ def staging_plan(cfg, max_model_len, compress_ratio):
     pages_per_row = (max_model_len + 63) // 64
     width = pages_per_row * 64
     slots = requests * width
+    if fused:
+        # Triton copies payload/scale bytes directly into the persistent pool.
+        # Its only separate output is one int32 entry per canonical page.
+        return dict(requests=requests, pages_per_row=pages_per_row,
+                    page_records=page_records, transient=requests * pages_per_row * 4,
+                    shape=(requests, pages_per_row, STAGING_PAGE_BYTES))
     # Every tensor `stage_decode_pages` holds at the same time as the pool.
     # int64 index tensors are 8 bytes each and several of them coexist:
     # offsets, the valid mask, logical_pages, its clamp_max result, the
@@ -197,13 +211,17 @@ def reserve_decode_staging(cfg, max_model_len, compress_ratio, device):
       immediately, which is what makes the peak honest without permanently
       holding the bytes.
     """
-    plan = staging_plan(cfg, max_model_len, compress_ratio)
+    from hcu_adapter.kernels.fp4_staging_triton import supports_staging_device
+    fused = supports_staging_device(device)
+    plan = staging_plan(cfg, max_model_len, compress_ratio, fused=fused)
     if plan is None:
         return None
     pool = _staging_pool(plan, device)
     probe = torch.empty(plan['transient'], dtype=torch.uint8, device=device)
     del probe
     _reserved_pools[plan['page_records']] = pool
+    if fused:
+        _reserved_fused.add((pool.device, plan['page_records']))
     return pool
 
 
@@ -232,12 +250,14 @@ def _staging_target(cache, requests, pages_per_row):
 
 
 def stage_decode_pages(cache, block_table, row_ends, max_context_len, gather):
-    """Stage non-64 allocator pages into LightOp's canonical decode pages.
+    """Stage live non-64 allocator pages into canonical decode pages.
 
     ``gather`` is the audited ``dsv41_gather_index_k_fp4`` provider.  It
     returns one ``[64]`` payload and one UE8M0 ``int32`` word per requested
-    slot.  Invalid columns use slot zero only as an in-bounds read and are
-    masked by the native scorer through ``row_ends``.
+    slot. The device copier visits only live pages. Within the final page,
+    invalid records use slot-zero bytes; later pages stay unwritten and are
+    excluded by the native scorer's device lengths. The gather fallback
+    retains its fully initialized output.
     """
     page_records = physical_page_records(cache)
     if page_records == 64:
@@ -257,10 +277,12 @@ def stage_decode_pages(cache, block_table, row_ends, max_context_len, gather):
         from hcu_adapter.kernels.fp4_staging_triton import stage_decode_pages as stage
         pages = _staging_target(cache, requests, pages_per_row)
         table = torch.empty((requests, pages_per_row), dtype=torch.int32, device=cache.device)
-        if stage(cache, block_table, row_ends, pages, table):
+        if stage(cache, block_table, row_ends, pages, table, live_only=True):
             flat_pool = pages.reshape(requests * pages_per_row, STAGING_PAGE_BYTES)
             pool = flat_pool.as_strided((flat_pool.shape[0], 64, 68), (4352, 68, 1))
             return pool, table
+        if (cache.device, page_records) in _reserved_fused:
+            raise RuntimeError('Profiled Triton FP4 staging contract changed')
     offsets = torch.arange(width, device=cache.device, dtype=torch.int64)
     valid = offsets[None, :] < row_ends.reshape(-1, 1)
     logical_pages = torch.div(offsets, page_records, rounding_mode='floor')
@@ -363,11 +385,13 @@ def _validate(layer, meta, hidden, cache, query, weights):
 def execute(layer, hidden, query, weights):
     context = get_forward_context()
     if not isinstance(context.attn_metadata, dict):
-        # Profile the real dense logits bound without reading the empty cache.
+        # Native logits and the exact-rank TopK's mapped scores coexist. Keep
+        # both maximum row pitches in the profile without reading empty cache.
         from vllm.v1.worker.workspace import current_workspace_manager
         cfg = get_current_vllm_config()
         rows = max(hidden.shape[0], decode_rows(cfg))
         current_workspace_manager().get_simultaneous(
+            ((rows, (layer.max_model_len + 3) // 4 * 4), torch.float32),
             ((rows, (layer.max_model_len + 3) // 4 * 4), torch.float32))
         # The decode staging pool and its per-step scratch are allocated here,
         # during the profile pass, so the measured peak covers them. Reserving
@@ -420,17 +444,18 @@ def execute(layer, hidden, query, weights):
         decode_cache, decode_table = stage_decode_pages(
             cache, d.block_table.contiguous(), lengths, layer.max_model_len, p.gather
         )
+        sms = (torch.cuda.get_device_properties(cache.device).multi_processor_count
+               if cache.is_cuda else 0)
+        schedule = p.plan(lengths, 64, sms) if p.plan is not None and sms else None
         logits = p.decode(query[0][:n].unsqueeze(1).contiguous(),
                           query[1][:n].unsqueeze(1).contiguous(),
                           decode_cache.unsqueeze(2), weights[:n].contiguous(),
                           lengths, decode_table.contiguous(),
-                          None, width, 64, None, 1)
+                          schedule, width, 64, None, 1)
         # The native clean_logits=False ABI leaves columns beyond each device
-        # length unwritten. Graph-private allocations can retain arbitrary
-        # scores there, so mask them before top-k (including padded rows).
-        columns = torch.arange(logits.shape[1], device=logits.device)
-        logits.masked_fill_(columns[None, :] >= lengths[:, None], -float('inf'))
+        # length unwritten. Pass device lengths through selection so replay
+        # never scans that tail; unsupported selectors mask it before fallback.
         _select(logits, torch.zeros_like(lengths), lengths, out[:n],
                 None if layer.candidate_blocks is None else layer.candidate_blocks[:n],
-                layer.candidate_block_size, layer.candidate_write)
+                layer.candidate_block_size, layer.candidate_write, bounded=True)
     return layer.topk_indices_buffer
