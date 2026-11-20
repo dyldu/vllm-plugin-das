@@ -1,5 +1,7 @@
 # FP4 prefill logits budget and 128K validation
 
+This report records functional snapshot `42e29f3`. The subsequent valid-prefix native TopK change (`3a310b4`), its updated allocator peaks, and matched real 4K/128K performance/profile/accuracy results are recorded in [the newer real-input report](dsv41-real-128k.md). The measurements below remain evidence for the earlier snapshot.
+
 Core metadata chunks query rows using actual compressed KV extents and `VLLM_SPARSE_INDEXER_MAX_LOGITS_MB` (default 512 MiB). The plugin previously passed maximum model capacity to the native FP4 scorer, which allocates FP32 `[query_rows, width]`; that mismatch defeats Core's byte budget.
 
 Use the metadata's CPU `max_seqlen_k`, rounded to a growing power-of-two pitch (also satisfying native four-column alignment), and subdivide query rows by `budget // (pitch * 4)`. These runtime allocation buckets keep selector JIT variants reusable as successive prefill chunks grow; the pitch is less than twice the actual extent, except for the native minimum of four columns. Query offsets, causal bounds and candidate-bank slices follow every tile. Release each logits tensor before allocating the next and release gathered KV before the next chunk. No device-to-host length read is added. The decode branch is unchanged, including device valid-prefix selection and the tail mask for unsupported selection fallbacks.
