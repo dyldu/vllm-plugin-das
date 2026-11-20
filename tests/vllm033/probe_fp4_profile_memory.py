@@ -53,13 +53,16 @@ def main(args):
     def check(output, graph=False):
         pages, out_table = output
         for row in selected:
+            live = (int(lengths[row]) + 63) // 64
+            if not live:
+                continue
             expected, _ = old.stage_decode_pages(
-                cache, table[row:row+1], lengths[row:row+1], width, providers.gather)
-            torch.testing.assert_close(pages[row*8192:(row+1)*8192], expected,
+                cache, table[row:row+1], lengths[row:row+1], live * 64, providers.gather)
+            torch.testing.assert_close(pages[row*8192:row*8192+live], expected,
                                        rtol=0, atol=0)
-            expected_table = torch.arange(row*8192, (row+1)*8192,
+            expected_table = torch.arange(row*8192, row*8192+live,
                                           dtype=torch.int32, device='cuda')
-            torch.testing.assert_close(out_table[row], expected_table, rtol=0, atol=0)
+            torch.testing.assert_close(out_table[row, :live], expected_table, rtol=0, atol=0)
             report['graphs' if graph else 'eager'] += 1
         torch.cuda.synchronize()
         save()
@@ -91,9 +94,11 @@ def main(args):
             weights = torch.rand(1, 32, device='cuda') / 32
             a = providers.decode(q, sf, expected.unsqueeze(2), weights,
                                  lengths[row:row+1], et, None, width, 64, None, 1)
+            schedule = providers.plan(lengths[row:row+1], 64,
+                torch.cuda.get_device_properties(0).multi_processor_count)
             b = providers.decode(q, sf, output[0].unsqueeze(2), weights,
                                  lengths[row:row+1], output[1][row:row+1],
-                                 None, width, 64, None, 1)
+                                 schedule, width, 64, None, 1)
             n = int(lengths[row].item())
             assert torch.equal(a[:, :n].view(torch.uint8), b[:, :n].view(torch.uint8))
             assert torch.isfinite(b[:, :n]).all().item()

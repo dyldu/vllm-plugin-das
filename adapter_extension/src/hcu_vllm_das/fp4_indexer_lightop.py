@@ -32,6 +32,7 @@ class Providers:
     prefill: object
     decode: object
     native: object
+    plan: object = None
 
 
 _CONTRACTS = (
@@ -66,7 +67,11 @@ def load_providers():
             or decode.parameters['out'].default is not None
             or decode.parameters['rows_per_request'].default != 1):
         raise RuntimeError('FP4 provider defaults changed')
-    prepared = Providers(*calls, native)
+    planner = getattr(import_module('lightop.attention.mqa'),
+                      'get_paged_mqa_logits_fp4_metadata', None)
+    if not callable(planner):
+        raise RuntimeError('FP4 schedule planner unavailable')
+    prepared = Providers(*calls, native, planner)
     if _providers is not None and prepared != _providers:
         raise RuntimeError('FP4 provider ownership changed; start a new process')
     _providers = prepared
@@ -245,12 +250,14 @@ def _staging_target(cache, requests, pages_per_row):
 
 
 def stage_decode_pages(cache, block_table, row_ends, max_context_len, gather):
-    """Stage non-64 allocator pages into LightOp's canonical decode pages.
+    """Stage live non-64 allocator pages into canonical decode pages.
 
     ``gather`` is the audited ``dsv41_gather_index_k_fp4`` provider.  It
     returns one ``[64]`` payload and one UE8M0 ``int32`` word per requested
-    slot.  Invalid columns use slot zero only as an in-bounds read and are
-    masked by the native scorer through ``row_ends``.
+    slot. The device copier visits only live pages. Within the final page,
+    invalid records use slot-zero bytes; later pages stay unwritten and are
+    excluded by the native scorer's device lengths. The gather fallback
+    retains its fully initialized output.
     """
     page_records = physical_page_records(cache)
     if page_records == 64:
@@ -270,7 +277,7 @@ def stage_decode_pages(cache, block_table, row_ends, max_context_len, gather):
         from hcu_adapter.kernels.fp4_staging_triton import stage_decode_pages as stage
         pages = _staging_target(cache, requests, pages_per_row)
         table = torch.empty((requests, pages_per_row), dtype=torch.int32, device=cache.device)
-        if stage(cache, block_table, row_ends, pages, table):
+        if stage(cache, block_table, row_ends, pages, table, live_only=True):
             flat_pool = pages.reshape(requests * pages_per_row, STAGING_PAGE_BYTES)
             pool = flat_pool.as_strided((flat_pool.shape[0], 64, 68), (4352, 68, 1))
             return pool, table
@@ -378,11 +385,13 @@ def _validate(layer, meta, hidden, cache, query, weights):
 def execute(layer, hidden, query, weights):
     context = get_forward_context()
     if not isinstance(context.attn_metadata, dict):
-        # Profile the real dense logits bound without reading the empty cache.
+        # Native logits and the exact-rank TopK's mapped scores coexist. Keep
+        # both maximum row pitches in the profile without reading empty cache.
         from vllm.v1.worker.workspace import current_workspace_manager
         cfg = get_current_vllm_config()
         rows = max(hidden.shape[0], decode_rows(cfg))
         current_workspace_manager().get_simultaneous(
+            ((rows, (layer.max_model_len + 3) // 4 * 4), torch.float32),
             ((rows, (layer.max_model_len + 3) // 4 * 4), torch.float32))
         # The decode staging pool and its per-step scratch are allocated here,
         # during the profile pass, so the measured peak covers them. Reserving
@@ -435,17 +444,18 @@ def execute(layer, hidden, query, weights):
         decode_cache, decode_table = stage_decode_pages(
             cache, d.block_table.contiguous(), lengths, layer.max_model_len, p.gather
         )
+        sms = (torch.cuda.get_device_properties(cache.device).multi_processor_count
+               if cache.is_cuda else 0)
+        schedule = p.plan(lengths, 64, sms) if p.plan is not None and sms else None
         logits = p.decode(query[0][:n].unsqueeze(1).contiguous(),
                           query[1][:n].unsqueeze(1).contiguous(),
                           decode_cache.unsqueeze(2), weights[:n].contiguous(),
                           lengths, decode_table.contiguous(),
-                          None, width, 64, None, 1)
+                          schedule, width, 64, None, 1)
         # The native clean_logits=False ABI leaves columns beyond each device
-        # length unwritten. Graph-private allocations can retain arbitrary
-        # scores there, so mask them before top-k (including padded rows).
-        columns = torch.arange(logits.shape[1], device=logits.device)
-        logits.masked_fill_(columns[None, :] >= lengths[:, None], -float('inf'))
+        # length unwritten. Pass device lengths through selection so replay
+        # never scans that tail; unsupported selectors mask it before fallback.
         _select(logits, torch.zeros_like(lengths), lengths, out[:n],
                 None if layer.candidate_blocks is None else layer.candidate_blocks[:n],
-                layer.candidate_block_size, layer.candidate_write)
+                layer.candidate_block_size, layer.candidate_write, bounded=True)
     return layer.topk_indices_buffer
