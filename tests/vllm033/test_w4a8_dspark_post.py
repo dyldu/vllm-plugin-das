@@ -39,16 +39,22 @@ def test_explicit_false_keeps_the_original_draft_schedule():
     assert not dspark_post.requested(cfg)
 
 
-@pytest.mark.parametrize('change', ['hidden', 'hc', 'n', 'quant', 'dp', 'tp'])
+@pytest.mark.parametrize('change', ['hidden', 'hc', 'quant', 'dp', 'tp'])
 def test_unsupported_default_retains_native_path(change):
     cfg = config(); cfg.additional_config = {}
     if change == 'hidden': cfg.model_config.hf_config.hidden_size = 4096
     if change == 'hc': cfg.model_config.hf_config.hc_mult = 8
-    if change == 'n': cfg.speculative_config.num_speculative_tokens = 3
     if change == 'quant': cfg.quant_config = object()
     if change == 'dp': cfg.parallel_config.data_parallel_size = 1
     if change == 'tp': cfg.parallel_config.tensor_parallel_size = 2
     assert not dspark_post.requested(cfg)
+
+
+@pytest.mark.parametrize('drafts', [1, 3, 5, 7])
+def test_post_layout_does_not_depend_on_draft_count(drafts):
+    cfg = config()
+    cfg.speculative_config.num_speculative_tokens = drafts
+    assert dspark_post.requested(cfg)
 
 
 @pytest.mark.parametrize('value', [0, 1, 'true', 'false'])

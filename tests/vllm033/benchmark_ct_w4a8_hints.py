@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Native HIPC hint probe; never imports or changes the serving implementation.
+"""Validate the serving HIPC descriptor selection against native GEMMs.
 
 Native baseline/candidate
 GEMMs must have identical active BF16 bytes. An independent signed-INT4 CPU
@@ -72,6 +72,11 @@ def run(args, report):
     from deepgemm.configs.w4a8_masked_hipc import select_w4a8_hipc_masked_config
     from lightop import fuse_silu_mul_clamp_quant_ep
 
+    from hcu_vllm_das.moe.ct_w4a8_hints import masked_gemm as serving_gemm
+
+    def masked_gemm(a, b, out, counts, hint):
+        return serving_gemm(deepgemm.m_grouped_w4a8_gemm_nt_masked_hipc, a, b, out, counts, hint)
+
     torch.set_num_threads(8)
     torch.manual_seed(9231)
     report['provider_files'] = {str(p): hashlib.sha256(p.read_bytes()).hexdigest()
@@ -82,7 +87,7 @@ def run(args, report):
             report['package_versions'][name] = importlib.metadata.version(name)
         except importlib.metadata.PackageNotFoundError:
             report['package_versions'][name] = None
-    e, capacity, k, n = args.experts, 2048, 5120, 4608
+    e, capacity, k, n = args.experts, args.capacity, 5120, 4608
     device = 'cuda'
     props = torch.cuda.get_device_properties(0)
     report['hardware'] = {'name': props.name, 'arch': props.gcnArchName,
@@ -107,7 +112,7 @@ def run(args, report):
     row = torch.arange(capacity, device=device)[None, :]
 
     def gemm(output, hint):
-        return deepgemm.m_grouped_w4a8_gemm_nt_masked_hipc(
+        return masked_gemm(
             (x, xs), (weight, weight_scale), output, counts, hint)
 
     # Above-hint skew explicitly verifies that expected_m is not a row bound.
@@ -122,7 +127,7 @@ def run(args, report):
         gemm(out_old, capacity)
         original_x, original_xs = x.clone(), xs.clone()
         original_weight, original_weight_scale = weight.clone(), weight_scale.clone()
-        for hint in (16, 32, 48):
+        for hint in args.hints:
             gemm(out_new, hint)
             torch.cuda.synchronize()
             if not torch.isfinite(out_new[active]).all():
@@ -157,7 +162,7 @@ def run(args, report):
         counts.copy_(torch.tensor(layouts[name], device=device, dtype=torch.int32))
         active = row < counts[:, None]
         gemm(out_old, capacity)
-        for hint in (16, 32, 48):
+        for hint in args.hints:
             gemm(out_new, hint)
             torch.cuda.synchronize()
             exact(out_old[active], out_new[active], 'Real-scale GEMM bytes differ')
@@ -187,7 +192,7 @@ def run(args, report):
     for name in ('decode', 'verify'):
         counts.copy_(torch.tensor(layouts[name], device=device, dtype=torch.int32))
         report['gemm_timings'][name] = {str(h): timing(lambda h=h: gemm(out_new, h))
-                                        for h in (capacity, 16, 32, 48)}
+                                        for h in (capacity, *args.hints)}
 
     del weight, packed, oracle_weights, x, xs, graph, out_old
     torch.cuda.empty_cache()
@@ -207,7 +212,7 @@ def run(args, report):
     down_new = torch.empty_like(down_old)
 
     def consumer(activation, output):
-        deepgemm.m_grouped_w4a8_gemm_nt_masked_hipc(
+        masked_gemm(
             activation, (w2, w2s), output, counts, capacity)
 
     # Down-projection has a different N/K and native configuration table entry.
@@ -239,8 +244,8 @@ def run(args, report):
         original_gateup = gateup.clone()
         baseline = fuse_silu_mul_clamp_quant_ep(gateup, 10., counts, capacity)
         consumer(baseline, down_old)
-        for hint in (16, 32, 48):
-            deepgemm.m_grouped_w4a8_gemm_nt_masked_hipc(
+        for hint in args.hints:
+            masked_gemm(
                 baseline, (w2, w2s), down_new, counts, hint)
             torch.cuda.synchronize()
             exact(down_old[active], down_new[active], 'Down-GEMM hint changed active bytes')
@@ -249,11 +254,11 @@ def run(args, report):
                 'config': select_w4a8_hipc_masked_config(hint, k, n // 2, e)})
         if name in ('decode', 'verify'):
             def down_call(h):
-                return deepgemm.m_grouped_w4a8_gemm_nt_masked_hipc(
+                return masked_gemm(
                     baseline, (w2, w2s), down_new, counts, h)
             report['down_gemm_timings'][name] = {
-                str(h): timing(lambda h=h: down_call(h)) for h in (capacity, 16, 32, 48)}
-        for hint in (16, 32, 48):
+                str(h): timing(lambda h=h: down_call(h)) for h in (capacity, *args.hints)}
+        for hint in args.hints:
             candidate = fuse_silu_mul_clamp_quant_ep(gateup, 10., counts, hint)
             torch.cuda.synchronize()
             exact(baseline[0][active], candidate[0][active], 'INT8 activation codes differ')
@@ -270,7 +275,7 @@ def run(args, report):
         if name in ('decode', 'verify'):
             report['activation_timings'][name] = {
                 str(h): timing(lambda h=h: fuse_silu_mul_clamp_quant_ep(gateup, 10., counts, h))
-                for h in (capacity, 16, 32, 48)}
+                for h in (capacity, *args.hints)}
         # Restore rows after a previous empty/skew poison before changing counts.
         gateup.normal_(0, 8)
 
@@ -294,7 +299,7 @@ def run(args, report):
         exact(baseline[0][active], graph_result[0][active], 'Fresh activation graph codes differ')
         exact(baseline[1][active], graph_result[1][active], 'Fresh activation graph scales differ')
         consumer(baseline, down_old)
-        deepgemm.m_grouped_w4a8_gemm_nt_masked_hipc(
+        masked_gemm(
             graph_result, (w2, w2s), down_new, counts, 32)
         torch.cuda.synchronize()
         exact(down_old[active], down_new[active], 'Fresh graph native consumer differs')
@@ -305,7 +310,9 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--output', required=True)
     parser.add_argument('--experts', type=int, choices=(16, 48), default=48,
-                        help='Target48 or DSpark16 local experts; capacity remains2048')
+                        help='Target48 or DSpark16 local experts')
+    parser.add_argument('--capacity', type=int, default=2048)
+    parser.add_argument('--hints', type=int, nargs='+', default=[16, 32, 48])
     args = parser.parse_args()
     report = {'started': datetime.datetime.now(datetime.timezone.utc).isoformat(),
               'operator_contract': 'exact active bytes vs unchanged native provider',

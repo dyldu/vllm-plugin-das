@@ -24,10 +24,12 @@ def _native_contract():
 
 
 def supported(model, spec, num_reqs, hidden):
+    steps = getattr(spec, 'num_speculative_steps', None)
+    tokens = getattr(spec, 'draft_tokens', None)
     if (not getattr(model, '_hcu_markov_pointwise', False)
             or getattr(spec, 'model', None) is not model
-            or type(num_reqs) is not int or not 1 <= num_reqs <= 32
-            or getattr(spec, 'num_speculative_steps', None) != 5
+            or type(num_reqs) is not int or num_reqs <= 0
+            or type(steps) is not int or steps <= 0
             or getattr(spec, 'draft_logits', False) is not None
             or getattr(spec, 'draft_watermarker', False) is not None
             or getattr(spec, '_d2t_scatter_index', False) is not None
@@ -58,8 +60,8 @@ def supported(model, spec, num_reqs, hidden):
             or processor.scale != 1.0 or processor.soft_cap is not None
             or processor.logits_as_input or processor.org_vocab_size != 129280):
         return False
-    tokens = spec.draft_tokens
-    if (tokens.ndim != 2 or tokens.shape[0] < num_reqs or tokens.shape[1] != 5
+    if (not isinstance(tokens, torch.Tensor) or tokens.ndim != 2
+            or tokens.shape[0] < num_reqs or tokens.shape[1] != steps
             or tokens.dtype != torch.int64 or tokens.stride(1) != 1
             or tokens.device != w1.device):
         return False
@@ -72,20 +74,21 @@ def supported(model, spec, num_reqs, hidden):
     if getattr(spec._sample_logits, '__func__', None) is not native_spec._sample_logits:
         return False
     props = torch.cuda.get_device_properties(w1.device)
-    return props.gcnArchName.split(':')[0] == 'gfx938' and props.multi_processor_count == 64
+    return props.gcnArchName.split(':')[0] == 'gfx938'
 
 
 @lru_cache(maxsize=1)
 def _log_admission():
     logging.getLogger('vllm.' + __name__).info(
-        'HCU W4A8 exact greedy Markov pointwise admitted: V129280 R256 DSpark5; native bias projection retained')
+        'HCU W4A8 exact greedy Markov pointwise admitted: V129280 R256; native bias projection retained')
 
 
 def sample_sequential(model, spec, num_reqs, head_hidden):
     if not supported(model, spec, num_reqs, head_hidden):
         return False
     from .dspark_greedy_pointwise import greedy
-    n = num_reqs * 5
+    steps = spec.num_speculative_steps
+    n = num_reqs * steps
     sample_hidden = head_hidden[spec.sample_indices[:n]]
     base = model.compute_draft_logits(sample_hidden)
     # Typed native model/heads establish these before any custom kernel writes.
@@ -95,7 +98,7 @@ def sample_sequential(model, spec, num_reqs, head_hidden):
     anchors = spec.input_buffers.input_ids[spec._anchor_idx[:num_reqs]]
     head = model.model.markov_head
     greedy(head.markov_w1.weight, head.markov_w2.weight,
-           base.view(num_reqs, 5, 129280), anchors,
+           base.view(num_reqs, steps, 129280), anchors,
            bias_fn=model.markov_bias, embed_fn=model.markov_embed,
            out=spec.draft_tokens[:num_reqs])
     _log_admission()

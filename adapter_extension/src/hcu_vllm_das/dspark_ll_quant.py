@@ -46,16 +46,17 @@ def quantize_receiver(x, counts, expected_m=32):
             or utils.per_token_quant_int8 is not _public_quantize):
         raise RuntimeError("W4A8 draft receiver native quantization changed")
     if (x.dtype != torch.bfloat16 or x.ndim != 3 or x.shape[0] not in (16, 48)
-            or x.shape[1:] != (2048, 5120) or not x.is_cuda or not x.is_contiguous()
+            or x.shape[1] <= 0 or x.shape[2] != 5120 or not x.is_cuda or not x.is_contiguous()
             or counts.dtype != torch.int32 or counts.shape != x.shape[:1]
             or counts.device != x.device or not counts.is_contiguous()):
-        raise ValueError("W4A8 draft receiver requires the fixed256x8 LL layout")
+        raise ValueError("W4A8 draft receiver requires a nonempty contiguous LL expert layout")
     props = torch.cuda.get_device_properties(x.device)
-    if props.gcnArchName.split(":")[0] != "gfx938" or props.multi_processor_count != 64:
+    if props.gcnArchName.split(":")[0] != "gfx938":
         raise ValueError("W4A8 draft receiver is outside verified device geometry")
     q = torch.empty(x.shape, device=x.device, dtype=torch.int8)
     scales = torch.empty((*x.shape[:-1], 1), device=x.device, dtype=torch.float32)
-    rows = min(2048, max(1, int(expected_m)))
+    capacity = x.shape[1]
+    rows = min(capacity, max(1, int(expected_m)))
     _masked_native_int8[(rows, x.shape[0])](
-        x, q, scales, counts, 2048, rows, num_warps=8, num_stages=1)
+        x, q, scales, counts, capacity, rows, num_warps=8, num_stages=1)
     return q, scales

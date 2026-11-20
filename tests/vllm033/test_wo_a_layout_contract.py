@@ -55,8 +55,7 @@ def test_actual_multimodal_config_uses_text_hidden_size(monkeypatch, explicit_te
 
 
 @pytest.mark.parametrize('field,value', [('hidden_size',4096), ('model_type','other'),
-    ('tensor_parallel_size',2), ('prefill_context_parallel_size',2),
-    ('pipeline_parallel_size',2), ('data_parallel_size',1), ('enable_expert_parallel',False)])
+    ('tensor_parallel_size',2), ('prefill_context_parallel_size',2)])
 def test_unverified_model_and_parallelism_keep_native(monkeypatch, field, value):
     monkeypatch.setattr(layout, '_SOURCE_MATCHES', True)
     cfg = config()
@@ -96,7 +95,7 @@ def test_changed_contract_refuses_out_bmm(fake_case, monkeypatch, case):
     owner, x, tensor = fake_case
     assert layout.supported(owner, x)
     if case == 'dtype': x = tensor((48,64,512), torch.float32)
-    if case == 'rows': x = tensor((32,64,512))
+    if case == 'rows': x = tensor((0,64,512))
     if case == 'heads': x = tensor((48,32,512))
     if case == 'hidden': x = tensor((48,64,256))
     if case == 'device': x = tensor((48,64,512), device='cpu')
@@ -141,3 +140,18 @@ def test_compile_factor_tracks_provider_admission(monkeypatch):
     verified = activation._compute_digest()
     monkeypatch.setattr(layout, '_SOURCE_MATCHES', False)
     assert verified != activation._compute_digest()
+
+
+@pytest.mark.parametrize('rows', [1, 7, 17, 32, 65, 96, 128, 256])
+def test_row_count_is_runtime_shape(fake_case, rows):
+    owner, _, tensor = fake_case
+    assert layout.supported(owner, tensor((rows, 64, 512)))
+
+
+@pytest.mark.parametrize('field,value', [('pipeline_parallel_size', 2),
+    ('data_parallel_size', 1), ('enable_expert_parallel', False)])
+def test_local_projection_does_not_depend_on_unrelated_parallelism(monkeypatch, field, value):
+    monkeypatch.setattr(layout, '_SOURCE_MATCHES', True)
+    cfg = config()
+    setattr(cfg.parallel_config, field, value)
+    assert layout.configured(cfg)
