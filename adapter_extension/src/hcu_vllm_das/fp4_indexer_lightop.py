@@ -383,18 +383,19 @@ def _validate(layer, meta, hidden, cache, query, weights):
 
 
 def prefill_logits_plan(chunk, max_model_len, max_logits_bytes):
-    """Bound actual FP32 allocation, including the native four-column pitch.
+    """Bound FP32 allocation while reusing shape-specialized selector kernels.
 
     Core chunks by gathered KV extent, but this provider returns window-local
     columns. Use the metadata's CPU upper bound, never the configured context
-    capacity or a host read of device lengths. Subdivide query rows when pitch
-    rounding or a different caller's metadata would exceed the byte budget.
+    capacity or a host read of device lengths. Round to a growing power-of-two
+    pitch so chunked prefill reuses TopK specializations as the context grows.
+    Subdivide query rows using that pitch so rounding never exceeds the budget.
     """
     extent = chunk.max_seqlen_k
     if (type(extent) is not int or not 0 <= extent <= max_model_len
             or type(max_logits_bytes) is not int or max_logits_bytes <= 0):
         raise ValueError('FP4 prefill requires valid KV extent and logits byte budget')
-    width = max(4, (extent + 3) // 4 * 4)
+    width = max(4, 1 << max(0, extent - 1).bit_length())
     rows = max_logits_bytes // (width * 4)
     if rows < 1:
         raise ValueError('FP4 prefill logits budget cannot hold one aligned score row')

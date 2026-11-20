@@ -15,7 +15,8 @@ from hcu_vllm_das import fp4_indexer_lightop as reader
 ])
 def test_plan_respects_aligned_bytes_and_runtime_extent(extent, budget):
     width, rows = reader.prefill_logits_plan(NS(max_seqlen_k=extent), 1048576, budget)
-    assert width >= extent and width % 4 == 0 and width - extent <= 4
+    assert width >= extent and width % 4 == 0
+    assert width <= max(4, 2 * extent)
     assert rows * width * 4 <= budget < (rows + 1) * width * 4
 
 
@@ -23,6 +24,14 @@ def test_plan_respects_aligned_bytes_and_runtime_extent(extent, budget):
 def test_invalid_plan_rejects_before_allocation(extent, budget):
     with pytest.raises(ValueError, match='FP4 prefill'):
         reader.prefill_logits_plan(NS(max_seqlen_k=extent), 1048576, budget)
+
+
+def test_successive_prefill_chunks_reuse_selector_pitch():
+    # A growing context must not create one TopK JIT variant per scheduler step.
+    pitches = {reader.prefill_logits_plan(NS(max_seqlen_k=n), 1048576,
+                                        512 * 1024**2)[0]
+               for n in range(32769, 65537, 128)}
+    assert pitches == {65536}
 
 
 @pytest.mark.parametrize('write', [False, True])
