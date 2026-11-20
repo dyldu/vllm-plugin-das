@@ -9,7 +9,7 @@ from types import SimpleNamespace
 import torch
 from hcu_adapter import rms_int8_scope as scope
 from hcu_adapter.dsv41_int8_linear import HcuDSV41Int8LinearMethod
-from hcu_adapter.kernels.rms_int8_hip import module
+from hcu_adapter.kernels.rms_int8_cpp import module
 from safetensors import safe_open
 from vllm import _custom_ops as ops, ir
 from vllm.config import CompilationConfig, CompilationMode, VllmConfig, set_current_vllm_config
