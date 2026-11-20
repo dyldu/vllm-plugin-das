@@ -54,7 +54,7 @@ def test_decode_graph_reads_changed_query_cache_and_metadata(
     monkeypatch.setattr(reader, 'get_forward_context', lambda: context)
     reader.load_providers()
     cfg = NS(cache_config=NS(block_size=64), speculative_config=None,
-             scheduler_config=NS(max_num_seqs=rows))
+             scheduler_config=NS(max_num_seqs=rows, max_num_batched_tokens=rows))
     reader.reserve_decode_staging(cfg, context_len, ratio, hidden.device)
 
     def run():

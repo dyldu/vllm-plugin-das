@@ -114,16 +114,19 @@ STAGING_PAGE_BYTES = 4352
 # would make the second layer's request a shape mismatch, which the workspace
 # manager rejects outright -- a startup failure, not a slow path.
 _reserved_pools: dict[int, object] = {}
+_reserved_fused: set[tuple[object, int]] = set()
 
 
 def decode_rows(cfg):
     """Decode rows one step can carry, including speculative tokens."""
     spec = cfg.speculative_config
     extra = spec.num_speculative_tokens if spec else 0
-    return cfg.scheduler_config.max_num_seqs * (1 + extra)
+    scheduler = cfg.scheduler_config
+    return min(scheduler.max_num_batched_tokens,
+               scheduler.max_num_seqs * (1 + extra))
 
 
-def staging_plan(cfg, max_model_len, compress_ratio):
+def staging_plan(cfg, max_model_len, compress_ratio, *, fused=False):
     """Shapes the decode staging needs at the configured maximum.
 
     Returns ``None`` when the allocator already uses 64-record pages, because
@@ -141,6 +144,12 @@ def staging_plan(cfg, max_model_len, compress_ratio):
     pages_per_row = (max_model_len + 63) // 64
     width = pages_per_row * 64
     slots = requests * width
+    if fused:
+        # Triton copies payload/scale bytes directly into the persistent pool.
+        # Its only separate output is one int32 entry per canonical page.
+        return dict(requests=requests, pages_per_row=pages_per_row,
+                    page_records=page_records, transient=requests * pages_per_row * 4,
+                    shape=(requests, pages_per_row, STAGING_PAGE_BYTES))
     # Every tensor `stage_decode_pages` holds at the same time as the pool.
     # int64 index tensors are 8 bytes each and several of them coexist:
     # offsets, the valid mask, logical_pages, its clamp_max result, the
@@ -197,13 +206,17 @@ def reserve_decode_staging(cfg, max_model_len, compress_ratio, device):
       immediately, which is what makes the peak honest without permanently
       holding the bytes.
     """
-    plan = staging_plan(cfg, max_model_len, compress_ratio)
+    from hcu_adapter.kernels.fp4_staging_triton import supports_staging_device
+    fused = supports_staging_device(device)
+    plan = staging_plan(cfg, max_model_len, compress_ratio, fused=fused)
     if plan is None:
         return None
     pool = _staging_pool(plan, device)
     probe = torch.empty(plan['transient'], dtype=torch.uint8, device=device)
     del probe
     _reserved_pools[plan['page_records']] = pool
+    if fused:
+        _reserved_fused.add((pool.device, plan['page_records']))
     return pool
 
 
@@ -261,6 +274,8 @@ def stage_decode_pages(cache, block_table, row_ends, max_context_len, gather):
             flat_pool = pages.reshape(requests * pages_per_row, STAGING_PAGE_BYTES)
             pool = flat_pool.as_strided((flat_pool.shape[0], 64, 68), (4352, 68, 1))
             return pool, table
+        if (cache.device, page_records) in _reserved_fused:
+            raise RuntimeError('Profiled Triton FP4 staging contract changed')
     offsets = torch.arange(width, device=cache.device, dtype=torch.int64)
     valid = offsets[None, :] < row_ends.reshape(-1, 1)
     logical_pages = torch.div(offsets, page_records, rounding_mode='floor')
