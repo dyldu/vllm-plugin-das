@@ -70,9 +70,9 @@ def test_chunk_query_slices_preserve_metadata_candidates_and_lifetimes(write):
         logits_refs.append(weakref.ref(scores))
         return scores
 
-    def select(logits, lo, hi, out, candidates, block_size, writing):
+    def select(logits, lo, hi, out, candidates, block_size, writing, *, bounded=False):
         selected.append(candidates.clone())
-        assert block_size == 8 and writing == write
+        assert block_size == 8 and writing == write and bounded
         values, indices = logits.topk(k, dim=-1)
         out.copy_(indices.int().masked_fill(values == -float('inf'), -1))
 

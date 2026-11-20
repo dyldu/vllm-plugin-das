@@ -104,9 +104,28 @@ def run(output):
             return logits
 
         providers = NS(gather=native.gather, prefill=checked)
-        reader._prefill_chunk(layer, chunk, cache, flat, query, weights, out,
-                              providers, _select, budget)
+        # Prove the wide causal-prefix contract reaches native TopK instead
+        # of silently passing through the old generic torch.topk fallback.
+        from hcu_adapter.kernels import indexer_topk_lightop
+        selected_natively = []
+        original_select = indexer_topk_lightop.select_topk
+
+        def checked_select(logits, row_starts, row_ends, count, *, valid_lengths=None):
+            assert valid_lengths is not None
+            result = original_select(logits, row_starts, row_ends, count,
+                                     valid_lengths=valid_lengths)
+            assert result is not None, 'Wide FP4 prefill lost native selection'
+            selected_natively.append(logits.shape[0])
+            return result
+
+        indexer_topk_lightop.select_topk = checked_select
+        try:
+            reader._prefill_chunk(layer, chunk, cache, flat, query, weights, out,
+                                  providers, _select, budget)
+        finally:
+            indexer_topk_lightop.select_topk = original_select
         assert offset[0] == rows and torch.equal(out < 0, ~valid)
+        assert sum(selected_natively) == rows
         selected_scores = oracle.gather(1, out.clamp_min(0).long())
         assert torch.equal(selected_scores[valid].view(torch.uint8),
                            reference_scores[valid].view(torch.uint8))
@@ -125,7 +144,8 @@ def run(output):
         measured = peak_end(before)
         reports.append(dict(logits_budget_bytes=budget, calls=calls,
                             valid_logits_bytes_exact=True, selected_score_ranks_exact=True,
-                            padding_unique_ids_short_order_exact=True, **measured))
+                            padding_unique_ids_short_order_exact=True,
+                            wide_prefill_native_selection_verified=True, **measured))
     result = dict(passed=True, device=torch.cuda.get_device_name(),
                   rows=rows, request_kv_extents=list(extents), max_model_len=maximum,
                   old_logits_bytes=rows*maximum*4, old_operation_peak=old_peak,

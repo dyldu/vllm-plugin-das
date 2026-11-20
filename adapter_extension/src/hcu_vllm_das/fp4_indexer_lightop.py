@@ -428,7 +428,10 @@ def _prefill_chunk(layer, chunk, cache, flat, query, weights, out, p, select,
         starts = torch.zeros_like(lengths)
         select(logits, starts, lengths, out[lo:hi],
                None if layer.candidate_blocks is None else layer.candidate_blocks[lo:hi],
-               layer.candidate_block_size, layer.candidate_write)
+               layer.candidate_block_size, layer.candidate_write, bounded=True)
+        # The provider materializes each row's window-local causal prefix.
+        # Declare it so selection follows actual lengths at any storage width,
+        # rather than the generic unbounded selector's small-width contract.
         # Assignment of the next RHS must not retain the previous logits.
         del logits, lengths, starts
 
