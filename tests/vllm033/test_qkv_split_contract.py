@@ -53,3 +53,19 @@ def test_owned_path_falls_back_to_native(monkeypatch, mode):
                         lambda *args: sentinel)
     assert layer._fused_qnorm_rope_kv_insert(
         None, None, None, {'swa': NS(block_size=64, slot_mapping=None)}) is sentinel
+
+
+@pytest.mark.parametrize('rows', [1, 17, 65, 96, 128, 256])
+def test_native_layout_accepts_dynamic_rows(monkeypatch, rows):
+    from torch._subclasses.fake_tensor import FakeTensorMode
+    monkeypatch.setattr(qkv_split, '_NATIVE_BUILD_MATCHES', True)
+    monkeypatch.setattr(torch.cuda, 'get_device_properties', lambda _: NS(gcnArchName='gfx938'))
+    with FakeTensorMode():
+        args = (torch.empty((rows, 64, 512), device='cuda', dtype=torch.bfloat16),
+                torch.empty((rows, 512), device='cuda', dtype=torch.bfloat16),
+                torch.empty((5, 64, 584), device='cuda', dtype=torch.uint8),
+                torch.empty(rows, device='cuda', dtype=torch.int64),
+                torch.empty(rows, device='cuda', dtype=torch.int64),
+                torch.empty((1024, 64), device='cuda'))
+        assert qkv_split.supported(*args)
+        assert not qkv_split.supported(args[0][:0], *args[1:])

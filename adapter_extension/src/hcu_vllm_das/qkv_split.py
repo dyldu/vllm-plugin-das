@@ -42,7 +42,7 @@ def supported(q, kv, cache, slots, positions, cos_sin):
     if (not _NATIVE_BUILD_MATCHES
             or not all(isinstance(t, torch.Tensor) for t in tensors)
             or q.ndim != 3 or q.shape[1:] != (64, 512)
-            or not 0 < q.shape[0] <= 64
+            or q.shape[0] <= 0
             or kv.shape != (q.shape[0], 512)
             or cache.ndim != 3 or cache.shape[0] <= 0
             or cache.shape[1] not in (32, 64) or cache.shape[2] != 584
@@ -62,7 +62,7 @@ def supported(q, kv, cache, slots, positions, cos_sin):
 
 @triton.jit
 def _q_rope_native_512(Q, Positions, CosSin, Out):
-    token = tl.program_id(0)
+    token = tl.program_id(0).to(tl.int64)
     head = tl.program_id(1) * 4 + tl.arange(0, 4)[:, None]
     col = tl.arange(0, 512)[None, :]
     raw = tl.load(Q + token * 32768 + head * 512 + col).to(tl.float32)

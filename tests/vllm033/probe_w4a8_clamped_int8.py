@@ -29,8 +29,9 @@ def run(args, report):
     torch.manual_seed(30419)
     report['cases'], report['timings'] = [], []
 
-    for masked, experts in ((False, 16), (True, 16), (True, 48)):
-        rows = 2048 if masked else 4096
+    layouts = ((True, 16), (True, 48)) if args.masked_only else ((False, 16), (True, 16), (True, 48))
+    for masked, experts in layouts:
+        rows = args.masked_rows if masked else 4096
         shape = (experts, rows, 4608) if masked else (rows, 4608)
         x = torch.empty(shape, device='cuda', dtype=torch.bfloat16)
         meta = torch.empty((experts if masked else rows,), device='cuda', dtype=torch.int32)
@@ -157,6 +158,8 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--output', required=True)
     parser.add_argument('--consumer', action='store_true')
+    parser.add_argument('--masked-rows', type=int, default=2048)
+    parser.add_argument('--masked-only', action='store_true')
     args = parser.parse_args()
     report = {'passed': False, 'status': 'running', 'consumer_requested': args.consumer}
     try:

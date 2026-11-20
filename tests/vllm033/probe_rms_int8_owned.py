@@ -76,6 +76,8 @@ def main():
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument('--model', required=True)
     p.add_argument('--output', required=True)
+    p.add_argument('--epsilon', type=float, default=1.e-20)
+    p.add_argument('--rows', nargs='+', type=int, default=[1, 4, 8, 16, 32, 40, 48, 64])
     args = p.parse_args()
     root, output = Path(args.model), Path(args.output)
     assert not output.exists()
@@ -105,15 +107,15 @@ def main():
         # weight, including all graph capture row buckets and finite extremes.
         for key in norm_keys:
             w = load(key)
-            for rows in (1, 4, 8, 16, 32, 40, 48, 64):
+            for rows in args.rows:
                 for seed, magnitude in ((20261132, 0.), (20261133, 1.e-12),
                                         (20261134, 1.), (20261135, 1.e4)):
                     torch.manual_seed(seed + rows)
                     x = (torch.randn((rows, 5120), device='cuda') * magnitude).bfloat16()
                     before, wb = x.clone(), w.clone()
-                    y = ir.ops.rms_norm(x, w, 1.e-20)
+                    y = ir.ops.rms_norm(x, w, args.epsilon)
                     q, s, _ = ops.scaled_int8_quant(y)
-                    actual = fn(x, w, 1.e-20)
+                    actual = fn(x, w, args.epsilon)
                     check = all(exact(a, b) for a, b in zip(actual, (y, q, s)))
                     row = dict(weight=key, rows=rows, seed=seed, magnitude=magnitude,
                                exact=check, immutable=exact(x, before) and exact(w, wb))
@@ -122,12 +124,12 @@ def main():
             save()
         for layer_id in (0, 2, 14, 39):
             w = load('layers.%d.attn_norm.weight' % layer_id)
-            for rows in (1, 4, 8, 16, 32, 40, 48, 64):
+            for rows in args.rows:
                 for label, x in edge_patterns(rows):
                     before, wb = x.clone(), w.clone()
-                    y = ir.ops.rms_norm(x, w, 1.e-20)
+                    y = ir.ops.rms_norm(x, w, args.epsilon)
                     q, s, _ = ops.scaled_int8_quant(y)
-                    actual = fn(x, w, 1.e-20)
+                    actual = fn(x, w, args.epsilon)
                     row = dict(layer=layer_id, rows=rows, pattern=label,
                                exact=all(exact(a, b) for a, b in zip(actual, (y, q, s))),
                                immutable=exact(x, before) and exact(w, wb))
@@ -149,7 +151,7 @@ def main():
             projection.weight_scale.copy_(torch.cat([load(k + '.weight_scale') for k in names]))
             projection.quant_method.process_weights_after_loading(projection)
             before_weight, before_scale = projection.weight.clone(), projection.weight_scale.clone()
-            source = HcuRMSNorm(5120, 1.e-20, dtype=torch.bfloat16).cuda()
+            source = HcuRMSNorm(5120, args.epsilon, dtype=torch.bfloat16).cuda()
             source.weight.copy_(load('layers.%d.attn_norm.weight' % layer_id))
             decoder = SimpleNamespace(attn_norm=source, use_sequence_parallel=False,
                                       fuse_seam_norm=False, mono=None,
@@ -163,7 +165,7 @@ def main():
             assert install_owned_decoder(decoder), 'Actual producer admission must take the new path'
             assert decoder.attn_norm.weight is source.weight
             assert list(decoder.attn_norm.state_dict()) == ['weight']
-            for rows in (1, 4, 8, 16, 32, 40, 48, 64):
+            for rows in args.rows:
                 for bias_enabled in (False, True):
                     bias = torch.randn((sum(widths),), device='cuda', dtype=torch.bfloat16) if bias_enabled else None
                     x = torch.randn((rows, 5120), device='cuda', dtype=torch.bfloat16)
@@ -215,7 +217,7 @@ def main():
                 assert bf16_key.removesuffix('.weight') + '.weight_scale' not in index
                 weight = load(bf16_key)
                 assert weight.dtype == torch.bfloat16
-                for rows in (1, 4, 8, 16, 32, 40, 48, 64):
+                for rows in args.rows:
                     for magnitude in (0., 1.e-12, 1., 1.e4):
                         x = torch.randn((rows, 5120), device='cuda', dtype=torch.bfloat16) * magnitude
                         expected = torch.nn.functional.linear(source(x), weight)
@@ -229,7 +231,6 @@ def main():
             # Runtime policy/layout fallbacks must keep native normalization
             # without publishing quantized data into the owned call.
             for label, x in (
-                ('rows65', torch.randn((65, 5120), device='cuda', dtype=torch.bfloat16)),
                 ('strided_rows', torch.randn((16, 5120), device='cuda', dtype=torch.bfloat16)[::2]),
             ):
                 with scope.attention_norm_scope():
@@ -253,13 +254,13 @@ def main():
                     assert check
             save()
             print('actual owned pair exact', layer_id, flush=True)
-        assert len(result['normalized_cases']) == 2752
-        assert len(result['edge_cases']) == 544
-        assert len(result['consumer_cases']) == 256
-        assert len(result['graphs']) == 256
-        assert len(result['bf16_consumers']) == 64
-        assert len(result['timings']) == 8
-        assert len(result['fallback_cases']) == 20
+        assert len(result['normalized_cases']) == 86 * len(args.rows) * 4
+        assert len(result['edge_cases']) == 4 * len(args.rows) * 17
+        assert len(result['consumer_cases']) == 4 * len(args.rows) * 8
+        assert len(result['graphs']) == 4 * len(args.rows) * 8
+        assert len(result['bf16_consumers']) == len(args.rows) * 8
+        assert len(result['timings']) == len(args.rows)
+        assert len(result['fallback_cases']) == 16
         result['passed'] = True
     except Exception as exc:
         import traceback

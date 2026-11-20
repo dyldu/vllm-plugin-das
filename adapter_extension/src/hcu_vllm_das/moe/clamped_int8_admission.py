@@ -47,8 +47,7 @@ def admitted(ops, weights, w1_scale, w2_scale, limit, *, masked):
             or ops.clamp_quant_ep is not provider.fuse_silu_mul_clamp_quant_ep):
         return False
     props = torch.cuda.get_device_properties(weights[0].device)
-    supported = (props.gcnArchName.split(":")[0] == "gfx938"
-                 and props.multi_processor_count == 64)
+    supported = (props.gcnArchName.split(":")[0] == "gfx938")
     if supported:
         _log_admission(masked)
     return supported

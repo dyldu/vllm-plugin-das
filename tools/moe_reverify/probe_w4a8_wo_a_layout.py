@@ -18,6 +18,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--model', required=True, type=Path)
     parser.add_argument('--output', required=True, type=Path)
+    parser.add_argument('--rows', nargs='+', type=int, default=[1, 8, 48, 64])
     parser.add_argument('--layers', nargs='+', type=int, default=[0, 20, 39])
     parser.add_argument('--owned', action='store_true',
                         help='Test the serving class and both checkpoint/HCU NN weight storage')
@@ -144,7 +145,7 @@ def main():
                     owner.wo_a = SimpleNamespace(weight=wa if weight_layout == 'NK' else wa.T.contiguous())
                     cached = native._get_cached_wo_a_bf16(owner.wo_a, 8, 1024, 4096)
                     original = cached.clone()
-                    for rows in (1, 8, 48, 64):
+                    for rows in args.rows:
                         for heads in (64, 128):
                             x = torch.empty(rows, heads, 512, dtype=torch.bfloat16, device='cuda')
                             positions = torch.arange(rows, device='cuda', dtype=torch.int64)
@@ -153,7 +154,7 @@ def main():
                                 if variant == 'native':
                                     out = rocm.DeepseekV41ROCMAiterMLAAttention._o_proj(owner, x, positions)
                                 elif args.owned:
-                                    assert wo_a_layout.supported(owner, x) == (rows in (8,48,64))
+                                    assert wo_a_layout.supported(owner, x) is True
                                     out = owner._o_proj(x, positions)
                                 else:
                                     inputs = x[:, :64].reshape(rows, 8, 4096)

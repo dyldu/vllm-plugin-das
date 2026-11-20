@@ -72,9 +72,7 @@ def configured(config):
             and getattr(outer, 'model_type', None) in ('deepseek_v41', 'deepseek_v41_text')
             and getattr(model, 'model_type', None) in ('deepseek_v41', 'deepseek_v41_text')
             and getattr(model, 'hidden_size', None) == 5120
-            and parallel.pipeline_parallel_size == 1
-            and parallel.tensor_parallel_size == parallel.prefill_context_parallel_size == 1
-            and parallel.data_parallel_size == 8 and parallel.enable_expert_parallel)
+            and parallel.tensor_parallel_size == parallel.prefill_context_parallel_size == 1)
 
 
 def supported(owner, attn_out):
@@ -83,7 +81,7 @@ def supported(owner, attn_out):
     if (not _SOURCE_MATCHES or not isinstance(attn_out, torch.Tensor)
             or torch.is_grad_enabled() or torch.is_autocast_enabled('cuda')
             or not attn_out.is_cuda or attn_out.dtype != torch.bfloat16
-            or attn_out.ndim != 3 or attn_out.shape[0] not in (8, 48, 64)
+            or attn_out.ndim != 3 or attn_out.shape[0] <= 0
             or attn_out.shape[1] not in (64, 128) or attn_out.shape[2] != 512
             or not attn_out.is_contiguous()
             or (owner.n_local_heads, owner.n_local_groups, owner.o_lora_rank) != (64, 8, 1024)
@@ -111,7 +109,7 @@ def supported(owner, attn_out):
         return False
     properties = torch.cuda.get_device_properties(attn_out.device)
     return (getattr(properties, 'gcnArchName', '').split(':')[0] == 'gfx938'
-            and properties.multi_processor_count == 64)
+)
 
 
 def project(owner, attn_out):

@@ -97,7 +97,7 @@ def capacities_and_scope():
             assert local.scheduler_config is cfg.scheduler_config and local.compilation_config is cfg.compilation_config
             assert prod.is_owned_draft(local) and not prod.is_owned_draft(cfg)
             base.config_module.validate_topology(local,NS(**{**vars(moe),'moe_parallel_config':NS(**{**vars(moe.moe_parallel_config),'all2all_backend':'allgather_reducescatter'})}))
-            cfg.scheduler_config.max_num_batched_tokens=r*(n+1)-1;reject(lambda:prod.draft_config(cfg))
+            cfg.scheduler_config.max_num_batched_tokens=r-1;reject(lambda:prod.draft_config(cfg))
         cfg,_=config();bad=copy.copy(cfg);bad.model_config=NS(**{**vars(cfg.model_config),'enforce_eager':False});reject(lambda:prod.draft_config(bad))
         for key in ('tensor_parallel_size','pipeline_parallel_size','decode_context_parallel_size','prefill_context_parallel_size'):
             bad=copy.copy(cfg);bad.parallel_config=copy.copy(cfg.parallel_config);setattr(bad.parallel_config,key,2);reject(lambda:prod.draft_config(bad))

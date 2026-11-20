@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: Apache-2.0
-"""W4A8 default LL policy preserves fixed capacity and native resource ownership."""
+"""W4A8 LL policy derives capacity and preserves native resource ownership."""
 import copy
 import sys
 from types import SimpleNamespace as NS
@@ -56,6 +56,18 @@ def test_explicit_native_selection_does_not_mutate_target():
     assert cfg.additional_config == {KEY: 'deepep_low_latency'}
 
 
+@pytest.mark.parametrize('requests,budget,drafts', [
+    (16, 128, 3), (32, 256, 5), (64, 256, 5), (96, 512, 7)])
+def test_native_selection_derives_capacity(requests, budget, drafts):
+    cfg = config()
+    cfg.scheduler_config.max_num_seqs = requests
+    cfg.scheduler_config.max_num_batched_tokens = budget
+    cfg.speculative_config.num_speculative_tokens = drafts
+    assert native_draft_ll_requested(cfg)
+    assert cfg.scheduler_config.max_num_seqs == requests
+    assert cfg.scheduler_config.max_num_batched_tokens == budget
+
+
 @pytest.mark.parametrize('change', ['unknown', 'dp1', 'tp2', 'ht', 'quant',
                                     'capacity', 'eplb', 'hidden', 'draft_topk'])
 def test_native_selection_rejects_unsupported_contract(change):
@@ -65,7 +77,7 @@ def test_native_selection_rejects_unsupported_contract(change):
     if change == 'tp2': cfg.parallel_config.tensor_parallel_size = 2
     if change == 'ht': cfg.parallel_config.all2all_backend = 'deepep_high_throughput'
     if change == 'quant': cfg.quant_config = object()
-    if change == 'capacity': cfg.scheduler_config.max_num_batched_tokens = 39
+    if change == 'capacity': cfg.scheduler_config.max_num_batched_tokens = 31
     if change == 'eplb': cfg.parallel_config.enable_eplb = True
     if change == 'hidden': cfg.model_config.hf_config.hidden_size = 4096
     if change == 'draft_topk': cfg.model_config.hf_config.dspark_num_experts_per_tok = 6
@@ -73,18 +85,17 @@ def test_native_selection_rejects_unsupported_contract(change):
 
 
 @pytest.mark.parametrize('change', ['dp1', 'tp2', 'ht', 'quant', 'capacity',
-                                    'eplb', 'hidden', 'draft_topk', 'tokens'])
+                                    'eplb', 'hidden', 'draft_topk'])
 def test_automatic_selection_keeps_other_deployments_on_agrs(change):
     cfg = config(); cfg.additional_config = None
     if change == 'dp1': cfg.parallel_config.data_parallel_size = 1
     if change == 'tp2': cfg.parallel_config.tensor_parallel_size = 2
     if change == 'ht': cfg.parallel_config.all2all_backend = 'deepep_high_throughput'
     if change == 'quant': cfg.quant_config = object()
-    if change == 'capacity': cfg.scheduler_config.max_num_batched_tokens = 39
+    if change == 'capacity': cfg.scheduler_config.max_num_batched_tokens = 31
     if change == 'eplb': cfg.parallel_config.enable_eplb = True
     if change == 'hidden': cfg.model_config.hf_config.hidden_size = 4096
     if change == 'draft_topk': cfg.model_config.hf_config.dspark_num_experts_per_tok = 6
-    if change == 'tokens': cfg.speculative_config.num_speculative_tokens = 4
     assert not native_draft_ll_requested(cfg)
     assert cfg.additional_config is None
 
@@ -122,7 +133,8 @@ def ipc_manager(monkeypatch):
     return native, SharedIPCManager
 
 
-def test_ipc_layouts_retain_one_native_allocation_and_destructor(monkeypatch):
+@pytest.mark.parametrize('capacity', [64, 128, 256, 320, 384, 512])
+def test_ipc_layouts_retain_one_native_allocation_and_destructor(monkeypatch, capacity):
     native, wrapper = ipc_manager(monkeypatch)
     seen = []
     cache = {}
@@ -130,10 +142,10 @@ def test_ipc_layouts_retain_one_native_allocation_and_destructor(monkeypatch):
         seen.append(kwargs.copy())
         return cache.setdefault(tuple(sorted(kwargs.items())), object())
     native.get_handle = get_handle
-    manager = wrapper(native)
+    manager = wrapper(native, capacity)
     handles = []
     for e in (384, 128, 384, 128):
-        handles.append(manager.get_handle(dict(max_num_tokens_per_dp_rank=256,
+        handles.append(manager.get_handle(dict(max_num_tokens_per_dp_rank=capacity,
             token_hidden_size=5120, num_ep_ranks=8,
             num_global_experts=e, num_local_experts=e // 8)))
     assert len(cache) == 1 and all(h is handles[0] for h in handles)
@@ -152,13 +164,13 @@ def test_ipc_resource_policy_refuses_other_transports(monkeypatch, change):
         import deep_ep
         monkeypatch.setattr(deep_ep.Buffer, 'is_ll_layered_opt_enabled', lambda n: True)
     if change == 'mnvl': monkeypatch.setenv('ROCSHMEM_IPC_MNVL', '1')
-    with pytest.raises(ValueError): wrapper(native)
+    with pytest.raises(ValueError): wrapper(native, 256)
 
 
 def test_ipc_admits_baseline_inert_layered_request(monkeypatch):
     native, wrapper = ipc_manager(monkeypatch)
     monkeypatch.setenv('DEEPEP_ENABLE_LL_LAYERED_OPT', '1')
-    assert wrapper(native).native is native
+    assert wrapper(native, 256).native is native
 
 
 @pytest.mark.parametrize('key,value', [('max_num_tokens_per_dp_rank', 64),
@@ -170,7 +182,7 @@ def test_ipc_resource_policy_refuses_unvalidated_geometry(monkeypatch, key, valu
     kwargs = dict(max_num_tokens_per_dp_rank=256, token_hidden_size=5120,
         num_ep_ranks=8, num_global_experts=384, num_local_experts=48)
     kwargs[key] = value
-    with pytest.raises(ValueError): wrapper(native).get_handle(kwargs)
+    with pytest.raises(ValueError): wrapper(native, 256).get_handle(kwargs)
 
 
 @pytest.mark.parametrize('reset', [False, True])
@@ -280,7 +292,7 @@ def test_model_entry_reset_orders_once_per_forward_and_preserves_native_owner(mo
     cfg = entry_config()
     assert install_model_entry_reset(target, cfg, 384)
     assert install_model_entry_reset(draft, cfg, 128)
-    policy = wrapper(native)
+    policy = wrapper(native, 256)
     assert policy.has_model_entry_reset(384) and policy.has_model_entry_reset(128)
     assert calls == []  # No allocation or clean during registration.
     for module in (target, draft, target, draft): module()

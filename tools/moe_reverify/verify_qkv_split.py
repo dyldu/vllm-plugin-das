@@ -12,6 +12,7 @@ import torch
 torch.cuda.set_device(0)
 from vllm import _custom_ops  # noqa: F401: register installed native operators
 from hcu_vllm_das import fp4_indexer, qkv_split
+import triton
 from triton.testing import do_bench_cudagraph
 
 
@@ -45,6 +46,7 @@ def check(actual, expected, cache, reference):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--output', required=True)
+    parser.add_argument('--rows', nargs='+', type=int, default=[1, 4, 8, 16, 32, 40, 48, 64])
     parser.add_argument('--block-size', type=int, choices=(32, 64), default=64)
     parser.add_argument('--page-padding', type=int, default=64)
     parser.add_argument('--seed', type=int, default=194241)
@@ -63,17 +65,18 @@ def main():
     cs = torch.cat((angle.cos(), angle.sin()), dim=1)
     cs_saved = cs.clone()
     eager, replays, timings = [], [], []
-    buckets = (1, 4, 8, 16, 32, 40, 48, 64)
+    buckets = opts.rows
     for tokens in buckets:
         q = torch.empty(tokens, 64, 512, device='cuda', dtype=torch.bfloat16)
         kv = torch.empty(tokens, 512, device='cuda', dtype=torch.bfloat16)
         pos = torch.randint(0, 8192, (tokens,), device='cuda', dtype=torch.int64)
         for length in sorted({0, tokens // 2, tokens}):
-            capacity = 4 * opts.block_size
+            blocks = triton.cdiv(tokens, opts.block_size) + 1
+            capacity = blocks * opts.block_size
             slots = torch.randperm(capacity, device='cuda', dtype=torch.int64)[:length].clone()
             width = opts.block_size * 584
-            backing = torch.full((4, width + opts.page_padding), 165, device='cuda', dtype=torch.uint8)
-            cache = backing[:, :width].view(4, opts.block_size, 584)
+            backing = torch.full((blocks, width + opts.page_padding), 165, device='cuda', dtype=torch.uint8)
+            cache = backing[:, :width].view(blocks, opts.block_size, 584)
             padding = backing[:, width:].clone()
             run = owner(cache, cs, slots)
             for magnitude in (0., .001, .25, 1., 8., 100.):
@@ -145,7 +148,8 @@ def main():
                                   ('owned', lambda: run(q, kv, pos))]:
             timings.append(dict(tokens=tokens, variant=variant,
                                 us=do_bench_cudagraph(function, rep=100) * 1000))
-    assert len(eager) == 23 * 14 and len(replays) == 23 * 5
+    cases = sum(len({0, m // 2, m}) for m in buckets)
+    assert len(eager) == cases * 14 and len(replays) == cases * 5
     result = dict(accepted=True, block_size=opts.block_size, page_padding=opts.page_padding,
                   native_sha256=native_sha, validation_only=validation_only,
                   seed=opts.seed, eager=eager, replays=replays, timings=timings,
