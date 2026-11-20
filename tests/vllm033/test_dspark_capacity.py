@@ -72,6 +72,24 @@ def test_actual_batch_guard_runs_before_input_writes():
     assert worker.propose(NS(num_reqs=100, num_tokens=1000)) == 'prepared'
 
 
+@pytest.mark.parametrize('slots,budget,active,drafts', [(64,256,51,5), (96,320,64,5), (17,128,17,3)])
+def test_native_active_bound_avoids_unreachable_workspace(slots,budget,active,drafts):
+    cfg = config(slots,budget,drafts)
+    cfg.scheduler_config.max_num_active_seqs = active
+    capacity = graph.token_capacity(cfg)
+    assert capacity.query_rows == max(budget,active*drafts)
+    assert capacity.verify_rows == min(budget,active*(drafts+1))
+    assert graph.draft_buffer_config(cfg) is cfg
+
+
+@pytest.mark.parametrize('active', [0,65,True,None])
+def test_invalid_native_active_bound(active):
+    cfg = config(64,256,5)
+    cfg.scheduler_config.max_num_active_seqs = active
+    with pytest.raises(ValueError,match='active request bound'):
+        graph.token_capacity(cfg)
+
+
 def test_constructor_and_slot_mappings_expand_before_capture(monkeypatch):
     monkeypatch.setattr(graph, 'native_decode_dspark', lambda _: True)
     monkeypatch.setattr(agrs, '_owned_quant_kind', lambda _: 'ct_w4a8')

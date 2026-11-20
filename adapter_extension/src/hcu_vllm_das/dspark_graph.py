@@ -73,6 +73,7 @@ def token_capacity(config) -> TokenCapacity:
     n = spec.num_speculative_tokens
     requests = scheduler.max_num_seqs
     budget = scheduler.max_num_batched_tokens
+    active = getattr(scheduler, 'max_num_active_seqs', requests)
     if any(type(value) is not int or value <= 0 for value in (n, requests, budget)):
         raise ValueError(
             "DSpark requires positive speculative tokens, request slots and capacity"
@@ -86,11 +87,13 @@ def token_capacity(config) -> TokenCapacity:
             "DSpark request slots exceed the native scheduler token budget: "
             f"requests={requests}, budget={budget}"
         )
+    if type(active) is not int or not 0 < active <= requests:
+        raise ValueError('DSpark active request bound must fit native request slots')
     # The scheduler bounds target rows, but a separate draft pass emits query
     # rows for every scheduled request, including short prefills. Allocate that
     # pass independently rather than changing the user's scheduling budget.
     return TokenCapacity(
-        query, max(requests * query, budget), min(requests * (n + 1), budget), budget
+        query, max(active * query, budget), min(active * (n + 1), budget), budget
     )
 
 
