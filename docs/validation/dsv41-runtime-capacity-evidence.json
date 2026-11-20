@@ -1,0 +1,500 @@
+{
+  "tested_functional_commits": {
+    "plugin": "dfd51dcfc1bd4b5de17b9929fd7e4a101560cc52",
+    "adapter": "59099b46a15238ffcf4c9a8499ddc807ac3857b6"
+  },
+  "performance": {
+    "baseline_directory": "/public2/home/duyunlong/run/dsv4.1/033/blas_reverify_20261120/baseline/performance/20261120_124100_prof_w4_f5Rr41",
+    "candidate_directory": "/public2/home/duyunlong/run/dsv4.1/033/maxseq64_capacity_fix_20261120/service64_final/performance/20261120_151938_prof_w4_9roI9i",
+    "comparability": {
+      "actual_serve_argument_differences": [
+        {
+          "flag": "--max-num-seqs",
+          "before": "32",
+          "after": "64"
+        }
+      ],
+      "profiler_output_path_difference": [
+        {
+          "flag": "--profiler-config",
+          "before": "{\"profiler\":\"torch\",\"torch_profiler_dir\":\"/duyl/run/dsv4.1/033/blas_reverify_20261120/baseline/performance/20261120_124100_prof_w4_f5Rr41/torch_profiler\",\"torch_profiler_with_stack\":true,\"torch_profiler_record_shapes\":false,\"torch_profiler_with_memory\":false,\"torch_profiler_dump_cuda_time_total\":false,\"ignore_frontend\":true,\"wait_iterations\":5,\"warmup_iterations\":2,\"active_iterations\":10,\"delay_iterations\":5,\"max_iterations\":0}",
+          "after": "{\"profiler\":\"torch\",\"torch_profiler_dir\":\"/duyl/run/dsv4.1/033/maxseq64_capacity_fix_20261120/service64_final/performance/20261120_151938_prof_w4_9roI9i/torch_profiler\",\"torch_profiler_with_stack\":true,\"torch_profiler_record_shapes\":false,\"torch_profiler_with_memory\":false,\"torch_profiler_dump_cuda_time_total\":false,\"ignore_frontend\":true,\"wait_iterations\":5,\"warmup_iterations\":2,\"active_iterations\":10,\"delay_iterations\":5,\"max_iterations\":0}"
+        }
+      ],
+      "effective_env_removed": [],
+      "effective_env_added": [],
+      "effective_env_changed": {
+        "HCU_ADAPTER_SRC": {
+          "before": "/duyl/adapter-das-wt-w4a8-rms-int8-owned-v2-20261120",
+          "after": "/duyl/adapter-das-wt-runtime-admission-final-20261120"
+        },
+        "HCU_VLLM_DIR": {
+          "before": "/duyl/vllm-hcu033-wt-w4a8-rms-int8-owned-v2-20261120",
+          "after": "/duyl/vllm-hcu033-wt-runtime-capacity-final-20261120"
+        }
+      },
+      "native_core_differences": [],
+      "source_changes": true,
+      "scope": "External launch arguments differ only in seq32->64 and profiler output directory. Plugin/adapter source fixes also changed; not an isolated seq-only comparison. Final run includes a separately recorded C64 settling pass before both formal rounds."
+    },
+    "same_load_repeats": [
+      {
+        "phase": "formal_1",
+        "baseline32": {
+          "completed": 64,
+          "failed": 0,
+          "median_tpot_ms": 17.859227093684627,
+          "p99_tpot_ms": 20.762954613736525,
+          "mean_tpot_ms": 17.81283862499005,
+          "output_throughput": 2726.454600583246,
+          "duration": 3.0046346629969776,
+          "spec_decode_acceptance_rate": 57.17592592592593,
+          "spec_decode_acceptance_length": 3.8587962962962963
+        },
+        "candidate64": {
+          "completed": 64,
+          "failed": 0,
+          "median_tpot_ms": 17.515872227482674,
+          "p99_tpot_ms": 21.58954792307675,
+          "mean_tpot_ms": 17.439119729493456,
+          "output_throughput": 2755.0746250326397,
+          "duration": 2.9734221808612347,
+          "spec_decode_acceptance_rate": 59.25047438330171,
+          "spec_decode_acceptance_length": 3.9625237191650853
+        },
+        "median_tpot_change_percent": -1.9225628544886408
+      },
+      {
+        "phase": "formal_2",
+        "baseline32": {
+          "completed": 64,
+          "failed": 0,
+          "median_tpot_ms": 17.39429220131884,
+          "p99_tpot_ms": 21.866325377193316,
+          "mean_tpot_ms": 17.42456513573874,
+          "output_throughput": 2756.631689292556,
+          "duration": 2.971742663998157,
+          "spec_decode_acceptance_rate": 59.25047438330171,
+          "spec_decode_acceptance_length": 3.9625237191650853
+        },
+        "candidate64": {
+          "completed": 64,
+          "failed": 0,
+          "median_tpot_ms": 17.949446472962656,
+          "p99_tpot_ms": 21.632664891319187,
+          "mean_tpot_ms": 17.940383504122387,
+          "output_throughput": 2563.5841890443603,
+          "duration": 3.195526027586311,
+          "spec_decode_acceptance_rate": 56.76172953081877,
+          "spec_decode_acceptance_length": 3.8380864765409384
+        },
+        "median_tpot_change_percent": 3.1915887419766475
+      }
+    ],
+    "baseline_mean_median_tpot_ms": 17.626759647501736,
+    "candidate_mean_median_tpot_ms": 17.732659350222665,
+    "mean_median_tpot_change_percent": 0.6007893954345533,
+    "separate_concurrency512_capacity_stress": {
+      "completed": 512,
+      "failed": 0,
+      "median_tpot_ms": 274.73355750333315,
+      "p99_tpot_ms": 1149.6525316226378,
+      "mean_tpot_ms": 459.72662288166487,
+      "output_throughput": 361.69837927670056,
+      "duration": 181.18964240606874,
+      "spec_decode_acceptance_rate": 58.145392771366645,
+      "spec_decode_acceptance_length": 3.9072696385683323
+    },
+    "sampled_peak_vram_MiB": {
+      "card0": 90624,
+      "card1": 91143,
+      "card2": 91137,
+      "card3": 91136,
+      "card4": 91137,
+      "card5": 91137,
+      "card6": 91137,
+      "card7": 90373
+    },
+    "sampled_max_running_by_phase": {
+      "settle_64": {
+        "vllm:num_requests_running{engine=\"2\",model_name=\"dsv41-flash-w4\"}": 1.0,
+        "vllm:num_requests_running{engine=\"0\",model_name=\"dsv41-flash-w4\"}": 1.0,
+        "vllm:num_requests_running{engine=\"3\",model_name=\"dsv41-flash-w4\"}": 0,
+        "vllm:num_requests_running{engine=\"6\",model_name=\"dsv41-flash-w4\"}": 0,
+        "vllm:num_requests_running{engine=\"7\",model_name=\"dsv41-flash-w4\"}": 0,
+        "vllm:num_requests_running{engine=\"4\",model_name=\"dsv41-flash-w4\"}": 0,
+        "vllm:num_requests_running{engine=\"5\",model_name=\"dsv41-flash-w4\"}": 0,
+        "vllm:num_requests_running{engine=\"1\",model_name=\"dsv41-flash-w4\"}": 0
+      },
+      "formal_1": {
+        "vllm:num_requests_running{engine=\"1\",model_name=\"dsv41-flash-w4\"}": 6.0,
+        "vllm:num_requests_running{engine=\"2\",model_name=\"dsv41-flash-w4\"}": 8.0,
+        "vllm:num_requests_running{engine=\"3\",model_name=\"dsv41-flash-w4\"}": 6.0,
+        "vllm:num_requests_running{engine=\"4\",model_name=\"dsv41-flash-w4\"}": 7.0,
+        "vllm:num_requests_running{engine=\"6\",model_name=\"dsv41-flash-w4\"}": 6.0,
+        "vllm:num_requests_running{engine=\"7\",model_name=\"dsv41-flash-w4\"}": 8.0,
+        "vllm:num_requests_running{engine=\"0\",model_name=\"dsv41-flash-w4\"}": 7.0,
+        "vllm:num_requests_running{engine=\"5\",model_name=\"dsv41-flash-w4\"}": 7.0
+      },
+      "formal_2": {
+        "vllm:num_requests_running{engine=\"0\",model_name=\"dsv41-flash-w4\"}": 8.0,
+        "vllm:num_requests_running{engine=\"1\",model_name=\"dsv41-flash-w4\"}": 8.0,
+        "vllm:num_requests_running{engine=\"2\",model_name=\"dsv41-flash-w4\"}": 8.0,
+        "vllm:num_requests_running{engine=\"3\",model_name=\"dsv41-flash-w4\"}": 8.0,
+        "vllm:num_requests_running{engine=\"4\",model_name=\"dsv41-flash-w4\"}": 8.0,
+        "vllm:num_requests_running{engine=\"6\",model_name=\"dsv41-flash-w4\"}": 8.0,
+        "vllm:num_requests_running{engine=\"7\",model_name=\"dsv41-flash-w4\"}": 8.0,
+        "vllm:num_requests_running{engine=\"5\",model_name=\"dsv41-flash-w4\"}": 8.0
+      },
+      "profile": {
+        "vllm:num_requests_running{engine=\"0\",model_name=\"dsv41-flash-w4\"}": 8.0,
+        "vllm:num_requests_running{engine=\"1\",model_name=\"dsv41-flash-w4\"}": 8.0,
+        "vllm:num_requests_running{engine=\"2\",model_name=\"dsv41-flash-w4\"}": 8.0,
+        "vllm:num_requests_running{engine=\"3\",model_name=\"dsv41-flash-w4\"}": 8.0,
+        "vllm:num_requests_running{engine=\"4\",model_name=\"dsv41-flash-w4\"}": 8.0,
+        "vllm:num_requests_running{engine=\"5\",model_name=\"dsv41-flash-w4\"}": 8.0,
+        "vllm:num_requests_running{engine=\"6\",model_name=\"dsv41-flash-w4\"}": 8.0,
+        "vllm:num_requests_running{engine=\"7\",model_name=\"dsv41-flash-w4\"}": 8.0
+      },
+      "stress_512": {
+        "vllm:num_requests_running{engine=\"0\",model_name=\"dsv41-flash-w4\"}": 42.0,
+        "vllm:num_requests_running{engine=\"1\",model_name=\"dsv41-flash-w4\"}": 42.0,
+        "vllm:num_requests_running{engine=\"2\",model_name=\"dsv41-flash-w4\"}": 42.0,
+        "vllm:num_requests_running{engine=\"3\",model_name=\"dsv41-flash-w4\"}": 42.0,
+        "vllm:num_requests_running{engine=\"4\",model_name=\"dsv41-flash-w4\"}": 42.0,
+        "vllm:num_requests_running{engine=\"5\",model_name=\"dsv41-flash-w4\"}": 42.0,
+        "vllm:num_requests_running{engine=\"6\",model_name=\"dsv41-flash-w4\"}": 42.0,
+        "vllm:num_requests_running{engine=\"7\",model_name=\"dsv41-flash-w4\"}": 42.0
+      }
+    },
+    "memory": {
+      "baseline32": {
+        "memory_log_lines": [
+          "(Worker_DP5_EP5 pid=1847464) INFO 11-20 12:47:20 [model_runner.py:428] Model loading took 45.57 GiB memory and 207.557670 seconds",
+          "(Worker_DP7_EP7 pid=1847592) INFO 11-20 12:47:20 [model_runner.py:428] Model loading took 45.57 GiB memory and 207.853979 seconds",
+          "(Worker_DP0_EP0 pid=1847556) INFO 11-20 12:47:20 [model_runner.py:428] Model loading took 45.57 GiB memory and 207.334848 seconds",
+          "(Worker_DP2_EP2 pid=1847502) INFO 11-20 12:47:21 [model_runner.py:428] Model loading took 45.57 GiB memory and 207.991014 seconds",
+          "(Worker_DP4_EP4 pid=1847574) INFO 11-20 12:47:21 [model_runner.py:428] Model loading took 45.57 GiB memory and 208.327234 seconds",
+          "(Worker_DP6_EP6 pid=1847520) INFO 11-20 12:47:29 [model_runner.py:428] Model loading took 45.57 GiB memory and 216.252245 seconds",
+          "(Worker_DP1_EP1 pid=1847482) INFO 11-20 12:47:31 [model_runner.py:428] Model loading took 45.57 GiB memory and 219.470738 seconds",
+          "(Worker_DP3_EP3 pid=1847538) INFO 11-20 12:47:33 [model_runner.py:428] Model loading took 45.57 GiB memory and 221.003931 seconds",
+          "(Worker_DP4_EP4 pid=1847574) INFO 11-20 12:48:26 [model_runner.py:1163] Graph capturing finished in 31 secs, took 2.62 GiB",
+          "(Worker_DP1_EP1 pid=1847482) INFO 11-20 12:48:26 [model_runner.py:1163] Graph capturing finished in 23 secs, took 2.62 GiB",
+          "(Worker_DP2_EP2 pid=1847502) INFO 11-20 12:48:26 [model_runner.py:1163] Graph capturing finished in 31 secs, took 2.62 GiB",
+          "(Worker_DP3_EP3 pid=1847538) INFO 11-20 12:48:26 [model_runner.py:1163] Graph capturing finished in 21 secs, took 2.62 GiB",
+          "(Worker_DP6_EP6 pid=1847520) INFO 11-20 12:48:26 [model_runner.py:1163] Graph capturing finished in 29 secs, took 2.62 GiB",
+          "(Worker_DP0_EP0 pid=1847556) INFO 11-20 12:48:26 [model_runner.py:1163] Graph capturing finished in 31 secs, took 2.62 GiB",
+          "(Worker_DP7_EP7 pid=1847592) INFO 11-20 12:48:26 [model_runner.py:1163] Graph capturing finished in 31 secs, took 2.62 GiB",
+          "(Worker_DP5_EP5 pid=1847464) INFO 11-20 12:48:26 [model_runner.py:1163] Graph capturing finished in 31 secs, took 2.62 GiB",
+          "(EngineCore_DP4 pid=1842892) INFO 11-20 12:48:26 [kv_cache_utils.py:1147] GPU KV cache size: 11,801,147 tokens, Maximum concurrency for 32,768 tokens per request: 360.14x",
+          "(EngineCore_DP2 pid=1842890) INFO 11-20 12:48:27 [kv_cache_utils.py:1147] GPU KV cache size: 11,801,147 tokens, Maximum concurrency for 32,768 tokens per request: 360.14x",
+          "(EngineCore_DP6 pid=1842894) INFO 11-20 12:48:27 [kv_cache_utils.py:1147] GPU KV cache size: 11,801,147 tokens, Maximum concurrency for 32,768 tokens per request: 360.14x",
+          "(EngineCore_DP3 pid=1842891) INFO 11-20 12:48:27 [kv_cache_utils.py:1147] GPU KV cache size: 11,801,147 tokens, Maximum concurrency for 32,768 tokens per request: 360.14x",
+          "(Worker_DP0_EP0 pid=1847556) INFO 11-20 12:48:27 [gpu_worker.py:772] Available KV cache memory: 25.08 GiB",
+          "(EngineCore_DP0 pid=1842888) INFO 11-20 12:48:27 [kv_cache_utils.py:1147] GPU KV cache size: 11,860,288 tokens, Maximum concurrency for 32,768 tokens per request: 361.95x",
+          "(EngineCore_DP1 pid=1842889) INFO 11-20 12:48:27 [kv_cache_utils.py:1147] GPU KV cache size: 11,801,147 tokens, Maximum concurrency for 32,768 tokens per request: 360.14x",
+          "(EngineCore_DP5 pid=1842893) INFO 11-20 12:48:27 [kv_cache_utils.py:1147] GPU KV cache size: 11,801,147 tokens, Maximum concurrency for 32,768 tokens per request: 360.14x",
+          "(EngineCore_DP7 pid=1842895) INFO 11-20 12:48:27 [kv_cache_utils.py:1147] GPU KV cache size: 11,889,836 tokens, Maximum concurrency for 32,768 tokens per request: 362.85x",
+          "(Worker_DP4_EP4 pid=1847574) INFO 11-20 12:48:54 [model_runner.py:1163] Graph capturing finished in 13 secs, took 2.36 GiB",
+          "(Worker_DP5_EP5 pid=1847464) INFO 11-20 12:48:54 [model_runner.py:1163] Graph capturing finished in 13 secs, took 2.36 GiB",
+          "(Worker_DP2_EP2 pid=1847502) INFO 11-20 12:48:54 [model_runner.py:1163] Graph capturing finished in 13 secs, took 2.36 GiB",
+          "(Worker_DP6_EP6 pid=1847520) INFO 11-20 12:48:54 [model_runner.py:1163] Graph capturing finished in 13 secs, took 2.36 GiB",
+          "(Worker_DP3_EP3 pid=1847538) INFO 11-20 12:48:54 [model_runner.py:1163] Graph capturing finished in 13 secs, took 2.36 GiB",
+          "(Worker_DP7_EP7 pid=1847592) INFO 11-20 12:48:54 [model_runner.py:1163] Graph capturing finished in 13 secs, took 2.36 GiB",
+          "(Worker_DP0_EP0 pid=1847556) INFO 11-20 12:48:55 [model_runner.py:1163] Graph capturing finished in 13 secs, took 2.36 GiB",
+          "(Worker_DP1_EP1 pid=1847482) INFO 11-20 12:48:55 [model_runner.py:1163] Graph capturing finished in 14 secs, took 2.36 GiB"
+        ],
+        "oom_error_lines": []
+      },
+      "candidate64": {
+        "memory_log_lines": [
+          "(Worker_DP3_EP3 pid=1996684) INFO 11-20 15:23:53 [model_runner.py:428] Model loading took 45.57 GiB memory and 88.880170 seconds",
+          "(Worker_DP0_EP0 pid=1996771) INFO 11-20 15:23:53 [model_runner.py:428] Model loading took 45.57 GiB memory and 88.852194 seconds",
+          "(Worker_DP2_EP2 pid=1996720) INFO 11-20 15:23:54 [model_runner.py:428] Model loading took 45.57 GiB memory and 88.848429 seconds",
+          "(Worker_DP5_EP5 pid=1996810) INFO 11-20 15:23:54 [model_runner.py:428] Model loading took 45.57 GiB memory and 89.421572 seconds",
+          "(Worker_DP6_EP6 pid=1996702) INFO 11-20 15:23:54 [model_runner.py:428] Model loading took 45.57 GiB memory and 89.293085 seconds",
+          "(Worker_DP7_EP7 pid=1996789) INFO 11-20 15:23:54 [model_runner.py:428] Model loading took 45.57 GiB memory and 89.562690 seconds",
+          "(Worker_DP1_EP1 pid=1996738) INFO 11-20 15:23:55 [model_runner.py:428] Model loading took 45.57 GiB memory and 89.806647 seconds",
+          "(Worker_DP4_EP4 pid=1996792) INFO 11-20 15:23:56 [model_runner.py:428] Model loading took 45.57 GiB memory and 91.351584 seconds",
+          "(Worker_DP7_EP7 pid=1996789) INFO 11-20 15:25:12 [model_runner.py:1163] Graph capturing finished in 67 secs, took 2.61 GiB",
+          "(Worker_DP1_EP1 pid=1996738) INFO 11-20 15:25:12 [model_runner.py:1163] Graph capturing finished in 66 secs, took 2.61 GiB",
+          "(Worker_DP5_EP5 pid=1996810) INFO 11-20 15:25:12 [model_runner.py:1163] Graph capturing finished in 67 secs, took 2.61 GiB",
+          "(Worker_DP3_EP3 pid=1996684) INFO 11-20 15:25:13 [model_runner.py:1163] Graph capturing finished in 67 secs, took 2.61 GiB",
+          "(Worker_DP6_EP6 pid=1996702) INFO 11-20 15:25:13 [model_runner.py:1163] Graph capturing finished in 67 secs, took 2.61 GiB",
+          "(Worker_DP4_EP4 pid=1996792) INFO 11-20 15:25:13 [model_runner.py:1163] Graph capturing finished in 67 secs, took 2.61 GiB",
+          "(Worker_DP2_EP2 pid=1996720) INFO 11-20 15:25:13 [model_runner.py:1163] Graph capturing finished in 67 secs, took 2.61 GiB",
+          "(Worker_DP0_EP0 pid=1996771) INFO 11-20 15:25:13 [model_runner.py:1163] Graph capturing finished in 68 secs, took 2.61 GiB",
+          "(EngineCore_DP7 pid=1991803) INFO 11-20 15:25:13 [kv_cache_utils.py:1147] GPU KV cache size: 11,631,566 tokens, Maximum concurrency for 32,768 tokens per request: 354.97x",
+          "(EngineCore_DP1 pid=1991797) INFO 11-20 15:25:13 [kv_cache_utils.py:1147] GPU KV cache size: 11,542,924 tokens, Maximum concurrency for 32,768 tokens per request: 352.26x",
+          "(EngineCore_DP5 pid=1991801) INFO 11-20 15:25:13 [kv_cache_utils.py:1147] GPU KV cache size: 11,542,924 tokens, Maximum concurrency for 32,768 tokens per request: 352.26x",
+          "(EngineCore_DP2 pid=1991798) INFO 11-20 15:25:13 [kv_cache_utils.py:1147] GPU KV cache size: 11,542,924 tokens, Maximum concurrency for 32,768 tokens per request: 352.26x",
+          "(EngineCore_DP6 pid=1991802) INFO 11-20 15:25:13 [kv_cache_utils.py:1147] GPU KV cache size: 11,542,924 tokens, Maximum concurrency for 32,768 tokens per request: 352.26x",
+          "(EngineCore_DP3 pid=1991799) INFO 11-20 15:25:14 [kv_cache_utils.py:1147] GPU KV cache size: 11,542,924 tokens, Maximum concurrency for 32,768 tokens per request: 352.26x",
+          "(EngineCore_DP4 pid=1991800) INFO 11-20 15:25:14 [kv_cache_utils.py:1147] GPU KV cache size: 11,542,924 tokens, Maximum concurrency for 32,768 tokens per request: 352.26x",
+          "(Worker_DP0_EP0 pid=1996771) INFO 11-20 15:25:14 [gpu_worker.py:772] Available KV cache memory: 24.53 GiB",
+          "(EngineCore_DP0 pid=1991796) INFO 11-20 15:25:14 [kv_cache_utils.py:1147] GPU KV cache size: 11,602,019 tokens, Maximum concurrency for 32,768 tokens per request: 354.07x",
+          "(Worker_DP4_EP4 pid=1996792) INFO 11-20 15:26:57 [model_runner.py:1163] Graph capturing finished in 67 secs, took 2.36 GiB",
+          "(Worker_DP3_EP3 pid=1996684) INFO 11-20 15:26:57 [model_runner.py:1163] Graph capturing finished in 67 secs, took 2.36 GiB",
+          "(Worker_DP6_EP6 pid=1996702) INFO 11-20 15:26:57 [model_runner.py:1163] Graph capturing finished in 67 secs, took 2.36 GiB",
+          "(Worker_DP2_EP2 pid=1996720) INFO 11-20 15:26:57 [model_runner.py:1163] Graph capturing finished in 67 secs, took 2.36 GiB",
+          "(Worker_DP1_EP1 pid=1996738) INFO 11-20 15:26:58 [model_runner.py:1163] Graph capturing finished in 68 secs, took 2.36 GiB",
+          "(Worker_DP5_EP5 pid=1996810) INFO 11-20 15:26:58 [model_runner.py:1163] Graph capturing finished in 68 secs, took 2.36 GiB",
+          "(Worker_DP7_EP7 pid=1996789) INFO 11-20 15:26:58 [model_runner.py:1163] Graph capturing finished in 68 secs, took 2.36 GiB",
+          "(Worker_DP0_EP0 pid=1996771) INFO 11-20 15:26:58 [model_runner.py:1163] Graph capturing finished in 68 secs, took 2.36 GiB"
+        ],
+        "oom_error_lines": []
+      }
+    },
+    "traces": [
+      {
+        "path": "/public2/home/duyunlong/run/dsv4.1/033/maxseq64_capacity_fix_20261120/service64_final/performance/20261120_151938_prof_w4_9roI9i/torch_profiler/dp0_pp0_tp0_dcp0_ep0_rank0.1795159871577081656.pt.trace.json.gz",
+        "sha256": "e21686dd1812aeec604b8d368e9b366748cacb617905960d43066e3430bb8ede",
+        "complete_gpu_step_median_ms": 71.23684887695313,
+        "target_wall_median_ms": 65.270051,
+        "draft_and_sampling_wall_median_ms": 5.979919,
+        "full_target_graph": true,
+        "target_shapes": {
+          "execute_context_0(0)_generation_8(48)": 10
+        },
+        "target_span_count": 10,
+        "draft_span_count": 10
+      },
+      {
+        "path": "/public2/home/duyunlong/run/dsv4.1/033/maxseq64_capacity_fix_20261120/service64_final/performance/20261120_151938_prof_w4_9roI9i/torch_profiler/dp1_pp0_tp0_dcp0_ep1_rank0.1795159871554115721.pt.trace.json.gz",
+        "sha256": "92ba01760d429e7d88e87d6a53ad94955873cafdeeb02749c084cf03c8a95ca9",
+        "complete_gpu_step_median_ms": 71.24843798828125,
+        "target_wall_median_ms": 65.163482,
+        "draft_and_sampling_wall_median_ms": 6.072317,
+        "full_target_graph": true,
+        "target_shapes": {
+          "execute_context_0(0)_generation_8(48)": 10
+        },
+        "target_span_count": 10,
+        "draft_span_count": 10
+      },
+      {
+        "path": "/public2/home/duyunlong/run/dsv4.1/033/maxseq64_capacity_fix_20261120/service64_final/performance/20261120_151938_prof_w4_9roI9i/torch_profiler/dp2_pp0_tp0_dcp0_ep2_rank0.1795159871481646704.pt.trace.json.gz",
+        "sha256": "5f7216dc792d1f3314b1e059555850256d2c321ebb7d7bd99d9bd1711d6d595f",
+        "complete_gpu_step_median_ms": 71.23042602539061,
+        "target_wall_median_ms": 65.355227,
+        "draft_and_sampling_wall_median_ms": 5.881600000000001,
+        "full_target_graph": true,
+        "target_shapes": {
+          "execute_context_0(0)_generation_8(48)": 10
+        },
+        "target_span_count": 10,
+        "draft_span_count": 10
+      },
+      {
+        "path": "/public2/home/duyunlong/run/dsv4.1/033/maxseq64_capacity_fix_20261120/service64_final/performance/20261120_151938_prof_w4_9roI9i/torch_profiler/dp3_pp0_tp0_dcp0_ep3_rank0.1795159871634895140.pt.trace.json.gz",
+        "sha256": "0b978896871383087223c4d3cd1549b165d187597399893e5c5bbc9900f24776",
+        "complete_gpu_step_median_ms": 71.23900341796875,
+        "target_wall_median_ms": 65.2465265,
+        "draft_and_sampling_wall_median_ms": 6.0162379999999995,
+        "full_target_graph": true,
+        "target_shapes": {
+          "execute_context_0(0)_generation_8(48)": 10
+        },
+        "target_span_count": 10,
+        "draft_span_count": 10
+      },
+      {
+        "path": "/public2/home/duyunlong/run/dsv4.1/033/maxseq64_capacity_fix_20261120/service64_final/performance/20261120_151938_prof_w4_9roI9i/torch_profiler/dp4_pp0_tp0_dcp0_ep4_rank0.1795159871618421636.pt.trace.json.gz",
+        "sha256": "6acbd7a03b14606041eb1eb1a2d1d9da0a2e7d826f140e5cffdcb87f40eb364c",
+        "complete_gpu_step_median_ms": 71.23878857421874,
+        "target_wall_median_ms": 65.2836015,
+        "draft_and_sampling_wall_median_ms": 5.959758,
+        "full_target_graph": true,
+        "target_shapes": {
+          "execute_context_0(0)_generation_8(48)": 10
+        },
+        "target_span_count": 10,
+        "draft_span_count": 10
+      },
+      {
+        "path": "/public2/home/duyunlong/run/dsv4.1/033/maxseq64_capacity_fix_20261120/service64_final/performance/20261120_151938_prof_w4_9roI9i/torch_profiler/dp5_pp0_tp0_dcp0_ep5_rank0.1795159871451307693.pt.trace.json.gz",
+        "sha256": "282dac54b329a9403f519ac90651a8a7c0ae7a16c408c98c9ec62baccabb4b3f",
+        "complete_gpu_step_median_ms": 71.24220385742187,
+        "target_wall_median_ms": 65.2650545,
+        "draft_and_sampling_wall_median_ms": 5.96016,
+        "full_target_graph": true,
+        "target_shapes": {
+          "execute_context_0(0)_generation_8(48)": 10
+        },
+        "target_span_count": 10,
+        "draft_span_count": 10
+      },
+      {
+        "path": "/public2/home/duyunlong/run/dsv4.1/033/maxseq64_capacity_fix_20261120/service64_final/performance/20261120_151938_prof_w4_9roI9i/torch_profiler/dp6_pp0_tp0_dcp0_ep6_rank0.1795159871598039949.pt.trace.json.gz",
+        "sha256": "6f88ee34d8e1650ac947912894571f4a4784914d43f3a385b9c963c2a98ad3e7",
+        "complete_gpu_step_median_ms": 71.23981323242188,
+        "target_wall_median_ms": 65.2958015,
+        "draft_and_sampling_wall_median_ms": 5.939358,
+        "full_target_graph": true,
+        "target_shapes": {
+          "execute_context_0(0)_generation_8(48)": 10
+        },
+        "target_span_count": 10,
+        "draft_span_count": 10
+      },
+      {
+        "path": "/public2/home/duyunlong/run/dsv4.1/033/maxseq64_capacity_fix_20261120/service64_final/performance/20261120_151938_prof_w4_9roI9i/torch_profiler/dp7_pp0_tp0_dcp0_ep7_rank0.1795159871583523066.pt.trace.json.gz",
+        "sha256": "08e1f13e9f40d08067dc5e7584255c96dc555951be160a041d68ffba6daa1716",
+        "complete_gpu_step_median_ms": 71.2351044921875,
+        "target_wall_median_ms": 65.2772315,
+        "draft_and_sampling_wall_median_ms": 5.9798385,
+        "full_target_graph": true,
+        "target_shapes": {
+          "execute_context_0(0)_generation_8(48)": 10
+        },
+        "target_span_count": 10,
+        "draft_span_count": 10
+      }
+    ],
+    "oom_observed": false,
+    "scope": "Fake-KV decode benchmark, synthetic DSpark acceptance; not real-prefill or accuracy validation. GPU memory peaks are five-second samples, not instantaneous maxima."
+  },
+  "operator_checks": {
+    "dynamic_gpu": {
+      "artifact": "/public2/home/duyunlong/run/dsv4.1/033/maxseq64_capacity_fix_20261120/checks/dynamic_gpu.json",
+      "sha256": "bcc28388609e7bc827deb8f4ff0ad983ee22e2b81a4abfc89e22fa36d126dbef",
+      "passed": true,
+      "receiver_count": 25,
+      "greedy_count": 5
+    },
+    "clamped_2560": {
+      "artifact": "/public2/home/duyunlong/run/dsv4.1/033/maxseq64_capacity_fix_20261120/checks/clamped_2560.json",
+      "sha256": "0dc6f6682872a2d06d9411da414b9c1da02a66ebcc48f83d9558ec4a40afa2bc",
+      "passed": true,
+      "status": "passed",
+      "cases_count": 50
+    },
+    "wo_a_rows": {
+      "artifact": "/public2/home/duyunlong/run/dsv4.1/033/maxseq64_capacity_fix_20261120/checks/wo_a_rows.json",
+      "sha256": "f4b2f89f998507057002772329983c978afba93615d4199dd02ddf27504f43bc",
+      "unit_gate_passed": true,
+      "eager_count": 720,
+      "graph_replays_count": 600
+    },
+    "qkv_rows": {
+      "artifact": "/public2/home/duyunlong/run/dsv4.1/033/maxseq64_capacity_fix_20261120/checks/qkv_rows.json",
+      "sha256": "6f72b7cd4bce0363f98bd20131f419cb129972bff65ef3f6bb3ece3297705490",
+      "accepted": true,
+      "eager_count": 210,
+      "replays_count": 75
+    },
+    "rms_rows_v2": {
+      "artifact": "/public2/home/duyunlong/run/dsv4.1/033/maxseq64_capacity_fix_20261120/checks/rms_rows_v2.json",
+      "sha256": "654fa911d2a9aadf7f8f65c9578056a32d2137c052144ddb5ebe0465d1204190",
+      "passed": true,
+      "completed": true,
+      "graphs_count": 224,
+      "normalized_cases_count": 2408,
+      "consumer_cases_count": 224,
+      "edge_cases_count": 476,
+      "bf16_consumers_count": 56
+    },
+    "rms_dispatch": {
+      "artifact": "/public2/home/duyunlong/run/dsv4.1/033/maxseq64_capacity_fix_20261120/checks/rms_dispatch.json",
+      "sha256": "2b814f5cc8c7d8e8a8cb369997681c0a8c700056f96e5e29dc5e6e7784605c94",
+      "cases": 160
+    },
+    "mhc_rows": {
+      "artifact": "/public2/home/duyunlong/run/dsv4.1/033/maxseq64_capacity_fix_20261120/checks/mhc_rows.json",
+      "sha256": "11a504a1030de65b497ebe4071019b605c1e06526ee373c7ec9eba9c29363c8a",
+      "passed": true,
+      "completed": true,
+      "eager_checks": 1440,
+      "graph_checks": 720
+    },
+    "mhc_scalars": {
+      "artifact": "/public2/home/duyunlong/run/dsv4.1/033/maxseq64_capacity_fix_20261120/checks/mhc_scalars.json",
+      "sha256": "27a31b4980b39859ff743f970152a06de018331f9789bd566305a3dcf5025647",
+      "passed": true,
+      "completed": true,
+      "eager_checks": 192,
+      "graph_checks": 96
+    },
+    "mhc_registered_rows": {
+      "artifact": "/public2/home/duyunlong/run/dsv4.1/033/maxseq64_capacity_fix_20261120/checks/mhc_registered_rows.json",
+      "sha256": "12b11f05fc43ae60e1cb8cc56ed43ce8df895d28a11423b697a4234fb8a01a77",
+      "passed": true,
+      "fake_checked": true,
+      "eager_count": 12,
+      "graphs_count": 12
+    },
+    "mhc_post_rows_v2": {
+      "artifact": "/public2/home/duyunlong/run/dsv4.1/033/maxseq64_capacity_fix_20261120/checks/mhc_post_rows_v2.json",
+      "sha256": "1ef6a8cc33ff80a0d7f8af07e3ec5ae7ba41fec7b5462025cee0abd03d262714",
+      "all_bf16_byte_exact": true,
+      "graph_replays_count": 25,
+      "eager_cases_count": 63
+    },
+    "hints_serving_e16": {
+      "artifact": "/public2/home/duyunlong/run/dsv4.1/033/maxseq64_capacity_fix_20261120/checks/hints_serving_e16.json",
+      "sha256": "ad44598b83a9e061d485aed68b41f47efec8026fda6f9c722a40478ec3d36ede",
+      "status": "passed",
+      "gemm_cases_count": 43
+    },
+    "hints_serving_e48": {
+      "artifact": "/public2/home/duyunlong/run/dsv4.1/033/maxseq64_capacity_fix_20261120/checks/hints_serving_e48.json",
+      "sha256": "9cddceb4aa35d028671b0497c96aef8db5ae05d724d07ca989b199745eee7a8e",
+      "status": "passed",
+      "gemm_cases_count": 43
+    },
+    "probe_mla_selectors_rows": {
+      "artifact": "/public2/home/duyunlong/run/dsv4.1/033/maxseq64_capacity_fix_20261120/checks/probe_mla_selectors_rows.json",
+      "sha256": "b628435f4f167c46c7fc8f02b1e6de14536435f3595ef34f25b20c12bed04ad5",
+      "accepted": true,
+      "eager_count": 240,
+      "graphs_count": 240,
+      "native_consumer_count": 40,
+      "timings_count": 16
+    },
+    "probe_mla_decode_io_rows": {
+      "artifact": "/public2/home/duyunlong/run/dsv4.1/033/maxseq64_capacity_fix_20261120/checks/probe_mla_decode_io_rows.json",
+      "sha256": "e0112b0152eb6c52f0e1fbf753af4383a881e73cec029b6c095521e3df8bf114",
+      "accepted": true,
+      "gate": "all BF16 output bytes exact in eager/dynamic graphs; all inputs immutable",
+      "mask_cases_count": 80,
+      "native_consumer_count": 576,
+      "timings_count": 0
+    },
+    "probe_mla_decode_rope_rows": {
+      "artifact": "/public2/home/duyunlong/run/dsv4.1/033/maxseq64_capacity_fix_20261120/checks/probe_mla_decode_rope_rows.json",
+      "sha256": "93a4726b86d2a1664425a3715b39266f24ef6a82141b86c4e12c4811ebab031a",
+      "accepted": true,
+      "gate": "all BF16 output bytes exact in eager/dynamic graphs; all inputs immutable",
+      "mask_cases_count": 80,
+      "native_consumer_count": 576,
+      "timings_count": 0
+    },
+    "topk_native_rows": {
+      "artifact": "/public2/home/duyunlong/run/dsv4.1/033/maxseq64_capacity_fix_20261120/checks/topk_native_rows.json",
+      "sha256": "5d4dc74189100c7c0a0206270efb2431cb49cd30cca3dd093b6ad403e81e6c05",
+      "passed": true,
+      "eager_count": 96,
+      "graphs_count": 96,
+      "consumer_count": 8,
+      "timings_count": 0
+    },
+    "topk_post_rows": {
+      "artifact": "/public2/home/duyunlong/run/dsv4.1/033/maxseq64_capacity_fix_20261120/checks/topk_post_rows.json",
+      "sha256": "edd1cf32293db4a9d0b578696ac11801a23e9cd7b57030b5960a1d23bf05e0ff",
+      "passed": true,
+      "eager_count": 80,
+      "graphs_count": 80,
+      "timings_count": 0,
+      "refusal_count": 5
+    }
+  },
+  "cpu_tests": {
+    "passed": 287,
+    "note": "286 passed in main group; the actual AOT cache-key test required VLLM_TARGET_ROOT and passed when rerun with the installed native root explicitly set."
+  },
+  "accuracy": {
+    "state": "running",
+    "run": "/public2/home/duyunlong/run/dsv4.1/033/maxseq64_capacity_fix_20261120/accuracy64/he164/20261120_153655",
+    "contract": "real HumanEval164, batch16, natural DSpark, seq64/budget256/length32768; no DecodeBenchConnector"
+  }
+}
