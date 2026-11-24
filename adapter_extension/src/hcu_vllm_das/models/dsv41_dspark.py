@@ -80,7 +80,13 @@ class HcuDSparkDeepseekV41ForCausalLM(HcuDSV41DraftWeightAliasModel):
         if native_ll:
             from hcu_vllm_das.dspark_ll import install_model_entry_reset
             install_model_entry_reset(self, vllm_config, 128)
-        self._hcu_markov_pointwise = native_ll
+        # Markov logits and embeddings remain BF16 for Channel-FP8 drafts.
+        # Their pointwise sampling contract is independent of whether the
+        # expert backend uses native LL or the private AG-RS communicator.
+        # Runtime admission still checks the live head, sampler and buffers.
+        self._hcu_markov_pointwise = (
+            native_ll or _owned_quant_kind(constructor_config) == "channel_fp8"
+        )
 
     def sample_sequential(self, speculator, num_reqs, head_hidden):
         from hcu_vllm_das.dspark_greedy_admission import sample_sequential

@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: Apache-2.0
-"""Instance-owned admission for exact W4A8 greedy draft sampling."""
+"""Instance-owned admission for exact BF16 greedy draft sampling."""
 from functools import lru_cache
 import logging
 import os
@@ -85,7 +85,7 @@ def supported(model, spec, num_reqs, hidden, *, require_qualification=True):
 @lru_cache(maxsize=1)
 def _log_admission():
     logging.getLogger('vllm.' + __name__).info(
-        'HCU W4A8 exact greedy Markov pointwise admitted: V129280 R256; native bias projection retained')
+        'HCU exact greedy Markov pointwise admitted: V129280 R256; native bias projection retained')
 
 
 @torch.inference_mode()
